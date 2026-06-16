@@ -77,7 +77,7 @@ npm start
 
 <h3>User profile page</h3>
 
-![user profile page](https://github.com/user-attachments/assets/5786d46b-29a8-44c2-ad52-3a794ce954c9)
+![user profile page](https://github.com/user-attachments/assets/5786d29b-29a8-44c2-ad52-3a794ce954c9)
 
 
 <h3>Order history page</h3>
