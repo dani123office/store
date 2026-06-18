@@ -1,52 +1,47 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import customFetch from "../axios/custom";
 import toast from "react-hot-toast";
-import { HiPencilSquare, HiTrash, HiPlus, HiXMark, HiChevronLeft, HiChevronRight } from "react-icons/hi2";
+import {
+  HiPencilSquare, HiTrash, HiPlus, HiChevronLeft, HiChevronRight,
+  HiOutlineShoppingBag, HiOutlineMagnifyingGlass,
+} from "react-icons/hi2";
 import { Link, useNavigate } from "react-router-dom";
 import ConfirmModal from "../components/ConfirmModal";
 
 const ROWS_PER_PAGE = 10;
 
+const SkeletonRow = () => (
+  <tr className="border-t border-[#e0e0e0]">
+    {[0, 1, 2, 3, 4, 5].map((i) => (
+      <td key={i} className="py-3 px-5">
+        <div className="h-4 bg-gray-100 rounded skeleton-shimmer" style={{ width: i === 0 ? "40px" : i === 5 ? "60px" : "80%", height: i === 0 ? "40px" : "16px" }} />
+      </td>
+    ))}
+  </tr>
+);
+
 const AdminProducts = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
-  const [showForm, setShowForm] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [stockFilter, setStockFilter] = useState("");
   const [page, setPage] = useState(1);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectAll, setSelectAll] = useState(false);
 
-  const [form, setForm] = useState({
-    title: "", category: "special-edition", price: "", stock: "",
-    image: "", popularity: "1",
-  });
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
     try {
       const res = await customFetch.get("/products");
       setProducts(res.data);
     } catch (e) { console.error(e); }
-  };
+    finally { setLoading(false); }
+  }, []);
 
-  useEffect(() => { fetchProducts(); }, []);
-
-  const resetForm = () => {
-    setForm({ title: "", category: "special-edition", price: "", stock: "", image: "", popularity: "1" });
-    setEditingProduct(null);
-    setShowForm(false);
-  };
-
-  const handleEdit = (product: Product) => {
-    setEditingProduct(product);
-    setForm({
-      title: product.title, category: product.category,
-      price: String(product.price), stock: String(product.stock),
-      image: product.image, popularity: String(product.popularity),
-    });
-    setShowForm(true);
-  };
+  useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -57,24 +52,15 @@ const AdminProducts = () => {
     } catch { toast.error("Failed to delete"); }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const payload = {
-      title: form.title, category: form.category, price: Number(form.price),
-      stock: Number(form.stock), image: form.image || "product image 1.jpg",
-      popularity: Number(form.popularity),
-    };
+  const handleBulkDelete = async () => {
+    if (selected.size === 0) return;
     try {
-      if (editingProduct) {
-        await customFetch.put(`/products/${editingProduct.id}`, payload);
-        toast.success("Product updated");
-      } else {
-        await customFetch.post("/products", payload);
-        toast.success("Product added");
-      }
-      resetForm();
+      await Promise.all(Array.from(selected).map((id) => customFetch.delete(`/products/${id}`)));
+      toast.success(`${selected.size} product${selected.size > 1 ? "s" : ""} deleted`);
+      setSelected(new Set());
+      setSelectAll(false);
       fetchProducts();
-    } catch { toast.error("Something went wrong"); }
+    } catch { toast.error("Failed to delete some products"); }
   };
 
   const categories = useMemo(() => {
@@ -98,13 +84,28 @@ const AdminProducts = () => {
   const totalPages = Math.ceil(filtered.length / ROWS_PER_PAGE);
   const paginated = filtered.slice((page - 1) * ROWS_PER_PAGE, page * ROWS_PER_PAGE);
 
-  useEffect(() => { setPage(1); }, [search, categoryFilter, stockFilter]);
+  useEffect(() => { setPage(1); setSelected(new Set()); setSelectAll(false); }, [search, categoryFilter, stockFilter]);
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectAll) { setSelected(new Set()); setSelectAll(false); }
+    else { setSelected(new Set(paginated.map((p) => p.id))); setSelectAll(true); }
+  };
 
   const stockBadge = (stock: number) => {
     if (stock === 0) return { label: "Out of Stock", bg: "bg-[#fef1ee]", text: "text-[#d72c0d]" };
     if (stock <= 15) return { label: "Low Stock", bg: "bg-[#fff5e6]", text: "text-[#b8860b]" };
     return { label: "In Stock", bg: "bg-[#f1f8f5]", text: "text-[#008060]" };
   };
+
+  const hasActiveFilters = search || categoryFilter || stockFilter;
 
   return (
     <div>
@@ -127,118 +128,20 @@ const AdminProducts = () => {
         </Link>
       </div>
 
-      {showForm && (
-        <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/20" onClick={resetForm} />
-          <div className="absolute right-0 top-0 bottom-0 w-full max-w-lg bg-white shadow-xl overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#e0e0e0]">
-              <h2 className="text-base font-semibold text-[#202223]">
-                {editingProduct ? "Edit Product" : "Add Product"}
-              </h2>
-              <button onClick={resetForm} className="text-[#6d7175] hover:text-[#202223]">
-                <HiXMark className="text-xl" />
-              </button>
-            </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-[#202223] mb-1">Title</label>
-                <input type="text" required value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#202223] mb-1">Category</label>
-                <select value={form.category}
-                  onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] bg-white"
-                >
-                  <option value="special-edition">Special Edition</option>
-                  <option value="luxury-collection">Luxury Collection</option>
-                  <option value="summer-edition">Summer Edition</option>
-                  <option value="unique-collection">Unique Collection</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-[#202223] mb-1">Price (Rs.)</label>
-                  <input type="number" required min="0" value={form.price}
-                    onChange={(e) => setForm({ ...form, price: e.target.value })}
-                    className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#202223] mb-1">Stock</label>
-                  <input type="number" required min="0" value={form.stock}
-                    onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                    className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#202223] mb-1">Image</label>
-                <div className="flex items-start gap-4">
-                  <div className="flex-1">
-                    <input type="text" value={form.image}
-                      onChange={(e) => setForm({ ...form, image: e.target.value })}
-                      placeholder="product image 1.jpg"
-                      className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] mb-2"
-                    />
-                    <label className="flex items-center gap-2 cursor-pointer bg-[#f1f1f1] hover:bg-[#e5e5e5] text-sm font-medium px-4 py-2 rounded-lg text-[#202223] transition-colors w-fit">
-                      <HiPlus className="text-base" />
-                      Upload Image
-                      <input type="file" accept="image/*" className="hidden"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          const fd = new FormData();
-                          fd.append("file", file);
-                          try {
-                            const res = await customFetch.post("/upload", fd);
-                            setForm({ ...form, image: res.data.filename });
-                            toast.success("Image uploaded");
-                          } catch { toast.error("Upload failed"); }
-                          e.target.value = "";
-                        }}
-                      />
-                    </label>
-                  </div>
-                  {form.image && (
-                    <img src={`/assets/${form.image}`} alt="preview"
-                      onError={(e) => { (e.target as HTMLImageElement).src = "https://via.placeholder.com/80?text=No+Image"; }}
-                      className="w-20 h-20 object-cover rounded border border-[#e0e0e0] flex-shrink-0"
-                    />
-                  )}
-                </div>
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button type="submit"
-                  className="bg-[#008060] text-white text-sm font-medium px-6 py-2.5 rounded-lg hover:bg-[#006e52] transition-colors"
-                >
-                  {editingProduct ? "Update" : "Add Product"}
-                </button>
-                <button type="button" onClick={resetForm}
-                  className="border border-[#e0e0e0] text-sm font-medium px-6 py-2.5 rounded-lg text-[#6d7175] hover:bg-[#f1f1f1] transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
-        <input type="text" placeholder="Search products..." value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] w-60"
-        />
+        <div className="relative">
+          <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6d7175] text-sm" />
+          <input type="text" placeholder="Search products..." value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border border-[#e0e0e0] rounded-lg pl-9 pr-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] w-60"
+          />
+        </div>
         <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}
           className="border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] bg-white"
         >
           <option value="">All Categories</option>
-          {categories.map((cat) => (
+          {categories.length > 0 && categories.map((cat) => (
             <option key={cat} value={cat}>{cat.replace(/-/g, " ")}</option>
           ))}
         </select>
@@ -250,94 +153,140 @@ const AdminProducts = () => {
           <option value="low">Low Stock (1-15)</option>
           <option value="out">Out of Stock (0)</option>
         </select>
-        <span className="text-xs text-[#6d7175] ml-auto">
+        <span className="text-xs font-medium text-[#6d7175] leading-[38px]">
           {filtered.length} product{filtered.length !== 1 ? "s" : ""}
         </span>
       </div>
+
+      {/* Bulk actions bar */}
+      {selected.size > 0 && (
+        <div className="flex items-center gap-3 mb-3 px-4 py-2 bg-[#f1f8f5] border border-[#d1e7dd] rounded-lg text-sm">
+          <span className="text-[#008060] font-medium">{selected.size} selected</span>
+          <button onClick={handleBulkDelete}
+            className="flex items-center gap-1.5 text-[#d72c0d] hover:text-[#b8200a] font-medium transition-colors">
+            <HiTrash className="text-sm" />
+            Delete Selected
+          </button>
+        </div>
+      )}
 
       {/* Table */}
       <div className="bg-white border border-[#e0e0e0] rounded-lg overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-[#fafafa]">
-              <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase w-14">Image</th>
-              <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase">Title</th>
-              <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase">Category</th>
-              <th className="text-right py-3 px-5 text-xs font-medium text-[#6d7175] uppercase">Price</th>
-              <th className="text-right py-3 px-5 text-xs font-medium text-[#6d7175] uppercase">Stock</th>
-              <th className="text-right py-3 px-5 text-xs font-medium text-[#6d7175] uppercase w-24">Actions</th>
+            <tr className="bg-[#fafafa] border-b border-[#e0e0e0]">
+              <th className="w-12 px-3 py-3">
+                <input type="checkbox"
+                  checked={selectAll && paginated.length > 0}
+                  onChange={toggleSelectAll}
+                  className="rounded border-gray-300 text-[#008060] focus:ring-[#008060] cursor-pointer"
+                />
+              </th>
+              <th className="text-left py-3 pl-1 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Image</th>
+              <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Title</th>
+              <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Category</th>
+              <th className="text-right py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Price</th>
+              <th className="text-right py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Stock</th>
+              <th className="text-right py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase w-24">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {paginated.map((product) => {
-              const badge = stockBadge(product.stock);
-              return (
-                <tr key={product.id} className="border-t border-[#e0e0e0] hover:bg-[#f5f5f5] transition-colors">
-                  <td className="py-2 px-5">
-                    <img src={`/assets/${product.image}`} alt={product.title}
-                      className="w-10 h-10 object-cover rounded"
-                      onError={(e) => { (e.target as HTMLImageElement).src = "https://via.placeholder.com/40?text=N/A"; }}
-                    />
-                  </td>
-                  <td className="py-3 px-5 font-medium text-[#202223]">{product.title}</td>
-                  <td className="py-3 px-5 text-[#6d7175] text-xs uppercase tracking-wider">{product.category.replace(/-/g, " ")}</td>
-                  <td className="py-3 px-5 text-right font-medium tabular-nums">Rs.{product.price.toLocaleString()}</td>
-                  <td className="py-3 px-5 text-right">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${badge.text.replace("text", "bg")}`} />
-                      {badge.label}
-                    </span>
-                  </td>
-                  <td className="py-3 px-5 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button onClick={() => navigate(`/admin/products/edit/${product.id}`)}
-                        className="p-1.5 hover:bg-[#f1f1f1] rounded text-[#6d7175] hover:text-[#2c6ecb] transition-colors"
-                        title="Edit product">
-                        <HiPencilSquare className="text-base" />
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
+            ) : paginated.length > 0 ? (
+              paginated.map((product) => {
+                const badge = stockBadge(product.stock);
+                return (
+                  <tr key={product.id} className="border-t border-[#e0e0e0] hover:bg-[#f5f5f5] transition-colors">
+                    <td className="px-3 py-3 text-center">
+                      <input type="checkbox"
+                        checked={selected.has(product.id)}
+                        onChange={() => toggleSelect(product.id)}
+                        className="rounded border-gray-300 text-[#008060] focus:ring-[#008060] cursor-pointer"
+                      />
+                    </td>
+                    <td className="py-2 pl-1 pr-5">
+                      <img src={`/assets/${product.image}`} alt={product.title}
+                        className="w-10 h-10 object-cover rounded"
+                        onError={(e) => { (e.target as HTMLImageElement).src = "https://via.placeholder.com/40?text=N/A"; }}
+                      />
+                    </td>
+                    <td className="py-3 px-5 font-medium text-[#202223]">{product.title}</td>
+                    <td className="py-3 px-5 text-[#6d7175] text-xs uppercase tracking-wider">{product.category.replace(/-/g, " ")}</td>
+                    <td className="py-3 px-5 text-right font-medium tabular-nums">Rs.{product.price.toLocaleString()}</td>
+                    <td className="py-3 px-5 text-right">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${badge.text.replace("text", "bg")}`} />
+                        {badge.label}
+                      </span>
+                    </td>
+                    <td className="py-3 px-5 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => navigate(`/admin/products/edit/${product.id}`)}
+                          className="p-1.5 hover:bg-[#f1f1f1] rounded text-[#6d7175] hover:text-[#2c6ecb] transition-colors"
+                          title="Edit product">
+                          <HiPencilSquare className="text-base" />
+                        </button>
+                        <button onClick={() => setConfirmDelete(product.id)}
+                          className="p-1.5 hover:bg-[#f1f1f1] rounded text-[#6d7175] hover:text-[#d72c0d] transition-colors"
+                          title="Delete product">
+                          <HiTrash className="text-base" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={7} className="py-16 text-center">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <HiOutlineShoppingBag className="text-5xl text-[#d0d0d0]" />
+                    <p className="text-base font-medium text-[#202223]">No products found</p>
+                    <p className="text-sm text-[#6d7175] max-w-xs">
+                      {hasActiveFilters
+                        ? "Try adjusting your search or filters to find what you're looking for."
+                        : "Get started by adding your first product to the store."}
+                    </p>
+                    {hasActiveFilters ? (
+                      <button onClick={() => { setSearch(""); setCategoryFilter(""); setStockFilter(""); }}
+                        className="mt-2 text-sm font-medium text-[#2c6ecb] hover:text-[#1a4fa0] transition-colors underline underline-offset-2">
+                        Clear all filters
                       </button>
-                      <button onClick={() => setConfirmDelete(product.id)}
-                        className="p-1.5 hover:bg-[#f1f1f1] rounded text-[#6d7175] hover:text-[#d72c0d] transition-colors"
-                        title="Delete product">
-                        <HiTrash className="text-base" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+                    ) : (
+                      <Link to="/admin/products/add"
+                        className="mt-2 inline-flex items-center gap-2 bg-[#008060] text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-[#006e52] transition-colors">
+                        <HiPlus className="text-base" />
+                        Add Product
+                      </Link>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
-        {paginated.length === 0 && (
-          <p className="text-sm text-[#6d7175] p-6 text-center">No products found.</p>
-        )}
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4 text-sm text-[#6d7175]">
-          <span>
-            Showing {(page - 1) * ROWS_PER_PAGE + 1}-{Math.min(page * ROWS_PER_PAGE, filtered.length)} of {filtered.length}
-          </span>
-          <div className="flex items-center gap-2">
-            <button disabled={page <= 1} onClick={() => setPage(page - 1)}
-              className="p-1.5 rounded hover:bg-[#f1f1f1] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-              <HiChevronLeft className="text-lg" />
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button key={p} onClick={() => setPage(p)}
-                className={`w-8 h-8 rounded text-sm font-medium transition-colors ${
-                  p === page ? "bg-[#008060] text-white" : "hover:bg-[#f1f1f1] text-[#6d7175]"
-                }`}>
-                {p}
-              </button>
-            ))}
-            <button disabled={page >= totalPages} onClick={() => setPage(page + 1)}
-              className="p-1.5 rounded hover:bg-[#f1f1f1] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-              <HiChevronRight className="text-lg" />
-            </button>
-          </div>
+      <div className="flex items-center justify-between mt-4 text-sm text-[#6d7175]">
+        <span>
+          {filtered.length > 0
+            ? `Showing ${(page - 1) * ROWS_PER_PAGE + 1}-${Math.min(page * ROWS_PER_PAGE, filtered.length)} of ${filtered.length} result${filtered.length !== 1 ? "s" : ""}`
+            : "Showing 0 results"}
+        </span>
+        <div className="flex items-center gap-2">
+          <button disabled={page <= 1} onClick={() => setPage(page - 1)}
+            className="p-1.5 rounded hover:bg-[#f1f1f1] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+            <HiChevronLeft className="text-lg" />
+          </button>
+          <span className="text-xs font-medium px-2">{page} of {Math.max(totalPages, 1)}</span>
+          <button disabled={page >= totalPages} onClick={() => setPage(page + 1)}
+            className="p-1.5 rounded hover:bg-[#f1f1f1] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+            <HiChevronRight className="text-lg" />
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 };

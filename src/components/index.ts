@@ -21,3 +21,4 @@ export { default as Dropdown } from "./Dropdown";
 export { default as ScrollToTop } from "./ScrollToTop";
 export { default as ShowingSearchPagination } from "./ShowingSearchPagination";
 export { default as ConfirmModal } from "./ConfirmModal";
+export { default as SearchModal } from "./SearchModal";

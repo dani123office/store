@@ -1,4 +1,45 @@
 {
+  "categories": [
+    { "id": "1", "cat_title": "Unstitched", "cat_img": "", "created_at": null, "updated_at": null },
+    { "id": "2", "cat_title": "Ready To Wear", "cat_img": "", "created_at": null, "updated_at": null },
+    { "id": "3", "cat_title": "Bridals", "cat_img": "", "created_at": null, "updated_at": null },
+    { "id": "4", "cat_title": "Jewellery", "cat_img": "", "created_at": null, "updated_at": null }
+  ],
+  "sub-categories": [
+    { "subcat_id": "1", "cat_id": "1", "subcat_title": "Summer Collection", "subcat_img": "", "handle": "summer-collection", "SEOdescription": "", "SEOtitle": "" },
+    { "subcat_id": "2", "cat_id": "2", "subcat_title": "Winter Collection", "subcat_img": "", "handle": "winter-collection", "SEOdescription": "", "SEOtitle": "" }
+  ],
+  "cat-items": [
+    { "cat_item_id": "1", "subcat_id": "1", "cat_item_title": "Summer Dresses", "cat_item_img": "", "SEOdescription": "", "SEOtitle": "", "handle": "summer-dresses" },
+    { "cat_item_id": "2", "subcat_id": "2", "cat_item_title": "Winter Coats", "cat_item_img": "", "SEOdescription": "", "SEOtitle": "", "handle": "winter-coats" }
+  ],
+  "stores": [
+    {
+      "id": "1",
+      "StoreName": "Zarka Couture",
+      "StoreEmail": "info@zarkaboutique.com",
+      "SenderEmail": "noreply@zarkaboutique.com",
+      "StoreIndustry": "Fashion",
+      "LegalName": "Zarka Couture LLC",
+      "Phone": "+92-300-1234567",
+      "Streets": "123 Fashion Street",
+      "Apartment": "",
+      "City": "Karachi",
+      "ZipCode": "74000",
+      "Country": "Pakistan",
+      "TimeZone": "UTC+5",
+      "UnitSystem": "metric",
+      "WeightUnit": "kg",
+      "Currency": "PKR",
+      "theme_settings": {
+        "hero_slides": [
+          { "image": "hero-1.jpg", "title": "Luxury Redefined", "subtitle": "Discover our latest collection" },
+          { "image": "hero-2.jpg", "title": "Elegance in Every Stitch", "subtitle": "Handcrafted with love" }
+        ],
+        "categories_section": { "enabled": true, "title": "Shop By Category" }
+      }
+    }
+  ],
   "products": [
     {
       "id": "1",

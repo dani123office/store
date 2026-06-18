@@ -28,3 +28,13 @@ export { default as AdminTax } from "./AdminTax";
 export { default as AdminAddProduct } from "./AdminAddProduct";
 export { default as AdminInventory } from "./AdminInventory";
 export { default as AdminTransfers } from "./AdminTransfers";
+export { default as AdminAnalytics } from "./AdminAnalytics";
+export { default as AdminMarketing } from "./AdminMarketing";
+export { default as AdminDiscounts } from "./AdminDiscounts";
+export { default as AdminApps } from "./AdminApps";
+export { default as AdminGiftCards } from "./AdminGiftCards";
+export { default as AdminThemeEditor } from "./AdminThemeEditor";
+export { default as Wishlist } from "./Wishlist";
+export { default as AdminMedia } from "./AdminMedia";
+export { default as AdminSEO } from "./AdminSEO";
+

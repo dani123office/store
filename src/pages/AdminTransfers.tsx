@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   HiOutlineDocumentArrowDown,
   HiPlus, HiOutlineInformationCircle,
@@ -28,18 +27,32 @@ const initialTransfers: Transfer[] = [
 ];
 
 const statusBadge = (status: Status) => {
-  const map: Record<Status, { bg: string; text: string; dot: string }> = {
-    "Ready to Ship": { bg: "bg-[#fff5e6]", text: "text-[#b8860b]", dot: "bg-[#b8860b]" },
-    "In Progress": { bg: "bg-[#f1f8fe]", text: "text-[#2c6ecb]", dot: "bg-[#2c6ecb]" },
-    "Transferred": { bg: "bg-[#f1f1f1]", text: "text-[#6d7175]", dot: "bg-[#6d7175]" },
-    "Draft": { bg: "bg-[#f6f2fe]", text: "text-[#9c6ade]", dot: "bg-[#9c6ade]" },
-    "Canceled": { bg: "bg-[#fef1ee]", text: "text-[#d72c0d]", dot: "bg-[#d72c0d]" },
+  const map: Record<Status, { bgRing: string; dot: string }> = {
+    "Ready to Ship": { bgRing: "bg-amber-50 text-amber-800 ring-amber-600/20", dot: "bg-amber-500" },
+    "In Progress": { bgRing: "bg-blue-50 text-blue-700 ring-blue-700/10", dot: "bg-blue-500" },
+    "Transferred": { bgRing: "bg-green-50 text-green-700 ring-green-600/20", dot: "bg-green-500" },
+    "Draft": { bgRing: "bg-gray-100 text-gray-700 ring-gray-600/10", dot: "bg-gray-400" },
+    "Canceled": { bgRing: "bg-red-50 text-red-700 ring-red-600/10", dot: "bg-red-500" },
   };
   return map[status];
 };
 
+const formatArrivalDate = (dateStr: string) => {
+  if (!dateStr || dateStr === "—") return "—";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }).format(d);
+  } catch {
+    return dateStr;
+  }
+};
+
 const AdminTransfers = () => {
-  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<Filter>("All");
   const [data, setData] = useState<Transfer[]>(initialTransfers);
 
@@ -115,35 +128,36 @@ const AdminTransfers = () => {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#fafafa] border-b border-[#e0e0e0]">
-                <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase tracking-wider">Transfer ID</th>
-                <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase tracking-wider">Origin</th>
-                <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase tracking-wider">Destination</th>
-                <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase tracking-wider">Status</th>
-                <th className="text-right py-3 px-5 text-xs font-medium text-[#6d7175] uppercase tracking-wider">Received qty</th>
-                <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase tracking-wider">Expected arrival</th>
-                <th className="py-3 pr-5 w-10" />
+                <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Transfer ID</th>
+                <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Origin</th>
+                <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Destination</th>
+                <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Status</th>
+                <th className="text-right py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Received qty</th>
+                <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Expected arrival</th>
+                <th className="py-3 pr-5 w-24 text-right text-xs font-semibold tracking-wider text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((t) => {
                 const badge = statusBadge(t.status);
                 return (
-                  <tr key={t.id} className="border-b border-[#e0e0e0] hover:bg-[#fafafa] transition-colors">
-                    <td className="py-3 px-5 font-medium text-[#2c6ecb]">{t.id}</td>
-                    <td className="py-3 px-5 text-[#202223]">{t.origin}</td>
-                    <td className="py-3 px-5 text-[#202223]">{t.destination}</td>
-                    <td className="py-3 px-5">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
+                  <tr key={t.id} className="border-b border-[#e0e0e0] hover:bg-[#fafafa] transition-colors align-middle">
+                    <td className="py-3 px-5 font-medium text-[#2c6ecb] align-middle">{t.id}</td>
+                    <td className="py-3 px-5 text-[#202223] align-middle leading-relaxed whitespace-pre-line">{t.origin}</td>
+                    <td className="py-3 px-5 text-[#202223] align-middle">{t.destination}</td>
+                    <td className="py-3 px-5 align-middle">
+                      <span className={`inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${badge.bgRing}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${badge.dot}`} />
                         {t.status}
                       </span>
                     </td>
-                    <td className="py-3 px-5 text-right text-[#6d7175]">{t.received}</td>
-                    <td className="py-3 px-5 text-[#6d7175]">{t.expected}</td>
-                    <td className="py-3 pr-5">
+                    <td className="py-3 px-5 text-right text-[#6d7175] align-middle">{t.received}</td>
+                    <td className="py-3 px-5 text-[#6d7175] align-middle">{formatArrivalDate(t.expected)}</td>
+                    <td className="py-3 pr-5 text-right align-middle">
                       <button
                         onClick={() => toast(`Transfer ${t.id} options`)}
-                        className="p-1 text-[#6d7175] hover:text-[#202223] rounded hover:bg-[#f1f1f1] transition-colors"
+                        className="p-2 text-gray-500 hover:text-gray-900 rounded-full hover:bg-gray-100 transition-colors"
+                        title="Options"
                       >
                         <HiOutlineEllipsisVertical className="text-base" />
                       </button>

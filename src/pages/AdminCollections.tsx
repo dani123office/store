@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import customFetch from "../axios/custom";
 import toast from "react-hot-toast";
-import { HiPencilSquare, HiTrash, HiPlus, HiXMark } from "react-icons/hi2";
+import { HiPencilSquare, HiTrash, HiPlus, HiXMark, HiOutlineMagnifyingGlass, HiOutlinePhoto } from "react-icons/hi2";
 import ConfirmModal from "../components/ConfirmModal";
 
 interface Collection {
-  id: string;
+  cat_item_id: string;
   cat_item_title: string;
   cat_item_img: string;
   subcat_id: string;
@@ -15,9 +15,44 @@ interface Collection {
 }
 
 interface SubCategory {
-  id: string;
+  subcat_id: string;
+  cat_id: string;
   subcat_title: string;
+  subcat_img: string;
+  handle: string;
+  SEOdescription: string;
+  SEOtitle: string;
 }
+
+function normalizeItems(data: any[]): Collection[] {
+  return data.map((item) => ({
+    cat_item_id: item.cat_item_id || item.id || "",
+    cat_item_title: item.cat_item_title || "",
+    cat_item_img: item.cat_item_img || "",
+    subcat_id: item.subcat_id || "",
+    handle: item.handle || "",
+    SEOdescription: item.SEOdescription || "",
+    SEOtitle: item.SEOtitle || "",
+  }));
+}
+
+function normalizeSubcategories(data: any[]): SubCategory[] {
+  return data.map((item) => ({
+    subcat_id: item.subcat_id || item.id || "",
+    cat_id: item.cat_id || "",
+    subcat_title: item.subcat_title || "",
+    subcat_img: item.subcat_img || "",
+    handle: item.handle || "",
+    SEOdescription: item.SEOdescription || "",
+    SEOtitle: item.SEOtitle || "",
+  }));
+}
+
+const ImgPlaceholder = () => (
+  <div className="w-12 h-12 bg-gray-50 border border-gray-200 rounded-md flex items-center justify-center overflow-hidden flex-shrink-0">
+    <HiOutlinePhoto className="text-gray-300 text-lg" />
+  </div>
+);
 
 const AdminCollections = () => {
   const [items, setItems] = useState<Collection[]>([]);
@@ -29,21 +64,21 @@ const AdminCollections = () => {
     cat_item_title: "", cat_item_img: "", subcat_id: "",
     handle: "", SEOdescription: "", SEOtitle: "",
   });
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ cat_item_id: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [imgError, setImgError] = useState(false);
 
   const fetchData = async () => {
     try {
       const res = await customFetch.get("/cat-items");
-      setItems(res.data);
+      setItems(normalizeItems(res.data));
     } catch (e) { console.error(e); }
   };
 
   const fetchSubcategories = async () => {
     try {
       const res = await customFetch.get("/sub-categories");
-      setSubcategories(res.data);
+      setSubcategories(normalizeSubcategories(res.data));
     } catch (e) { console.error(e); }
   };
 
@@ -71,7 +106,7 @@ const AdminCollections = () => {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      await customFetch.delete(`/cat-items/${deleteTarget.id}`);
+      await customFetch.delete(`/cat-items/${deleteTarget.cat_item_id}`);
       toast.success("Collection deleted");
       fetchData();
     } catch { toast.error("Failed to delete"); }
@@ -82,7 +117,7 @@ const AdminCollections = () => {
     e.preventDefault();
     try {
       if (editing) {
-        await customFetch.put(`/cat-items/${editing.id}`, form);
+        await customFetch.put(`/cat-items/${editing.cat_item_id}`, form);
         toast.success("Collection updated");
       } else {
         await customFetch.post("/cat-items", form);
@@ -94,7 +129,7 @@ const AdminCollections = () => {
   };
 
   const getSubcategoryTitle = (id: string) => {
-    const sc = subcategories.find((s) => s.id === id);
+    const sc = subcategories.find((s) => s.subcat_id === id);
     return sc ? sc.subcat_title : id;
   };
 
@@ -102,8 +137,19 @@ const AdminCollections = () => {
     c.cat_item_title?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const hasActiveFilters = search;
+
   return (
     <div>
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Delete collection"
+        description="Are you sure you want to delete this collection? This action cannot be undone."
+        loading={deleting}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteTarget(null)}
+      />
+
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-semibold text-[#202223]">Collections</h1>
         <button
@@ -136,44 +182,11 @@ const AdminCollections = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#202223] mb-1">Image filename</label>
-                <input type="text" value={form.cat_item_img}
-                  onChange={(e) => { setForm({ ...form, cat_item_img: e.target.value }); setImgError(false); }}
-                  className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]"
-                />
-                <div className="mt-2">
-                  {form.cat_item_img && !imgError ? (
-                    <img
-                      src={`/assets/${form.cat_item_img}`}
-                      alt="preview"
-                      onError={() => setImgError(true)}
-                      className="w-20 h-20 object-cover rounded border border-[#e0e0e0]"
-                    />
-                  ) : (
-                    <div className="w-20 h-20 bg-[#f1f1f1] rounded border border-[#e0e0e0] flex items-center justify-center text-[#6d7175] text-xs">
-                      {form.cat_item_img ? "Invalid image" : "No image"}
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#202223] mb-1">Subcategory</label>
-                <select required value={form.subcat_id}
-                  onChange={(e) => setForm({ ...form, subcat_id: e.target.value })}
-                  className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] bg-white"
-                >
-                  <option value="">Select subcategory</option>
-                  {subcategories.map((sc) => (
-                    <option key={sc.id} value={sc.id}>{sc.subcat_title}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
                 <label className="block text-sm font-medium text-[#202223] mb-1">Image</label>
                 <div className="flex items-start gap-4">
                   <div className="flex-1">
                     <input type="text" value={form.cat_item_img}
-                      onChange={(e) => setForm({ ...form, cat_item_img: e.target.value })}
+                      onChange={(e) => { setForm({ ...form, cat_item_img: e.target.value }); setImgError(false); }}
                       placeholder="collection-image.jpg"
                       className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] mb-2"
                     />
@@ -189,6 +202,7 @@ const AdminCollections = () => {
                           try {
                             const res = await customFetch.post("/upload", fd);
                             setForm({ ...form, cat_item_img: res.data.filename });
+                            setImgError(false);
                             toast.success("Image uploaded");
                           } catch { toast.error("Upload failed"); }
                           e.target.value = "";
@@ -196,13 +210,29 @@ const AdminCollections = () => {
                       />
                     </label>
                   </div>
-                  {form.cat_item_img && (
+                  {form.cat_item_img && !imgError ? (
                     <img src={`/assets/${form.cat_item_img}`} alt="preview"
-                      onError={(e) => { (e.target as HTMLImageElement).src = "https://via.placeholder.com/80?text=No+Image"; }}
+                      onError={() => setImgError(true)}
                       className="w-20 h-20 object-cover rounded border border-[#e0e0e0] flex-shrink-0"
                     />
+                  ) : (
+                    <div className="w-20 h-20 bg-gray-50 border border-gray-200 rounded-md flex items-center justify-center text-[#6d7175] text-xs flex-shrink-0">
+                      {form.cat_item_img ? "Invalid image" : "No image"}
+                    </div>
                   )}
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#202223] mb-1">Subcategory</label>
+                <select required value={form.subcat_id}
+                  onChange={(e) => setForm({ ...form, subcat_id: e.target.value })}
+                  className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] bg-white"
+                >
+                  <option value="">Select subcategory</option>
+                  {subcategories.map((sc) => (
+                    <option key={sc.subcat_id} value={sc.subcat_id}>{sc.subcat_title}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-[#202223] mb-1">SEO Title</label>
@@ -235,64 +265,102 @@ const AdminCollections = () => {
         </div>
       )}
 
+      {/* Search */}
       <div className="mb-4">
-        <input type="text" placeholder="Search collections..." value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full max-w-sm border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]"
-        />
+        <div className="relative w-full max-w-sm">
+          <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6d7175] text-sm" />
+          <input type="text" placeholder="Search collections..." value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full border border-[#e0e0e0] rounded-lg pl-9 pr-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]"
+          />
+        </div>
       </div>
 
+      {/* Table */}
       <div className="bg-white border border-[#e0e0e0] rounded-lg overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-[#fafafa]">
-              <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase">Image</th>
-              <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase">Title</th>
-              <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase">Subcategory</th>
-              <th className="text-right py-3 px-5 text-xs font-medium text-[#6d7175] uppercase">Actions</th>
+            <tr className="bg-[#fafafa] border-b border-[#e0e0e0]">
+              <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase w-20">Image</th>
+              <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Title</th>
+              <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Subcategory</th>
+              <th className="text-right py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase w-28">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((item) => (
-              <tr key={item.id} className="border-t border-[#e0e0e0] hover:bg-[#fafafa]">
-                <td className="py-2 px-5">
-                  {item.cat_item_img ? (
-                    <img src={`/assets/${item.cat_item_img}`} alt={item.cat_item_title} className="w-10 h-10 object-cover rounded" />
-                  ) : (
-                    <div className="w-10 h-10 bg-[#f1f1f1] rounded" />
-                  )}
-                </td>
-                <td className="py-3 px-5 font-medium text-[#202223]">{item.cat_item_title}</td>
-                <td className="py-3 px-5 text-[#6d7175]">{getSubcategoryTitle(item.subcat_id)}</td>
-                <td className="py-3 px-5 text-right">
-                  <div className="flex justify-end gap-1">
-                    <button onClick={() => handleEdit(item)}
-                      className="p-1.5 hover:bg-[#f1f1f1] rounded text-[#6d7175] hover:text-[#2c6ecb]">
-                      <HiPencilSquare className="text-base" />
-                    </button>
-                    <button onClick={() => setDeleteTarget({ id: item.id })}
-                      className="p-1.5 hover:bg-[#f1f1f1] rounded text-[#6d7175] hover:text-[#d72c0d]">
-                      <HiTrash className="text-base" />
-                    </button>
+            {filtered.length > 0 ? (
+              filtered.map((item) => (
+                <tr key={item.cat_item_id} className="border-t border-[#e0e0e0] hover:bg-[#f5f5f5] transition-colors">
+                  <td className="py-3 px-5">
+                    {item.cat_item_img ? (
+                      <div className="w-12 h-12 rounded-md overflow-hidden border border-gray-200 flex-shrink-0">
+                        <img src={`/assets/${item.cat_item_img}`} alt={item.cat_item_title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                            (e.target as HTMLImageElement).parentElement!.classList.add("bg-gray-50", "flex", "items-center", "justify-center");
+                            const icon = document.createElement("div");
+                            icon.innerHTML = "📷";
+                            (e.target as HTMLImageElement).parentElement!.appendChild(icon);
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <ImgPlaceholder />
+                    )}
+                  </td>
+                  <td className="py-3 px-5 font-medium text-[#202223] align-middle">{item.cat_item_title}</td>
+                  <td className="py-3 px-5 text-[#6d7175] align-middle">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#f1f8f5] text-[#008060] text-xs font-medium">
+                      {getSubcategoryTitle(item.subcat_id)}
+                    </span>
+                  </td>
+                  <td className="py-3 px-5 text-right align-middle">
+                    <div className="flex justify-end gap-3">
+                      <button onClick={() => handleEdit(item)}
+                        className="p-1.5 hover:bg-[#f1f1f1] rounded text-[#6d7175] hover:text-[#2c6ecb] transition-colors"
+                        title="Edit collection">
+                        <HiPencilSquare className="text-base" />
+                      </button>
+                      <button onClick={() => setDeleteTarget({ cat_item_id: item.cat_item_id })}
+                        className="p-1.5 hover:bg-[#fef1ee] rounded text-[#6d7175] hover:text-[#d72c0d] transition-colors"
+                        title="Delete collection">
+                        <HiTrash className="text-base" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={4} className="py-16 text-center">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <HiOutlinePhoto className="text-5xl text-[#d0d0d0]" />
+                    <p className="text-base font-medium text-[#202223]">No collections found</p>
+                    <p className="text-sm text-[#6d7175]">
+                      {hasActiveFilters
+                        ? "Try adjusting your search to find what you're looking for."
+                        : "Get started by adding your first collection."}
+                    </p>
+                    {hasActiveFilters ? (
+                      <button onClick={() => setSearch("")}
+                        className="mt-2 text-sm font-medium text-[#2c6ecb] hover:text-[#1a4fa0] transition-colors underline underline-offset-2">
+                        Clear search
+                      </button>
+                    ) : (
+                      <button onClick={() => { resetForm(); setShowForm(true); }}
+                        className="mt-2 inline-flex items-center gap-2 bg-[#008060] text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-[#006e52] transition-colors">
+                        <HiPlus className="text-base" />
+                        Add Collection
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
-        {filtered.length === 0 && (
-          <p className="text-sm text-[#6d7175] p-6 text-center">No collections found.</p>
-        )}
       </div>
-
-      <ConfirmModal
-        open={!!deleteTarget}
-        title="Delete collection"
-        description="Are you sure you want to delete this collection? This action cannot be undone."
-        loading={deleting}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setDeleteTarget(null)}
-      />
     </div>
   );
 };

@@ -4,16 +4,51 @@ import {
   HiQuestionMarkCircle as QuestionMarkCircleIcon,
 } from "react-icons/hi2";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { Link } from "react-router-dom";
 import {
   removeProductFromTheCart,
   updateProductQuantity,
+  applyCoupon,
+  removeCoupon,
 } from "../features/cart/cartSlice";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import customFetch from "../axios/custom";
 
 const Cart = () => {
-  const { productsInCart, subtotal } = useAppSelector((state) => state.cart);
+  const { productsInCart, subtotal, appliedCoupon } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
+  const [couponInput, setCouponInput] = useState("");
+
+  const handleApplyCoupon = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!couponInput.trim()) return;
+
+    try {
+      const res = await customFetch.get("/db-coupons");
+      const discounts = res.data || [];
+      
+      const found = discounts.find(
+        (d: any) => d.code.toUpperCase() === couponInput.trim().toUpperCase()
+      );
+
+      if (found && found.status === "Active") {
+        dispatch(applyCoupon({ code: found.code, type: found.type, value: found.value }));
+        toast.success(`Coupon "${found.code}" applied!`);
+        setCouponInput("");
+      } else {
+        toast.error("Invalid or expired coupon code");
+      }
+    } catch {
+      toast.error("Failed to validate coupon code");
+    }
+  };
+
+  const handleRemoveCoupon = (e: React.MouseEvent) => {
+    e.preventDefault();
+    dispatch(removeCoupon());
+    toast.success("Coupon removed");
+  };
 
   return (
     <div className="bg-white mx-auto max-w-screen-2xl px-5">
@@ -182,15 +217,57 @@ const Cart = () => {
                   Rs.{subtotal / 5}
                 </dd>
               </div>
+
+              {appliedCoupon && (
+                <div className="flex items-center justify-between border-t border-dashed border-[#E2E2E2] pt-4 text-green-600 font-medium text-sm">
+                  <dt className="flex items-center gap-1.5">
+                    <span>Discount ({appliedCoupon.code})</span>
+                    <button
+                      onClick={handleRemoveCoupon}
+                      className="text-red-500 hover:text-red-700 text-xs font-semibold focus:outline-none"
+                    >
+                      (Remove)
+                    </button>
+                  </dt>
+                  <dd>
+                    - Rs.{appliedCoupon.discountAmount.toLocaleString()}
+                  </dd>
+                </div>
+              )}
+
               <div className="flex items-center justify-between border-t border-[#E2E2E2] pt-4">
                 <dt className="text-base font-medium text-[#151515]">
                   Order total
                 </dt>
                 <dd className="text-base font-medium text-[#151515]">
-                  Rs.{subtotal === 0 ? 0 : subtotal + subtotal / 5 + 500}
+                  Rs.{subtotal === 0 ? 0 : (subtotal - (appliedCoupon?.discountAmount || 0) + subtotal / 5 + 500).toLocaleString()}
                 </dd>
               </div>
             </dl>
+
+            {/* Coupon Code Input Area */}
+            {productsInCart.length > 0 && (
+              <div className="mt-8 border-t border-[#E2E2E2] pt-6">
+                <label className="block text-xs font-semibold uppercase tracking-widest text-[#151515] mb-2">
+                  Promo / Coupon Code
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enter code (e.g. WELCOME10)"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value)}
+                    className="flex-1 bg-white border border-[#E2E2E2] px-3 py-2 text-sm outline-none focus:border-[#151515]"
+                  />
+                  <button
+                    onClick={handleApplyCoupon}
+                    className="bg-[#151515] text-white text-xs font-bold tracking-widest uppercase px-6 py-2 hover:bg-[#333] transition-colors"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            )}
 
             {productsInCart.length > 0 && (
               <div className="mt-6">

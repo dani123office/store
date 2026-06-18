@@ -11,7 +11,7 @@ const CategoryItem = ({ categoryTitle, image, link }: { categoryTitle: string; i
         />
         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
         <div className="absolute bottom-0 left-0 right-0 p-6">
-          <h3 className="text-white text-xl md:text-2xl font-light tracking-[0.15em] uppercase">
+          <h3 className="text-white text-xl md:text-2xl font-light tracking-[0.15em] uppercase font-serif">
             {categoryTitle}
           </h3>
         </div>

@@ -52,7 +52,7 @@ const SidebarMenu = ({
           <div className="flex justify-center mt-4 mb-8">
             <Link
               to="/"
-              className="text-xl font-light tracking-[0.15em] uppercase"
+              className="text-xl font-light tracking-[0.2em] uppercase font-serif"
             >
               ZARKA COUTURE
             </Link>

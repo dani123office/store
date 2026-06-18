@@ -3,16 +3,22 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 type CartState = {
   productsInCart: ProductInCart[];
   subtotal: number;
+  appliedCoupon: {
+    code: string;
+    type: "Percentage" | "Fixed Amount";
+    value: number;
+    discountAmount: number;
+  } | null;
 };
 
 const initialState: CartState = {
   productsInCart: [],
   subtotal: 0,
+  appliedCoupon: null,
 };
 
 export const cartSlice = createSlice({
   name: "cart",
-  // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
     addProductToTheCart: (state, action: PayloadAction<ProductInCart>) => {
@@ -58,11 +64,39 @@ export const cartSlice = createSlice({
       });
       cartSlice.caseReducers.calculateTotalPrice(state);
     },
+    applyCoupon: (
+      state,
+      action: PayloadAction<{ code: string; type: "Percentage" | "Fixed Amount"; value: number }>
+    ) => {
+      state.appliedCoupon = {
+        code: action.payload.code,
+        type: action.payload.type,
+        value: action.payload.value,
+        discountAmount: 0,
+      };
+      cartSlice.caseReducers.calculateTotalPrice(state);
+    },
+    removeCoupon: (state) => {
+      state.appliedCoupon = null;
+      cartSlice.caseReducers.calculateTotalPrice(state);
+    },
     calculateTotalPrice: (state) => {
       state.subtotal = state.productsInCart.reduce(
         (acc, product) => acc + product.price * product.quantity,
         0
       );
+      if (state.appliedCoupon) {
+        if (state.appliedCoupon.type === "Percentage") {
+          state.appliedCoupon.discountAmount = Math.round(
+            (state.subtotal * state.appliedCoupon.value) / 100
+          );
+        } else {
+          state.appliedCoupon.discountAmount = Math.min(
+            state.subtotal,
+            state.appliedCoupon.value
+          );
+        }
+      }
     },
   },
 });
@@ -71,6 +105,8 @@ export const {
   addProductToTheCart,
   removeProductFromTheCart,
   updateProductQuantity,
+  applyCoupon,
+  removeCoupon,
   calculateTotalPrice,
 } = cartSlice.actions;
 

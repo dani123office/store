@@ -1,4 +1,5 @@
 import React, { ReactElement, useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import customFetch from "../axios/custom";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import {
@@ -7,8 +8,8 @@ import {
 } from "../features/shop/shopSlice";
 
 const ProductGridWrapper = ({
-  searchQuery,
-  sortCriteria,
+  searchQuery: propSearchQuery,
+  sortCriteria: propSortCriteria,
   category,
   page,
   limit,
@@ -25,87 +26,114 @@ const ProductGridWrapper = ({
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const { totalProducts } = useAppSelector((state) => state.shop);
+  const [searchParams] = useSearchParams();
   const dispatch = useAppDispatch();
 
-  // Memoize the function to prevent unnecessary re-renders
-  // getSearchedProducts will be called only when searchQuery or sortCriteria changes
-  const getSearchedProducts = useCallback(
-    async (query: string, sort: string, page: number) => {
-      if (!query || query.length === 0) {
-        query = "";
-      }
+  // Read URL search params
+  const urlQuery = searchParams.get("query") || propSearchQuery || "";
+  const urlSort = searchParams.get("sort") || propSortCriteria || "default";
+  const urlColor = searchParams.get("color") || "";
+  const urlSize = searchParams.get("size") || "";
+  const urlPrice = searchParams.get("price") ? Number(searchParams.get("price")) : null;
+
+  const fetchAndFilterProducts = useCallback(async () => {
+    try {
       const response = await customFetch("/products");
-      const allProducts = await response.data;
-      let searchedProducts = allProducts.filter((product: Product) =>
-        product.title.toLowerCase().includes(query.toLowerCase())
-      );
+      const allProducts = response.data || [];
 
-      if (category) {
-        searchedProducts = searchedProducts.filter((product: Product) => {
-          return product.category === category;
-        });
+      // Dynamically simulate colors/sizes variants per product for search-params match
+      let processed = allProducts.map((p: Product) => {
+        // Assign deterministic colors and sizes based on product title/id hash
+        const colorsList = ["black", "red", "blue", "white", "rose", "green"];
+        const sizesList = ["xs", "s", "m", "lg", "xl", "xxl"];
+        
+        const hash = p.title.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) + Number(p.id || 0);
+        const pColors = [
+          colorsList[hash % colorsList.length],
+          colorsList[(hash + 2) % colorsList.length],
+        ];
+        const pSizes = [
+          sizesList[hash % sizesList.length],
+          sizesList[(hash + 1) % sizesList.length],
+          sizesList[(hash + 3) % sizesList.length],
+        ];
+
+        return {
+          ...p,
+          colors: pColors,
+          sizes: pSizes,
+        };
+      });
+
+      // 1. Filter by Search Query
+      if (urlQuery.trim()) {
+        processed = processed.filter((product: any) =>
+          product.title.toLowerCase().includes(urlQuery.toLowerCase())
+        );
       }
 
-      if (totalProducts !== searchedProducts.length) {
-        dispatch(setTotalProducts(searchedProducts.length));
+      // 2. Filter by Category
+      if (category && category !== "all") {
+        processed = processed.filter((product: any) => product.category === category);
       }
 
-      // Sort the products based on the sortCriteria
-      if (sort === "price-asc") {
-        searchedProducts = searchedProducts.sort(
-          (a: Product, b: Product) => a.price - b.price
-        );
-      } else if (sort === "price-desc") {
-        searchedProducts = searchedProducts.sort(
-          (a: Product, b: Product) => b.price - a.price
-        );
-      } else if (sort === "popularity") {
-        searchedProducts = searchedProducts.sort(
-          (a: Product, b: Product) => b.popularity - a.popularity
-        );
+      // 3. Filter by Color
+      if (urlColor) {
+        processed = processed.filter((product: any) => product.colors.includes(urlColor.toLowerCase()));
       }
-      // Limit the number of products to be displayed
+
+      // 4. Filter by Size
+      if (urlSize) {
+        processed = processed.filter((product: any) => product.sizes.includes(urlSize.toLowerCase()));
+      }
+
+      // 5. Filter by Max Price
+      if (urlPrice) {
+        processed = processed.filter((product: any) => product.price <= urlPrice);
+      }
+
+      // Update total products count
+      if (totalProducts !== processed.length) {
+        dispatch(setTotalProducts(processed.length));
+      }
+
+      // 6. Sort results
+      if (urlSort === "price-asc") {
+        processed.sort((a: any, b: any) => a.price - b.price);
+      } else if (urlSort === "price-desc") {
+        processed.sort((a: any, b: any) => b.price - a.price);
+      } else if (urlSort === "popularity") {
+        processed.sort((a: any, b: any) => b.popularity - a.popularity);
+      }
+
+      // 7. Paginate results
       if (limit) {
-        setProducts(searchedProducts.slice(0, limit));
-        // Set the number of products being displayed
-        // This will be displayed in the ShowingPagination component
-        dispatch(setShowingProducts(searchedProducts.slice(0, limit).length));
-        // If page is provided, slice the products based on the page number
-        // this will be used for pagination
+        setProducts(processed.slice(0, limit));
+        dispatch(setShowingProducts(processed.slice(0, limit).length));
       } else if (page) {
-        setProducts(searchedProducts.slice(0, page * 9));
-        // Set the number of products being displayed
-        // This will be displayed in the ShowingPagination component
-        dispatch(
-          setShowingProducts(searchedProducts.slice(0, page * 9).length)
-        );
-        // If no limit or page is provided, display all the products
+        setProducts(processed.slice(0, page * 9));
+        dispatch(setShowingProducts(processed.slice(0, page * 9).length));
       } else {
-        setProducts(searchedProducts);
-        // Set the number of products being displayed
-        dispatch(setShowingProducts(searchedProducts.length));
+        setProducts(processed);
+        dispatch(setShowingProducts(processed.length));
       }
-    },
-    []
-  );
+    } catch (e) {
+      console.error("Failed to fetch products in wrapper", e);
+    }
+  }, [urlQuery, urlSort, urlColor, urlSize, urlPrice, category, page, limit, totalProducts, dispatch]);
 
   useEffect(() => {
-    getSearchedProducts(searchQuery || "", sortCriteria || "", page || 1);
-  }, [searchQuery, sortCriteria, page]);
+    fetchAndFilterProducts();
+  }, [fetchAndFilterProducts]);
 
-  // Clone the children and pass the products as props to the children
-  // This will cause the children to re-render with the new products
-  // Also it will cause many re-renders if the children are not memoized
-  // So I memoized the ProductGrid component
   const childrenWithProps = React.Children.map(children, (child) => {
-    // Checking isValidElement is the safe way and avoids a
-    // typescript error too.
-    if (React.isValidElement(child) && products.length > 0) {
-      return React.cloneElement(child, { products: products });
+    if (React.isValidElement(child)) {
+      return React.cloneElement(child, { products: products } as any);
     }
     return null;
   });
 
-  return childrenWithProps;
+  return <>{childrenWithProps}</>;
 };
+
 export default ProductGridWrapper;

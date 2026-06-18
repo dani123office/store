@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { HiOutlineUser, HiOutlineMagnifyingGlass, HiOutlineShoppingBag, HiBars3 } from "react-icons/hi2";
+import { HiOutlineUser, HiOutlineMagnifyingGlass, HiOutlineShoppingBag, HiOutlineHeart, HiBars3 } from "react-icons/hi2";
+import { useAppSelector } from "../hooks";
 import SidebarMenu from "./SidebarMenu";
+import SearchModal from "./SearchModal";
+import { motion } from "framer-motion";
 
 const navItems = [
   { label: "New Arrivals", path: "/shop/new-arrivals" },
@@ -18,9 +21,17 @@ const navItems = [
   { label: "Special Prices", path: "/shop/special-prices" },
 ];
 
-const Header = () => {
+interface HeaderProps {
+  logoText?: string;
+}
+
+const Header = ({ logoText }: HeaderProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { wishlistItems } = useAppSelector((state) => state.wishlist);
+  const { productsInCart } = useAppSelector((state) => state.cart);
+  
+  const cartItemsCount = productsInCart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <>
@@ -36,8 +47,8 @@ const Header = () => {
             </button>
 
             {/* Logo */}
-            <Link to="/" className="text-2xl md:text-3xl font-light tracking-[0.2em] uppercase text-[#151515] whitespace-nowrap">
-              ZARKA COUTURE
+            <Link to="/" className="text-2xl md:text-3xl font-light tracking-[0.25em] uppercase text-[#151515] whitespace-nowrap font-serif">
+              {logoText || "ZARKA COUTURE"}
             </Link>
 
             {/* Desktop navigation */}
@@ -53,22 +64,51 @@ const Header = () => {
               ))}
             </nav>
 
-            {/* Icons */}
-            <div className="flex items-center gap-4">
-              <Link to="/search" className="text-[#151515] hover:opacity-60 transition-opacity">
+            <div className="flex items-center gap-4.5">
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className="text-[#151515] hover:opacity-60 transition-opacity p-1 focus:outline-none"
+                aria-label="Search products"
+              >
                 <HiOutlineMagnifyingGlass className="text-xl" />
-              </Link>
-              <Link to="/login" className="text-[#151515] hover:opacity-60 transition-opacity">
+              </button>
+              <Link to="/login" className="text-[#151515] hover:opacity-60 transition-opacity p-1">
                 <HiOutlineUser className="text-xl" />
               </Link>
-              <Link to="/cart" className="text-[#151515] hover:opacity-60 transition-opacity relative">
+              <Link to="/wishlist" className="text-[#151515] hover:opacity-60 transition-opacity p-1 relative">
+                <HiOutlineHeart className="text-xl" />
+                {wishlistItems.length > 0 && (
+                  <motion.span
+                    key={wishlistItems.length}
+                    initial={{ scale: 0.6 }}
+                    animate={{ scale: [0.6, 1.3, 0.9] }}
+                    transition={{ duration: 0.45, ease: "easeOut" }}
+                    className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center"
+                  >
+                    {wishlistItems.length}
+                  </motion.span>
+                )}
+              </Link>
+              <Link id="header-cart-icon" to="/cart" className="text-[#151515] hover:opacity-60 transition-opacity p-1 relative">
                 <HiOutlineShoppingBag className="text-xl" />
+                {cartItemsCount > 0 && (
+                  <motion.span
+                    key={cartItemsCount}
+                    initial={{ scale: 0.6 }}
+                    animate={{ scale: [0.6, 1.3, 0.9] }}
+                    transition={{ duration: 0.45, ease: "easeOut" }}
+                    className="absolute -top-1 -right-1 bg-[#151515] text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center"
+                  >
+                    {cartItemsCount}
+                  </motion.span>
+                )}
               </Link>
             </div>
           </div>
         </div>
       </header>
       <SidebarMenu isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   );
 };

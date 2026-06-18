@@ -25,8 +25,19 @@ const AdminAddProduct = () => {
   const [uploadedImage, setUploadedImage] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
+  const [categories, setCategories] = useState<{ id: string; cat_title: string }[]>([]);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await customFetch.get("/categories");
+        setCategories(res.data);
+      } catch (e) {
+        console.error("Failed to load categories:", e);
+      }
+    };
+    fetchCategories();
+
     if (!id) return;
     const fetchProduct = async () => {
       try {
@@ -152,20 +163,18 @@ const AdminAddProduct = () => {
                 placeholder="Short sleeve t-shirt"
                 className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm text-[#202223] outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] transition-colors placeholder:text-[#b0b3b5]" />
             </div>
-            {isEdit && (
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-[#202223] mb-1.5">Price (Rs.)</label>
-                  <input type="number" value={price} onChange={(e) => setPrice(e.target.value)}
-                    className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#202223] mb-1.5">Stock</label>
-                  <input type="number" value={stock} onChange={(e) => setStock(e.target.value)}
-                    className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]" />
-                </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-[#202223] mb-1.5">Price (Rs.)</label>
+                <input type="number" value={price} onChange={(e) => setPrice(e.target.value)}
+                  className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]" />
               </div>
-            )}
+              <div>
+                <label className="block text-sm font-medium text-[#202223] mb-1.5">Stock</label>
+                <input type="number" value={stock} onChange={(e) => setStock(e.target.value)}
+                  className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]" />
+              </div>
+            </div>
             <div>
               <label className="block text-sm font-medium text-[#202223] mb-1.5">Description</label>
               <div className="border border-[#e0e0e0] rounded-lg overflow-hidden focus-within:border-[#2c6ecb] focus-within:ring-1 focus-within:ring-[#2c6ecb] transition-colors">
@@ -262,14 +271,18 @@ const AdminAddProduct = () => {
               <div>
                 <label className="block text-sm font-medium text-[#202223] mb-1">Product type</label>
                 <select value={productType} onChange={(e) => setProductType(e.target.value)}
-                  className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm text-[#202223] outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] bg-white appearance-none"
+                  className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm text-[#202223] outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] bg-white appearance-none animate-fade-in"
                   style={{ backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236d7175' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\")", backgroundPosition: "right 8px center", backgroundRepeat: "no-repeat", backgroundSize: "16px 16px" }}
                 >
-                  <option value="" disabled hidden>e.g. Shirts</option>
-                  <option value="shirts">Shirts</option>
-                  <option value="pants">Pants</option>
-                  <option value="shoes">Shoes</option>
-                  <option value="accessories">Accessories</option>
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => {
+                    const slug = cat.cat_title.toLowerCase().replace(/\s+/g, "-");
+                    return (
+                      <option key={cat.id} value={slug}>
+                        {cat.cat_title}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
               <div>

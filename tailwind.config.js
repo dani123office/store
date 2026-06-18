@@ -9,6 +9,7 @@ export default {
       },
       fontFamily: {
         sans: ['"Fira Sans"', "sans-serif"],
+        serif: ['"Playfair Display"', "Georgia", "serif"],
       },
     },
   },

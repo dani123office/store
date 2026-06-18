@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   HiOutlineHome, HiOutlineShoppingBag, HiOutlineCube, HiOutlineUsers,
-  HiOutlineTag, HiOutlineSquares2X2, HiOutlineGlobeAlt, HiOutlineEye,
+  HiOutlineTag, HiOutlineSquares2X2, HiOutlineGlobeAlt,
   HiOutlineChevronDown, HiOutlineGift, HiOutlineBars3CenterLeft,
   HiOutlineCircleStack, HiOutlineClipboardDocument, HiOutlineArrowPath,
   HiOutlineMegaphone, HiXMark, HiBars3, HiArrowRightOnRectangle,
@@ -11,13 +11,13 @@ import {
 
 interface SidebarChild {
   label: string;
-  icon: React.ComponentType;
+  icon: React.ComponentType<{ className?: string }>;
   path: string;
 }
 
 interface SidebarItem {
   label: string;
-  icon: React.ComponentType;
+  icon: React.ComponentType<{ className?: string }>;
   path?: string;
   children?: SidebarChild[];
 }
@@ -32,6 +32,8 @@ const sidebarLinks: SidebarItem[] = [
       { label: "Inventory", icon: HiOutlineClipboardDocument, path: "/admin/inventory" },
       { label: "Transfers", icon: HiOutlineArrowPath, path: "/admin/transfers" },
       { label: "Collections", icon: HiOutlineBars3CenterLeft, path: "/admin/collections" },
+      { label: "Categories", icon: HiOutlineSquares2X2, path: "/admin/categories" },
+      { label: "Subcategories", icon: HiOutlineSquares2X2, path: "/admin/subcategories" },
       { label: "Gift cards", icon: HiOutlineGift, path: "/admin/gift-cards" },
     ],
   },
@@ -52,7 +54,20 @@ const Admin = () => {
     location.pathname.startsWith("/admin/inventory") ||
     location.pathname.startsWith("/admin/transfers") ||
     location.pathname.startsWith("/admin/collections") ||
+    location.pathname.startsWith("/admin/categories") ||
+    location.pathname.startsWith("/admin/subcategories") ||
     location.pathname.startsWith("/admin/gift-cards")
+  );
+  const [onlineStoreOpen, setOnlineStoreOpen] = useState(
+    location.pathname.startsWith("/admin/pages") ||
+    location.pathname.startsWith("/admin/menus") ||
+    location.pathname.startsWith("/admin/theme-editor")
+  );
+  const [settingsOpen, setSettingsOpen] = useState(
+    location.pathname.startsWith("/admin/settings") ||
+    location.pathname.startsWith("/admin/staff") ||
+    location.pathname.startsWith("/admin/tax") ||
+    location.pathname.startsWith("/admin/notifications")
   );
 
   useEffect(() => {
@@ -165,16 +180,159 @@ const Admin = () => {
         </nav>
 
         <div className="border-t border-[#e0e0e0] px-4 py-3">
-          <div className="flex items-center gap-3 text-sm mb-2">
-            <HiOutlineGlobeAlt className="text-[#6d7175] text-lg" />
-            <span className="text-[#6d7175] font-medium">Sales Channel</span>
+          <div className="flex items-center gap-3 text-xs font-semibold text-[#6d7175] uppercase tracking-wider mb-2">
+            Sales Channel
           </div>
-          <div className="ml-1">
-            <div className="flex items-center gap-3 px-3 py-2 text-sm text-[#202223] rounded-lg hover:bg-[#f1f1f1] cursor-pointer transition-colors">
-              <HiOutlineEye className="text-lg text-[#6d7175]" />
-              <span>Online Store</span>
+          <div>
+            <button
+              onClick={() => setOnlineStoreOpen(!onlineStoreOpen)}
+              className={`flex items-center gap-3 w-full px-3 py-2 text-sm rounded-lg transition-colors ${
+              location.pathname.startsWith("/admin/pages") ||
+              location.pathname.startsWith("/admin/menus") ||
+              location.pathname.startsWith("/admin/theme-editor")
+                ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
+                : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
+              }`}
+            >
+              <HiOutlineGlobeAlt className="text-lg flex-shrink-0" />
+              <span className="flex-1 text-left">Online Store</span>
+              <HiOutlineChevronDown className={`text-sm transition-transform ${onlineStoreOpen ? "rotate-180" : ""}`} />
+            </button>
+            {onlineStoreOpen && (
+              <div className="ml-2 mt-0.5 space-y-0.5 border-l-2 border-[#e0e0e0] pl-2">
+                <Link
+                  to="/admin/pages"
+                  onClick={() => setSidebarOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    location.pathname.startsWith("/admin/pages")
+                      ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
+                      : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
+                  }`}
+                >
+                  <HiOutlineCircleStack className="text-base flex-shrink-0" />
+                  Pages
+                </Link>
+                <Link
+                  to="/admin/menus"
+                  onClick={() => setSidebarOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    location.pathname.startsWith("/admin/menus")
+                      ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
+                      : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
+                  }`}
+                >
+                  <HiOutlineBars3CenterLeft className="text-base flex-shrink-0" />
+                  Menus
+                </Link>
+                <Link
+                  to="/admin/theme-editor"
+                  onClick={() => setSidebarOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    location.pathname.startsWith("/admin/theme-editor")
+                      ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
+                      : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
+                  }`}
+                >
+                  <HiOutlineGlobeAlt className="text-base flex-shrink-0" />
+                  Theme Editor
+                </Link>
+                <Link
+                  to="/admin/media"
+                  onClick={() => setSidebarOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    location.pathname.startsWith("/admin/media")
+                      ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
+                      : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
+                  }`}
+                >
+                  <HiOutlineCircleStack className="text-base flex-shrink-0" />
+                  Media Library
+                </Link>
+                <Link
+                  to="/admin/seo"
+                  onClick={() => setSidebarOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    location.pathname.startsWith("/admin/seo")
+                      ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
+                      : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
+                  }`}
+                >
+                  <HiOutlineMagnifyingGlass className="text-base flex-shrink-0" />
+                  SEO Manager
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="border-t border-[#e0e0e0] px-4 py-3">
+          <button
+            onClick={() => setSettingsOpen(!settingsOpen)}
+            className={`flex items-center gap-3 w-full px-3 py-2 text-sm rounded-lg transition-colors ${
+              location.pathname.startsWith("/admin/settings") ||
+              location.pathname.startsWith("/admin/staff") ||
+              location.pathname.startsWith("/admin/tax") ||
+              location.pathname.startsWith("/admin/notifications")
+                ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
+                : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
+            }`}
+          >
+            <HiOutlineGlobeAlt className="text-lg flex-shrink-0" />
+            <span className="flex-1 text-left">Settings</span>
+            <HiOutlineChevronDown className={`text-sm transition-transform ${settingsOpen ? "rotate-180" : ""}`} />
+          </button>
+          {settingsOpen && (
+            <div className="ml-2 mt-0.5 space-y-0.5 border-l-2 border-[#e0e0e0] pl-2">
+              <Link
+                to="/admin/settings"
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                  location.pathname.startsWith("/admin/settings")
+                    ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
+                    : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
+                }`}
+              >
+                <HiOutlineCircleStack className="text-base flex-shrink-0" />
+                Store Settings
+              </Link>
+              <Link
+                to="/admin/staff"
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                  location.pathname.startsWith("/admin/staff")
+                    ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
+                    : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
+                }`}
+              >
+                <HiOutlineUsers className="text-base flex-shrink-0" />
+                Staff Accounts
+              </Link>
+              <Link
+                to="/admin/tax"
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                  location.pathname.startsWith("/admin/tax")
+                    ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
+                    : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
+                }`}
+              >
+                <HiOutlineTag className="text-base flex-shrink-0" />
+                Tax Settings
+              </Link>
+              <Link
+                to="/admin/notifications"
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                  location.pathname.startsWith("/admin/notifications")
+                    ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
+                    : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
+                }`}
+              >
+                <HiOutlineBell className="text-base flex-shrink-0" />
+                Notifications
+              </Link>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="border-t border-[#e0e0e0] p-4">

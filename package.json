@@ -13,9 +13,11 @@
   "dependencies": {
     "@headlessui/react": "^2.1.2",
     "@reduxjs/toolkit": "^2.2.7",
+    "@swc/core": "^1.15.41",
     "@tailwindcss/forms": "^0.5.7",
     "axios": "^1.7.2",
     "concurrently": "^8.2.2",
+    "framer-motion": "^12.40.0",
     "json-server": "^1.0.0-beta.1",
     "nanoid": "^5.0.7",
     "react": "^18.3.1",
