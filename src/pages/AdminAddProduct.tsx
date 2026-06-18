@@ -26,12 +26,18 @@ const AdminAddProduct = () => {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [categories, setCategories] = useState<{ id: string; cat_title: string }[]>([]);
+  const [navCategories, setNavCategories] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await customFetch.get("/categories");
-        setCategories(res.data);
+        const [catRes, navRes] = await Promise.all([
+          customFetch.get("/categories"),
+          customFetch.get("/nav-items"),
+        ]);
+        setCategories(catRes.data);
+        const navSlugs = (navRes.data || []).map((n: any) => n.slug);
+        setNavCategories(navSlugs);
       } catch (e) {
         console.error("Failed to load categories:", e);
       }
@@ -75,8 +81,9 @@ const AdminAddProduct = () => {
       const res = await customFetch.post("/upload", fd);
       setUploadedImage(res.data.filename);
       toast.success("Image uploaded");
-    } catch {
-      toast.error("Upload failed");
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.response?.data?.errors?.file?.[0] || "Upload failed";
+      toast.error(msg);
     }
     e.target.value = "";
   };
@@ -137,7 +144,7 @@ const AdminAddProduct = () => {
       const res = await customFetch.post("/upload", fd);
       setUploadedImage(res.data.filename);
       toast.success("Image uploaded");
-    } catch { toast.error("Upload failed"); }
+    } catch (err: any) { toast.error(err?.response?.data?.message || err?.response?.data?.errors?.file?.[0] || "Upload failed"); }
   };
 
   return (
@@ -283,6 +290,15 @@ const AdminAddProduct = () => {
                       </option>
                     );
                   })}
+                  {navCategories.length > 0 && (
+                    <optgroup label="Navigation">
+                      {navCategories.map((slug) => (
+                        <option key={slug} value={slug}>
+                          {slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
                 </select>
               </div>
               <div>

@@ -62,26 +62,27 @@ const AdminMedia = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", files[0]);
+      formData.append("file", files[0]);
 
       // Call Laravel Upload API
       const res = await customFetch.post("/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (res.data && res.data.path) {
+      if (res.data && res.data.url) {
         const newItem: MediaItem = {
           id: String(Date.now()),
           name: files[0].name,
-          url: res.data.path,
+          url: res.data.url,
           size: `${Math.round(files[0].size / 1024)} KB`,
         };
         const updated = [newItem, ...mediaList];
         saveToStorage(updated);
         toast.success("Image uploaded successfully!");
       }
-    } catch {
-      toast.error("Upload failed. Make sure backend is running.");
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.response?.data?.errors?.file?.[0] || "Upload failed. Make sure backend is running.";
+      toast.error(msg);
     } finally {
       setUploading(false);
     }

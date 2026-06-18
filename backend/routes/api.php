@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\ProductColorController;
 use App\Http\Controllers\Api\ProductImageController;
 use App\Http\Controllers\Api\ProductSizeController;
 use App\Http\Controllers\Api\ProductWidthController;
+use App\Http\Controllers\Api\NavItemController;
 use App\Http\Controllers\Api\AdminLoginController;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
@@ -46,6 +47,7 @@ Route::apiResource('/c-pages', CPageController::class);
 Route::apiResource('/admin-menus', AdminMenuController::class);
 Route::apiResource('/admin-menu-items', AdminMenuItemController::class);
 Route::apiResource('/notifications', NotificationController::class);
+Route::apiResource('/nav-items', NavItemController::class);
 
 Route::get('/taxes', [TaxController::class, 'index']);
 Route::get('/taxes/{tax}', [TaxController::class, 'show']);

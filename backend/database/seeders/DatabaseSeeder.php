@@ -16,6 +16,7 @@ use App\Models\Store;
 use App\Models\Tax;
 use App\Models\Emarket;
 use App\Models\Collection;
+use App\Models\NavItem;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -162,5 +163,18 @@ class DatabaseSeeder extends Seeder
 
         // Emarket (email subscribers)
         Emarket::create(['email' => 'hadibutt476@gmail.com']);
+
+        // Nav items (top navigation bar)
+        $navItems = [
+            ['label' => 'New Arrivals', 'slug' => 'new-arrivals', 'sort_order' => 1],
+            ['label' => 'Unstitched', 'slug' => 'unstitched', 'sort_order' => 2],
+            ['label' => 'Ready To Wear', 'slug' => 'ready-to-wear', 'sort_order' => 3],
+            ['label' => 'Bridals', 'slug' => 'bridals', 'sort_order' => 4],
+            ['label' => 'Jewellery', 'slug' => 'jewellery', 'sort_order' => 5],
+            ['label' => 'Special Prices', 'slug' => 'special-prices', 'sort_order' => 6],
+        ];
+        foreach ($navItems as $n) {
+            NavItem::create($n);
+        }
     }
 }

@@ -1,21 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { HiOutlineUser, HiOutlineMagnifyingGlass, HiOutlineShoppingBag, HiOutlineHeart, HiBars3 } from "react-icons/hi2";
 import { useAppSelector } from "../hooks";
 import SidebarMenu from "./SidebarMenu";
 import SearchModal from "./SearchModal";
 import { motion } from "framer-motion";
+import customFetch from "../axios/custom";
 
-const navItems = [
+const defaultNavItems = [
   { label: "New Arrivals", path: "/shop/new-arrivals" },
-  {
-    label: "Unstitched",
-    path: "/shop/unstitched",
-  },
-  {
-    label: "Ready To Wear",
-    path: "/shop/ready-to-wear",
-  },
+  { label: "Unstitched", path: "/shop/unstitched" },
+  { label: "Ready To Wear", path: "/shop/ready-to-wear" },
   { label: "Bridals", path: "/shop/bridals" },
   { label: "Jewellery", path: "/shop/jewellery" },
   { label: "Special Prices", path: "/shop/special-prices" },
@@ -28,10 +23,29 @@ interface HeaderProps {
 const Header = ({ logoText }: HeaderProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [navItems, setNavItems] = useState(defaultNavItems);
   const { wishlistItems } = useAppSelector((state) => state.wishlist);
   const { productsInCart } = useAppSelector((state) => state.cart);
   
   const cartItemsCount = productsInCart.reduce((acc, item) => acc + item.quantity, 0);
+
+  useEffect(() => {
+    const fetchNavItems = async () => {
+      try {
+        const res = await customFetch.get("/nav-items");
+        const data = res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          setNavItems(data.map((item: any) => ({
+            label: item.label,
+            path: `/shop/${item.slug}`,
+          })));
+        }
+      } catch (e) {
+        console.warn("Failed to fetch nav items, using defaults", e);
+      }
+    };
+    fetchNavItems();
+  }, []);
 
   return (
     <>

@@ -54,6 +54,19 @@ export interface ThemeSettings {
     provider: string;
     count: number;
   };
+  promotional_section: {
+    enabled: boolean;
+    left_image: string;
+    left_subtitle: string;
+    left_title: string;
+    left_btn_text: string;
+    left_btn_link: string;
+    right_image: string;
+    right_subtitle: string;
+    right_title: string;
+    right_btn_text: string;
+    right_btn_link: string;
+  };
 }
 
 export const defaultThemeSettings: ThemeSettings = {
@@ -111,6 +124,19 @@ export const defaultThemeSettings: ThemeSettings = {
     enabled: true,
     provider: "baadmay",
     count: 3,
+  },
+  promotional_section: {
+    enabled: true,
+    left_image: "luxury fashion 7 1.png",
+    left_subtitle: "New Season",
+    left_title: "New Arrivals",
+    left_btn_text: "Discover Now",
+    left_btn_link: "/shop/new-arrivals",
+    right_image: "luxury fashion 7 2.png",
+    right_subtitle: "Luxury Bridal",
+    right_title: "Bridal Couture",
+    right_btn_text: "Explore Collection",
+    right_btn_link: "/shop/bridals",
   },
 };
 

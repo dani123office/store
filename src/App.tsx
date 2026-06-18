@@ -6,9 +6,9 @@ import {
   AdminOrders, AdminCustomers, AdminSettings, AdminCategories,
   AdminSubCategories, AdminCollections, AdminStaff, AdminPages,
   AdminMenus, AdminNotifications, AdminTax, AdminAddProduct, AdminInventory,
-  AdminTransfers, AdminAnalytics, AdminMarketing, AdminDiscounts,
-  AdminApps, AdminGiftCards, AdminThemeEditor, Wishlist,
-  AdminMedia, AdminSEO,
+  AdminAnalytics, AdminMarketing, AdminDiscounts,
+  AdminApps, AdminThemeEditor, Wishlist,
+  AdminMedia, AdminSEO, AdminNav,
 } from "./pages";
 import { checkoutAction, searchAction } from "./actions/index";
 import { shopCategoryLoader } from "./pages/Shop";
@@ -45,7 +45,6 @@ const router = createBrowserRouter([
       { path: "products/add", element: <AdminAddProduct /> },
       { path: "products/edit/:id", element: <AdminAddProduct /> },
       { path: "inventory", element: <AdminInventory /> },
-      { path: "transfers", element: <AdminTransfers /> },
       { path: "categories", element: <AdminCategories /> },
       { path: "subcategories", element: <AdminSubCategories /> },
       { path: "collections", element: <AdminCollections /> },
@@ -61,10 +60,10 @@ const router = createBrowserRouter([
       { path: "marketing", element: <AdminMarketing /> },
       { path: "discounts", element: <AdminDiscounts /> },
       { path: "apps", element: <AdminApps /> },
-      { path: "gift-cards", element: <AdminGiftCards /> },
       { path: "theme-editor", element: <AdminThemeEditor /> },
       { path: "media", element: <AdminMedia /> },
       { path: "seo", element: <AdminSEO /> },
+      { path: "nav", element: <AdminNav /> },
     ],
   },
 ]);

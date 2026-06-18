@@ -3,8 +3,8 @@ import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   HiOutlineHome, HiOutlineShoppingBag, HiOutlineCube, HiOutlineUsers,
   HiOutlineTag, HiOutlineSquares2X2, HiOutlineGlobeAlt,
-  HiOutlineChevronDown, HiOutlineGift, HiOutlineBars3CenterLeft,
-  HiOutlineCircleStack, HiOutlineClipboardDocument, HiOutlineArrowPath,
+  HiOutlineChevronDown, HiOutlineBars3CenterLeft,
+  HiOutlineCircleStack, HiOutlineClipboardDocument,
   HiOutlineMegaphone, HiXMark, HiBars3, HiArrowRightOnRectangle,
   HiOutlineMagnifyingGlass, HiOutlineBell,
 } from "react-icons/hi2";
@@ -30,11 +30,9 @@ const sidebarLinks: SidebarItem[] = [
     children: [
       { label: "All products", icon: HiOutlineCircleStack, path: "/admin/products" },
       { label: "Inventory", icon: HiOutlineClipboardDocument, path: "/admin/inventory" },
-      { label: "Transfers", icon: HiOutlineArrowPath, path: "/admin/transfers" },
       { label: "Collections", icon: HiOutlineBars3CenterLeft, path: "/admin/collections" },
       { label: "Categories", icon: HiOutlineSquares2X2, path: "/admin/categories" },
       { label: "Subcategories", icon: HiOutlineSquares2X2, path: "/admin/subcategories" },
-      { label: "Gift cards", icon: HiOutlineGift, path: "/admin/gift-cards" },
     ],
   },
   { label: "Customers", icon: HiOutlineUsers, path: "/admin/customers" },
@@ -52,16 +50,15 @@ const Admin = () => {
   const [productsOpen, setProductsOpen] = useState(
     location.pathname.startsWith("/admin/products") ||
     location.pathname.startsWith("/admin/inventory") ||
-    location.pathname.startsWith("/admin/transfers") ||
     location.pathname.startsWith("/admin/collections") ||
     location.pathname.startsWith("/admin/categories") ||
-    location.pathname.startsWith("/admin/subcategories") ||
-    location.pathname.startsWith("/admin/gift-cards")
+    location.pathname.startsWith("/admin/subcategories")
   );
   const [onlineStoreOpen, setOnlineStoreOpen] = useState(
     location.pathname.startsWith("/admin/pages") ||
     location.pathname.startsWith("/admin/menus") ||
-    location.pathname.startsWith("/admin/theme-editor")
+    location.pathname.startsWith("/admin/theme-editor") ||
+    location.pathname.startsWith("/admin/nav")
   );
   const [settingsOpen, setSettingsOpen] = useState(
     location.pathname.startsWith("/admin/settings") ||
@@ -237,16 +234,16 @@ const Admin = () => {
                   Theme Editor
                 </Link>
                 <Link
-                  to="/admin/media"
+                  to="/admin/nav"
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                    location.pathname.startsWith("/admin/media")
+                    location.pathname.startsWith("/admin/nav")
                       ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
                       : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
                   }`}
                 >
-                  <HiOutlineCircleStack className="text-base flex-shrink-0" />
-                  Media Library
+                  <HiOutlineBars3CenterLeft className="text-base flex-shrink-0" />
+                  Navigation
                 </Link>
                 <Link
                   to="/admin/seo"

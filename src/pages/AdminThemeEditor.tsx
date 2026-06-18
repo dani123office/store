@@ -58,6 +58,19 @@ interface ThemeSettings {
     provider: string;
     count: number;
   };
+  promotional_section: {
+    enabled: boolean;
+    left_image: string;
+    left_subtitle: string;
+    left_title: string;
+    left_btn_text: string;
+    left_btn_link: string;
+    right_image: string;
+    right_subtitle: string;
+    right_title: string;
+    right_btn_text: string;
+    right_btn_link: string;
+  };
 }
 
 const defaultThemeSettings: ThemeSettings = {
@@ -116,6 +129,19 @@ const defaultThemeSettings: ThemeSettings = {
     provider: "baadmay",
     count: 3,
   },
+  promotional_section: {
+    enabled: true,
+    left_image: "luxury fashion 7 1.png",
+    left_subtitle: "New Season",
+    left_title: "New Arrivals",
+    left_btn_text: "Discover Now",
+    left_btn_link: "/shop/new-arrivals",
+    right_image: "luxury fashion 7 2.png",
+    right_subtitle: "Luxury Bridal",
+    right_title: "Bridal Couture",
+    right_btn_text: "Explore Collection",
+    right_btn_link: "/shop/bridals",
+  },
 };
 
 const AdminThemeEditor = () => {
@@ -123,9 +149,10 @@ const AdminThemeEditor = () => {
   const [settings, setSettings] = useState<ThemeSettings>(defaultThemeSettings);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<"general" | "announcement" | "slideshow" | "collections" | "whatsapp" | "installments">("general");
+  const [activeTab, setActiveTab] = useState<"general" | "announcement" | "slideshow" | "collections" | "whatsapp" | "installments" | "promotional">("general");
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
   const [categories, setCategories] = useState<{ id: number; cat_title: string }[]>([]);
+  const [previewKey, setPreviewKey] = useState(0);
 
   // Simulated active slideshow index in preview
   const [previewSlideIdx, setPreviewSlideIdx] = useState(0);
@@ -167,6 +194,7 @@ const AdminThemeEditor = () => {
                 installments: { ...defaultThemeSettings.installments, ...(parsed.installments || {}) },
                 featured_collections: { ...defaultThemeSettings.featured_collections, ...(parsed.featured_collections || {}) },
                 trending_products: { ...defaultThemeSettings.trending_products, ...(parsed.trending_products || {}) },
+                promotional_section: { ...defaultThemeSettings.promotional_section, ...(parsed.promotional_section || {}) },
               });
             } catch (e) {
               console.error("Failed to parse theme settings, using defaults", e);
@@ -254,9 +282,37 @@ const AdminThemeEditor = () => {
         }));
         toast.success("Image uploaded successfully!", { id: uploadToast });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error("Upload failed", { id: uploadToast });
+      const msg = err?.response?.data?.message || err?.response?.data?.errors?.file?.[0] || "Upload failed";
+      toast.error(msg, { id: uploadToast });
+    }
+  };
+
+  const handlePromoUpload = async (e: React.ChangeEvent<HTMLInputElement>, side: "left" | "right") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fd = new FormData();
+    fd.append("file", file);
+
+    const uploadToast = toast.loading("Uploading image...");
+    try {
+      const res = await customFetch.post("/upload", fd);
+      if (res.data && res.data.filename) {
+        setSettings((prev) => ({
+          ...prev,
+          promotional_section: {
+            ...prev.promotional_section,
+            [side === "left" ? "left_image" : "right_image"]: res.data.filename,
+          },
+        }));
+        toast.success("Image uploaded successfully!", { id: uploadToast });
+      }
+    } catch (err: any) {
+      console.error(err);
+      const msg = err?.response?.data?.message || err?.response?.data?.errors?.file?.[0] || "Upload failed";
+      toast.error(msg, { id: uploadToast });
     }
   };
 
@@ -326,7 +382,7 @@ const AdminThemeEditor = () => {
   const activeSlide = settings.slides[previewSlideIdx] || settings.slides[0] || null;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-60px)] -m-6 overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Customizer Subheader / Controls */}
       <div className="sticky top-0 bg-white/90 backdrop-blur-md border-b border-[#e0e0e0] px-6 py-3 flex items-center justify-between z-20 shrink-0">
         <div>
@@ -367,7 +423,7 @@ const AdminThemeEditor = () => {
         {/* Left Side: Customize Form Panels */}
         <div className="w-80 md:w-96 bg-white border-r border-[#e0e0e0] flex flex-col h-full overflow-hidden">
           {/* Sidebar Tabs */}
-          <div className="flex border-b border-[#e0e0e0] text-xs font-medium text-[#6d7175] overflow-x-auto bg-[#fafbfb] shrink-0">
+          <div className="flex flex-wrap border-b border-[#e0e0e0] text-xs font-medium text-[#6d7175] bg-[#fafbfb] shrink-0">
             <button
               onClick={() => setActiveTab("general")}
               className={`px-4 py-3 border-b-2 whitespace-nowrap ${activeTab === "general" ? "border-[#2c6ecb] text-[#2c6ecb] bg-white font-semibold" : "border-transparent hover:text-[#202223]"}`}
@@ -403,6 +459,12 @@ const AdminThemeEditor = () => {
               className={`px-4 py-3 border-b-2 whitespace-nowrap ${activeTab === "installments" ? "border-[#2c6ecb] text-[#2c6ecb] bg-white font-semibold" : "border-transparent hover:text-[#202223]"}`}
             >
               Installments
+            </button>
+            <button
+              onClick={() => setActiveTab("promotional")}
+              className={`px-4 py-3 border-b-2 whitespace-nowrap ${activeTab === "promotional" ? "border-[#2c6ecb] text-[#2c6ecb] bg-white font-semibold" : "border-transparent hover:text-[#202223]"}`}
+            >
+              Promotional
             </button>
           </div>
 
@@ -452,6 +514,38 @@ const AdminThemeEditor = () => {
                   />
                   <label htmlFor="cat_sec_enabled" className="text-xs font-medium text-[#202223] cursor-pointer">
                     Enable Category Grid Section
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#202223] mb-1 mt-4">Trending Products Title</label>
+                  <input
+                    type="text"
+                    value={settings.trending_products.title}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        trending_products: { ...settings.trending_products, title: e.target.value },
+                      })
+                    }
+                    className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="trending_enabled"
+                    checked={settings.trending_products.enabled}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        trending_products: { ...settings.trending_products, enabled: e.target.checked },
+                      })
+                    }
+                    className="rounded text-[#2c6ecb] focus:ring-[#2c6ecb] border-[#e0e0e0]"
+                  />
+                  <label htmlFor="trending_enabled" className="text-xs font-medium text-[#202223] cursor-pointer">
+                    Enable Trending Products Section
                   </label>
                 </div>
               </div>
@@ -809,6 +903,116 @@ const AdminThemeEditor = () => {
               </div>
             )}
 
+            {/* 5. Promotional Split Section */}
+            {activeTab === "promotional" && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-[#202223] border-b pb-2">Promotional Split Section</h3>
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" id="promo_enabled"
+                    checked={settings.promotional_section.enabled}
+                    onChange={(e) => setSettings({ ...settings, promotional_section: { ...settings.promotional_section, enabled: e.target.checked } })}
+                    className="rounded text-[#2c6ecb] focus:ring-[#2c6ecb] border-[#e0e0e0]"
+                  />
+                  <label htmlFor="promo_enabled" className="text-xs font-medium text-[#202223] cursor-pointer">Enable Promotional Section</label>
+                </div>
+
+                {settings.promotional_section.enabled && (
+                  <>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
+                        <p className="text-xs font-semibold text-[#202223] uppercase tracking-wider">Left Panel</p>
+                        <div>
+                          <label className="block text-xs font-medium text-[#202223] mb-1">Image file</label>
+                          <div className="flex flex-col gap-1">
+                            <input type="text" value={settings.promotional_section.left_image}
+                              onChange={(e) => setSettings({ ...settings, promotional_section: { ...settings.promotional_section, left_image: e.target.value } })}
+                              className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                            />
+                            <label className="flex items-center justify-center gap-1 cursor-pointer bg-white border border-[#e0e0e0] rounded-lg px-3 py-2 text-xs font-semibold text-[#6d7175] hover:bg-gray-50 transition-colors">
+                              <HiOutlineArrowUpTray className="text-sm" /> Upload Image
+                              <input type="file" accept="image/*" onChange={(e) => handlePromoUpload(e, "left")} className="hidden" />
+                            </label>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[#202223] mb-1">Subtitle</label>
+                          <input type="text" value={settings.promotional_section.left_subtitle}
+                            onChange={(e) => setSettings({ ...settings, promotional_section: { ...settings.promotional_section, left_subtitle: e.target.value } })}
+                            className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[#202223] mb-1">Title</label>
+                          <input type="text" value={settings.promotional_section.left_title}
+                            onChange={(e) => setSettings({ ...settings, promotional_section: { ...settings.promotional_section, left_title: e.target.value } })}
+                            className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[#202223] mb-1">Button text</label>
+                          <input type="text" value={settings.promotional_section.left_btn_text}
+                            onChange={(e) => setSettings({ ...settings, promotional_section: { ...settings.promotional_section, left_btn_text: e.target.value } })}
+                            className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[#202223] mb-1">Button link</label>
+                          <input type="text" value={settings.promotional_section.left_btn_link}
+                            onChange={(e) => setSettings({ ...settings, promotional_section: { ...settings.promotional_section, left_btn_link: e.target.value } })}
+                            className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
+                        <p className="text-xs font-semibold text-[#202223] uppercase tracking-wider">Right Panel</p>
+                        <div>
+                          <label className="block text-xs font-medium text-[#202223] mb-1">Image file</label>
+                          <div className="flex flex-col gap-1">
+                            <input type="text" value={settings.promotional_section.right_image}
+                              onChange={(e) => setSettings({ ...settings, promotional_section: { ...settings.promotional_section, right_image: e.target.value } })}
+                              className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                            />
+                            <label className="flex items-center justify-center gap-1 cursor-pointer bg-white border border-[#e0e0e0] rounded-lg px-3 py-2 text-xs font-semibold text-[#6d7175] hover:bg-gray-50 transition-colors">
+                              <HiOutlineArrowUpTray className="text-sm" /> Upload Image
+                              <input type="file" accept="image/*" onChange={(e) => handlePromoUpload(e, "right")} className="hidden" />
+                            </label>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[#202223] mb-1">Subtitle</label>
+                          <input type="text" value={settings.promotional_section.right_subtitle}
+                            onChange={(e) => setSettings({ ...settings, promotional_section: { ...settings.promotional_section, right_subtitle: e.target.value } })}
+                            className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[#202223] mb-1">Title</label>
+                          <input type="text" value={settings.promotional_section.right_title}
+                            onChange={(e) => setSettings({ ...settings, promotional_section: { ...settings.promotional_section, right_title: e.target.value } })}
+                            className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[#202223] mb-1">Button text</label>
+                          <input type="text" value={settings.promotional_section.right_btn_text}
+                            onChange={(e) => setSettings({ ...settings, promotional_section: { ...settings.promotional_section, right_btn_text: e.target.value } })}
+                            className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[#202223] mb-1">Button link</label>
+                          <input type="text" value={settings.promotional_section.right_btn_link}
+                            onChange={(e) => setSettings({ ...settings, promotional_section: { ...settings.promotional_section, right_btn_link: e.target.value } })}
+                            className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
             {/* 6. Installments Payments Indicator */}
             {activeTab === "installments" && (
               <div className="space-y-4">
@@ -874,151 +1078,36 @@ const AdminThemeEditor = () => {
           </div>
         </div>
 
-        {/* Right Side: Simulated Live Preview */}
-        <div className="flex-1 flex justify-center items-center p-8 overflow-y-auto">
+        {/* Right Side: Live Store Preview (iframe) */}
+        <div className="flex-1 flex p-8 overflow-hidden">
           <div
             className={`bg-white shadow-2xl transition-all border border-[#e2e2e2] duration-300 relative flex flex-col ${
-              previewMode === "desktop" ? "w-full max-w-4xl aspect-[16/10]" : "w-[360px] h-[640px]"
-            } overflow-y-auto rounded-lg`}
+              previewMode === "desktop" ? "w-full max-w-4xl" : "w-[360px]"
+            } max-h-full rounded-lg`}
           >
-            {/* Simulation Header */}
+            {/* Window chrome */}
             <div className="bg-[#f0f0f1] px-4 py-2 border-b border-[#e2e2e2] flex items-center gap-2 shrink-0">
               <span className="w-3 h-3 rounded-full bg-red-400"></span>
               <span className="w-3 h-3 rounded-full bg-yellow-400"></span>
               <span className="w-3 h-3 rounded-full bg-green-400"></span>
-              <span className="text-[10px] text-gray-500 font-mono ml-4 truncate">
-                http://www.yourstore.com/
+              <span className="text-[10px] text-gray-500 font-mono ml-4 truncate flex-1">
+                http://localhost:5173/
               </span>
+              <button
+                onClick={() => setPreviewKey((k) => k + 1)}
+                className="text-[10px] text-[#6d7175] hover:text-[#202223] flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
+                title="Refresh preview"
+              >
+                <HiOutlineArrowPath className="text-xs" /> Refresh
+              </button>
             </div>
 
-            {/* Announcement bar preview */}
-            {settings.announcement.enabled && (
-              <div
-                style={{
-                  backgroundColor: settings.announcement.bg_color,
-                  color: settings.announcement.text_color,
-                }}
-                className="text-center py-2 text-[10px] tracking-wider uppercase select-none font-semibold shrink-0 transition-all"
-              >
-                {settings.announcement.text || "Announcement message..."}
-              </div>
-            )}
-
-            {/* Simulated Navigation Header */}
-            <div className="border-b border-[#E2E2E2] py-3 px-4 bg-white shrink-0 flex items-center justify-between gap-2">
-              <div className="font-serif text-[10px] sm:text-xs font-bold tracking-widest shrink-0 uppercase truncate max-w-[120px]">
-                {settings.logo_text || "ZARKA COUTURE"}
-              </div>
-              <nav className="hidden md:flex items-center gap-x-2 text-[8px] font-medium tracking-tighter text-[#151515]/80 uppercase font-sans shrink-0">
-                <span>NEW ARRIVALS</span>
-                <span>UNSTITCHED</span>
-                <span>READY TO WEAR</span>
-                <span>BRIDALS</span>
-              </nav>
-              <div className="flex items-center gap-1.5 text-[10px] text-gray-600 shrink-0">
-                <span>🔍</span>
-                <span>👤</span>
-                <span>👜 (0)</span>
-              </div>
-            </div>
-
-            {/* Simulated Banner Slideshow */}
-            {activeSlide && (
-              <div className="relative flex-1 min-h-[300px] flex flex-col justify-end pb-8 px-8 overflow-hidden select-none bg-gray-150">
-                <img
-                  src={
-                    activeSlide.image.startsWith("http") || activeSlide.image.startsWith("/")
-                      ? activeSlide.image
-                      : `/assets/${activeSlide.image}`
-                  }
-                  className="absolute inset-0 w-full h-full object-cover filter brightness-[0.8] transition-all duration-700"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/assets/banner1.jpg";
-                  }}
-                />
-                <div className="relative z-10 text-center text-white space-y-1">
-                  <h4 className="text-[10px] tracking-[0.2em] font-sans font-light text-white/90">
-                    {activeSlide.subtitle}
-                  </h4>
-                  <h2 className="text-xl md:text-3xl font-light tracking-[0.15em] font-serif uppercase">
-                    {activeSlide.title}
-                  </h2>
-                  <div className="pt-2">
-                    <button className="bg-white text-black px-6 py-2 text-[10px] font-bold tracking-widest uppercase hover:bg-white/80 transition-all">
-                      {activeSlide.btn_text}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Slideshow dots */}
-                {settings.slides.length > 1 && (
-                  <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-10">
-                    {settings.slides.map((_, i) => (
-                      <span
-                        key={i}
-                        className={`w-1.5 h-1.5 rounded-full transition-all ${
-                          i === previewSlideIdx ? "bg-white scale-125" : "bg-white/50"
-                        }`}
-                      ></span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Simulated Collections section */}
-            {settings.featured_collections.enabled && (
-              <div className="py-6 px-4 bg-white text-center shrink-0">
-                <h3 className="text-xs font-serif tracking-[0.2em] uppercase mb-4 text-[#151515]">
-                  {settings.featured_collections.title}
-                </h3>
-                <div className="flex justify-center gap-4 border-b border-gray-100 pb-2 mb-4 text-[9px] text-gray-500 uppercase overflow-x-auto">
-                  {settings.featured_collections.tabs.map((tab, idx) => (
-                    <span
-                      key={idx}
-                      className={`pb-1 cursor-pointer font-medium tracking-wider whitespace-nowrap ${
-                        idx === 0 ? "border-b border-black text-black font-semibold" : ""
-                      }`}
-                    >
-                      {tab.label}
-                    </span>
-                  ))}
-                </div>
-                {/* Simulated product items */}
-                <div className="grid grid-cols-3 gap-2">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="text-left space-y-1">
-                      <div className="aspect-[3/4] bg-gray-100 overflow-hidden relative">
-                        <img
-                          src={`/assets/product image ${i}.jpg`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/assets/luxury category 1.png";
-                          }}
-                        />
-                      </div>
-                      <div className="text-[8px] font-bold truncate">Premium Collection Wear</div>
-                      <div className="text-[8px] text-gray-600">Rs.4,500</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Simulated WhatsApp Floating Widget */}
-            {settings.whatsapp.enabled && (
-              <div
-                className={`absolute ${
-                  settings.whatsapp.position === "bottom-right" ? "right-4" : "left-4"
-                } bottom-4 z-20 bg-[#25d366] text-white p-2.5 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-[#20ba5a] transition-all`}
-                title="Simulated WhatsApp button"
-              >
-                {/* WhatsApp logo */}
-                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                  <path d="M12.031 2c-5.514 0-10 4.486-10 10 0 1.767.46 3.427 1.267 4.887L2 22l5.312-1.393c1.408.767 3.003 1.2 4.719 1.2 5.514 0 10-4.486 10-10s-4.486-10-10-10zm.067 18.067c-1.59 0-3.093-.413-4.407-1.127l-.316-.173-3.279.86.877-3.193-.19-.306c-.767-1.247-1.173-2.693-1.173-4.193 0-4.413 3.587-8 8-8s8 3.587 8 8-3.587 8-8 8z" />
-                </svg>
-              </div>
-            )}
+            <iframe
+              key={previewKey}
+              src="http://localhost:5173/"
+              className="w-full flex-1 border-0"
+              title="Store Preview"
+            />
           </div>
         </div>
       </div>

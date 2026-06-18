@@ -12,6 +12,19 @@ const Landing = () => {
     categories_section: { enabled: true, title: "Shop By Category" },
     featured_collections: { enabled: true, title: "Featured Collections", tabs: [] },
     trending_products: { enabled: true, title: "Top Trending Products", limit: 5 },
+    promotional_section: {
+      enabled: true,
+      left_image: "luxury fashion 7 1.png",
+      left_subtitle: "New Season",
+      left_title: "New Arrivals",
+      left_btn_text: "Discover Now",
+      left_btn_link: "/shop/new-arrivals",
+      right_image: "luxury fashion 7 2.png",
+      right_subtitle: "Luxury Bridal",
+      right_title: "Bridal Couture",
+      right_btn_text: "Explore Collection",
+      right_btn_link: "/shop/bridals",
+    },
   };
 
   useEffect(() => {
@@ -42,50 +55,52 @@ const Landing = () => {
       )}
 
       {/* Full-width Promotional Image Split */}
-      <section className="mt-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 min-h-[500px]">
-          <div className="relative overflow-hidden group">
-            <img
-              src="/assets/luxury fashion 7 1.png"
-              alt="New Arrivals"
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-500" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-8">
-              <h3 className="text-sm tracking-[0.25em] uppercase font-light mb-3">New Season</h3>
-              <h2 className="text-3xl md:text-5xl font-light tracking-[0.12em] uppercase font-serif leading-tight">
-                New Arrivals
-              </h2>
-              <Link
-                to="/shop/new-arrivals"
-                className="mt-6 border border-white text-white text-xs tracking-[0.2em] uppercase font-semibold px-10 py-3.5 hover:bg-white hover:text-[#151515] transition-all duration-300"
-              >
-                Discover Now
-              </Link>
+      {activeSettings.promotional_section?.enabled && (
+        <section className="mt-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 min-h-[500px]">
+            <div className="relative overflow-hidden group">
+              <img
+                src={`/assets/${activeSettings.promotional_section.left_image}`}
+                alt={activeSettings.promotional_section.left_title}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-500" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-8">
+                <h3 className="text-sm tracking-[0.25em] uppercase font-light mb-3">{activeSettings.promotional_section.left_subtitle}</h3>
+                <h2 className="text-3xl md:text-5xl font-light tracking-[0.12em] uppercase font-serif leading-tight">
+                  {activeSettings.promotional_section.left_title}
+                </h2>
+                <Link
+                  to={activeSettings.promotional_section.left_btn_link}
+                  className="mt-6 border border-white text-white text-xs tracking-[0.2em] uppercase font-semibold px-10 py-3.5 hover:bg-white hover:text-[#151515] transition-all duration-300"
+                >
+                  {activeSettings.promotional_section.left_btn_text}
+                </Link>
+              </div>
+            </div>
+            <div className="relative overflow-hidden group">
+              <img
+                src={`/assets/${activeSettings.promotional_section.right_image}`}
+                alt={activeSettings.promotional_section.right_title}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-500" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-8">
+                <h3 className="text-sm tracking-[0.25em] uppercase font-light mb-3">{activeSettings.promotional_section.right_subtitle}</h3>
+                <h2 className="text-3xl md:text-5xl font-light tracking-[0.12em] uppercase font-serif leading-tight">
+                  {activeSettings.promotional_section.right_title}
+                </h2>
+                <Link
+                  to={activeSettings.promotional_section.right_btn_link}
+                  className="mt-6 border border-white text-white text-xs tracking-[0.2em] uppercase font-semibold px-10 py-3.5 hover:bg-white hover:text-[#151515] transition-all duration-300"
+                >
+                  {activeSettings.promotional_section.right_btn_text}
+                </Link>
+              </div>
             </div>
           </div>
-          <div className="relative overflow-hidden group">
-            <img
-              src="/assets/luxury fashion 7 2.png"
-              alt="Bridals Collection"
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-500" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-8">
-              <h3 className="text-sm tracking-[0.25em] uppercase font-light mb-3">Luxury Bridal</h3>
-              <h2 className="text-3xl md:text-5xl font-light tracking-[0.12em] uppercase font-serif leading-tight">
-                Bridal Couture
-              </h2>
-              <Link
-                to="/shop/bridals"
-                className="mt-6 border border-white text-white text-xs tracking-[0.2em] uppercase font-semibold px-10 py-3.5 hover:bg-white hover:text-[#151515] transition-all duration-300"
-              >
-                Explore Collection
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Trending Products Section */}
       {activeSettings.trending_products?.enabled && trendingProducts.length > 0 && (
