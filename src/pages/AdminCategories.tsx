@@ -31,6 +31,7 @@ const AdminCategories = () => {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
   const [search, setSearch] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
   const [form, setForm] = useState({ cat_title: "", cat_img: "", handle: "", SEOtitle: "", SEOdescription: "" });
   const [deleteTarget, setDeleteTarget] = useState<{ cat_id: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -113,8 +114,8 @@ const AdminCategories = () => {
   );
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 lg:p-6">
+      <div className="flex items-center justify-between mb-5">
         <h1 className="text-xl font-semibold text-[#202223]">Categories</h1>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
@@ -216,72 +217,101 @@ const AdminCategories = () => {
         </div>
       )}
 
-      <div className="mb-6 relative max-w-sm">
-        <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
-        <input type="text" placeholder="Search categories..." value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full border border-[#e0e0e0] rounded-lg pl-10 pr-4 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]"
-        />
-      </div>
+      <div className="bg-white border border-[#e0e0e0] rounded-lg overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-[#e0e0e0]">
+          <div className="flex items-center gap-3">
+            <button className="px-3 py-1 text-sm font-medium text-[#2c6ecb] bg-[#f1f8fe] rounded-lg border border-[#2c6ecb]">
+              All
+            </button>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowSearch(!showSearch)}
+              className={`p-2 rounded transition-colors ${showSearch ? "bg-blue-50 text-[#2c6ecb]" : "text-[#6d7175] hover:text-[#202223] hover:bg-gray-100"}`}
+              title="Search"
+            >
+              <HiOutlineMagnifyingGlass className="text-lg" />
+            </button>
+          </div>
+        </div>
 
-      {loading ? (
-        <div className="text-center py-12 text-[#6d7175] text-sm">Loading categories...</div>
-      ) : error ? (
-        <div className="text-center py-12">
-          <p className="text-[#d72c0d] text-sm mb-3">{error}</p>
-          <button onClick={fetchData}
-            className="text-sm font-medium text-[#2c6ecb] hover:text-[#1a4fa0] underline underline-offset-2">Retry</button>
-        </div>
-      ) : (
-        <div className="bg-white border border-[#e0e0e0] rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-[#fafafa]">
-                <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Image</th>
-                <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Title</th>
-                <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Handle</th>
-                <th className="text-right py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((item) => (
-                <tr key={item.cat_id} className="border-t border-[#e0e0e0] hover:bg-gray-50/80 transition-colors align-middle">
-                  <td className="py-2.5 px-5 align-middle">
-                    {item.cat_img ? (
-                      <img src={`/assets/${item.cat_img}`} alt={item.cat_title} className="w-10 h-10 object-cover rounded border border-[#e0e0e0]" />
-                    ) : (
-                      <div className="w-10 h-10 bg-[#fafafa] rounded border border-dashed border-gray-300 flex items-center justify-center text-gray-400">
-                        <HiOutlinePhoto className="text-base" />
-                      </div>
-                    )}
-                  </td>
-                  <td className="py-3 px-5 font-medium text-[#202223] align-middle">{item.cat_title}</td>
-                  <td className="py-3 px-5 text-[#6d7175] align-middle text-xs">{item.handle || "—"}</td>
-                  <td className="py-3 px-5 text-right align-middle">
-                    <div className="flex justify-end gap-1.5">
-                      <button onClick={() => handleEdit(item)}
-                        className="p-1.5 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-900 transition-colors" title="Edit">
-                        <HiPencilSquare className="text-base" />
-                      </button>
-                      <button onClick={() => setDeleteTarget({ cat_id: item.cat_id })}
-                        className="p-1.5 hover:bg-gray-100 rounded text-gray-400 hover:text-red-600 transition-colors" title="Delete">
-                        <HiTrash className="text-base" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="text-sm text-gray-500 py-12 text-center align-middle">
-                    {search ? "No categories found matching your search." : "No categories found."}
-                  </td>
-                </tr>
+        {showSearch && (
+          <div className="px-5 py-2 border-b border-[#e0e0e0] bg-[#fafafa]">
+            <div className="relative max-w-xs">
+              <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6d7175] text-sm" />
+              <input type="text" placeholder="Search categories..." value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                autoFocus
+                className="w-full border border-[#e0e0e0] rounded-lg pl-9 pr-8 py-1.5 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]"
+              />
+              {search && (
+                <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#6d7175] hover:text-[#202223]">
+                  <HiXMark className="text-sm" />
+                </button>
               )}
-            </tbody>
-          </table>
-        </div>
-      )}
+            </div>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="text-center py-12 text-[#6d7175] text-sm">Loading categories...</div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-[#d72c0d] text-sm mb-3">{error}</p>
+            <button onClick={fetchData}
+              className="text-sm font-medium text-[#2c6ecb] hover:text-[#1a4fa0] underline underline-offset-2">Retry</button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-[#fafafa] border-b border-[#e0e0e0]">
+                  <th className="text-left py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Image</th>
+                  <th className="text-left py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Title</th>
+                  <th className="text-left py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Handle</th>
+                  <th className="text-right py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((item) => (
+                  <tr key={item.cat_id} className="border-b border-[#e0e0e0] hover:bg-[#fafafa] transition-colors">
+                    <td className="py-3 pl-5 pr-5 align-middle">
+                      {item.cat_img ? (
+                        <img src={`/assets/${item.cat_img}`} alt={item.cat_title} className="w-10 h-10 object-cover rounded border border-[#e0e0e0]" />
+                      ) : (
+                        <div className="w-10 h-10 bg-[#fafafa] rounded border border-dashed border-gray-300 flex items-center justify-center text-gray-400">
+                          <HiOutlinePhoto className="text-base" />
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-3 pl-5 pr-5 font-medium text-[#202223] align-middle">{item.cat_title}</td>
+                    <td className="py-3 pl-5 pr-5 text-[#6d7175] align-middle text-xs">{item.handle || "—"}</td>
+                    <td className="py-3 pl-5 pr-5 text-right align-middle">
+                      <div className="flex justify-end gap-1.5">
+                        <button onClick={() => handleEdit(item)}
+                          className="p-1.5 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-900 transition-colors" title="Edit">
+                          <HiPencilSquare className="text-base" />
+                        </button>
+                        <button onClick={() => setDeleteTarget({ cat_id: item.cat_id })}
+                          className="p-1.5 hover:bg-gray-100 rounded text-gray-400 hover:text-red-600 transition-colors" title="Delete">
+                          <HiTrash className="text-base" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="text-sm text-gray-500 py-16 text-center align-middle">
+                      {search ? "No categories found matching your search." : "No categories found."}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       <ConfirmModal
         open={!!deleteTarget}

@@ -52,6 +52,7 @@ const AdminSubCategories = () => {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<SubCategory | null>(null);
   const [search, setSearch] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
   const [form, setForm] = useState({ subcat_title: "", subcat_img: "", cat_id: "", handle: "", SEOtitle: "", SEOdescription: "" });
   const [deleteTarget, setDeleteTarget] = useState<{ subcat_id: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -146,17 +147,8 @@ const AdminSubCategories = () => {
   const hasActiveFilters = search;
 
   return (
-    <div>
-      <ConfirmModal
-        open={!!deleteTarget}
-        title="Delete subcategory"
-        description="Are you sure you want to delete this subcategory? This action cannot be undone."
-        loading={deleting}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setDeleteTarget(null)}
-      />
-
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 lg:p-6">
+      <div className="flex items-center justify-between mb-5">
         <h1 className="text-xl font-semibold text-[#202223]">Subcategories</h1>
         <button onClick={() => { resetForm(); setShowForm(true); }}
           className="flex items-center gap-2 bg-[#008060] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#006e52] transition-colors">
@@ -268,98 +260,127 @@ const AdminSubCategories = () => {
         </div>
       )}
 
-      <div className="mb-6 relative max-w-sm">
-        <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
-        <input type="text" placeholder="Search subcategories..." value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full border border-[#e0e0e0] rounded-lg pl-10 pr-4 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]"
-        />
-      </div>
-
-      {loading ? (
-        <div className="text-center py-12 text-[#6d7175] text-sm">Loading subcategories...</div>
-      ) : error ? (
-        <div className="text-center py-12">
-          <p className="text-[#d72c0d] text-sm mb-3">{error}</p>
-          <button onClick={fetchData}
-            className="text-sm font-medium text-[#2c6ecb] hover:text-[#1a4fa0] underline underline-offset-2">Retry</button>
+      <div className="bg-white border border-[#e0e0e0] rounded-lg overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-[#e0e0e0]">
+          <div className="flex items-center gap-3">
+            <button className="px-3 py-1 text-sm font-medium text-[#2c6ecb] bg-[#f1f8fe] rounded-lg border border-[#2c6ecb]">
+              All
+            </button>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowSearch(!showSearch)}
+              className={`p-2 rounded transition-colors ${showSearch ? "bg-blue-50 text-[#2c6ecb]" : "text-[#6d7175] hover:text-[#202223] hover:bg-gray-100"}`}
+              title="Search"
+            >
+              <HiOutlineMagnifyingGlass className="text-lg" />
+            </button>
+          </div>
         </div>
-      ) : (
-        <div className="bg-white border border-[#e0e0e0] rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-[#fafafa] border-b border-[#e0e0e0]">
-                <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase w-20">Image</th>
-                <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Title</th>
-                <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Category</th>
-                <th className="text-left py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Handle</th>
-                <th className="text-right py-3 px-5 text-xs font-semibold tracking-wider text-gray-500 uppercase w-28">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length > 0 ? (
-                filtered.map((item) => (
-                  <tr key={item.subcat_id} className="border-t border-[#e0e0e0] hover:bg-gray-50/80 transition-colors">
-                    <td className="py-2.5 px-5 align-middle">
-                      {item.subcat_img ? (
-                        <div className="w-12 h-12 rounded-md overflow-hidden border border-gray-200 flex-shrink-0">
-                          <img src={`/assets/${item.subcat_img}`} alt={item.subcat_title}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = "none";
-                              (e.target as HTMLImageElement).parentElement!.classList.add("bg-gray-50", "flex", "items-center", "justify-center");
-                            }}
-                          />
+
+        {showSearch && (
+          <div className="px-5 py-2 border-b border-[#e0e0e0] bg-[#fafafa]">
+            <div className="relative max-w-xs">
+              <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6d7175] text-sm" />
+              <input type="text" placeholder="Search subcategories..." value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                autoFocus
+                className="w-full border border-[#e0e0e0] rounded-lg pl-9 pr-8 py-1.5 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]"
+              />
+              {search && (
+                <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#6d7175] hover:text-[#202223]">
+                  <HiXMark className="text-sm" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="text-center py-12 text-[#6d7175] text-sm">Loading subcategories...</div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-[#d72c0d] text-sm mb-3">{error}</p>
+            <button onClick={fetchData}
+              className="text-sm font-medium text-[#2c6ecb] hover:text-[#1a4fa0] underline underline-offset-2">Retry</button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-[#fafafa] border-b border-[#e0e0e0]">
+                  <th className="text-left py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase w-20">Image</th>
+                  <th className="text-left py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Title</th>
+                  <th className="text-left py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Category</th>
+                  <th className="text-left py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Handle</th>
+                  <th className="text-right py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase w-28">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.length > 0 ? (
+                  filtered.map((item) => (
+                    <tr key={item.subcat_id} className="border-b border-[#e0e0e0] hover:bg-[#fafafa] transition-colors">
+                      <td className="py-3 pl-5 pr-5 align-middle">
+                        {item.subcat_img ? (
+                          <div className="w-12 h-12 rounded-md overflow-hidden border border-gray-200 flex-shrink-0">
+                            <img src={`/assets/${item.subcat_img}`} alt={item.subcat_title}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = "none";
+                                (e.target as HTMLImageElement).parentElement!.classList.add("bg-gray-50", "flex", "items-center", "justify-center");
+                              }}
+                            />
+                          </div>
+                        ) : <ImgPlaceholder />}
+                      </td>
+                      <td className="py-3 pl-5 pr-5 font-medium text-[#202223] align-middle">{item.subcat_title}</td>
+                      <td className="py-3 pl-5 pr-5 text-[#6d7175] align-middle">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#f1f8f5] text-[#008060] text-xs font-medium">
+                          {getCategoryTitle(item.cat_id)}
+                        </span>
+                      </td>
+                      <td className="py-3 pl-5 pr-5 text-[#6d7175] align-middle text-xs">{item.handle || "—"}</td>
+                      <td className="py-3 pl-5 pr-5 text-right align-middle">
+                        <div className="flex justify-end gap-3">
+                          <button onClick={() => handleEdit(item)}
+                            className="p-1.5 hover:bg-gray-100 rounded text-gray-400 hover:text-slate-900 transition-colors" title="Edit">
+                            <HiPencilSquare className="text-base" />
+                          </button>
+                          <button onClick={() => setDeleteTarget({ subcat_id: item.subcat_id })}
+                            className="p-1.5 hover:bg-red-50 rounded text-gray-400 hover:text-red-600 transition-colors" title="Delete">
+                            <HiTrash className="text-base" />
+                          </button>
                         </div>
-                      ) : <ImgPlaceholder />}
-                    </td>
-                    <td className="py-3 px-5 font-medium text-[#202223] align-middle">{item.subcat_title}</td>
-                    <td className="py-3 px-5 text-[#6d7175] align-middle">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#f1f8f5] text-[#008060] text-xs font-medium">
-                        {getCategoryTitle(item.cat_id)}
-                      </span>
-                    </td>
-                    <td className="py-3 px-5 text-[#6d7175] align-middle text-xs">{item.handle || "—"}</td>
-                    <td className="py-3 px-5 text-right align-middle">
-                      <div className="flex justify-end gap-3">
-                        <button onClick={() => handleEdit(item)}
-                          className="p-1.5 hover:bg-gray-100 rounded text-gray-400 hover:text-slate-900 transition-colors" title="Edit">
-                          <HiPencilSquare className="text-base" />
-                        </button>
-                        <button onClick={() => setDeleteTarget({ subcat_id: item.subcat_id })}
-                          className="p-1.5 hover:bg-red-50 rounded text-gray-400 hover:text-red-600 transition-colors" title="Delete">
-                          <HiTrash className="text-base" />
-                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-16 text-center align-middle">
+                      <div className="flex flex-col items-center justify-center gap-3">
+                        <HiOutlinePhoto className="text-5xl text-[#d0d0d0]" />
+                        <p className="text-base font-medium text-[#202223]">No subcategories found</p>
+                        <p className="text-sm text-[#6d7175]">
+                          {hasActiveFilters ? "Try adjusting your search." : "Get started by adding your first subcategory."}
+                        </p>
+                        {hasActiveFilters ? (
+                          <button onClick={() => setSearch("")}
+                            className="mt-2 text-sm font-medium text-[#2c6ecb] hover:text-[#1a4fa0] underline underline-offset-2">Clear search</button>
+                        ) : (
+                          <button onClick={() => { resetForm(); setShowForm(true); }}
+                            className="mt-2 inline-flex items-center gap-2 bg-[#008060] text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-[#006e52] transition-colors">
+                            <HiPlus className="text-base" /> Add Subcategory
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} className="py-16 text-center align-middle">
-                    <div className="flex flex-col items-center justify-center gap-3">
-                      <HiOutlinePhoto className="text-5xl text-[#d0d0d0]" />
-                      <p className="text-base font-medium text-[#202223]">No subcategories found</p>
-                      <p className="text-sm text-[#6d7175]">
-                        {hasActiveFilters ? "Try adjusting your search." : "Get started by adding your first subcategory."}
-                      </p>
-                      {hasActiveFilters ? (
-                        <button onClick={() => setSearch("")}
-                          className="mt-2 text-sm font-medium text-[#2c6ecb] hover:text-[#1a4fa0] underline underline-offset-2">Clear search</button>
-                      ) : (
-                        <button onClick={() => { resetForm(); setShowForm(true); }}
-                          className="mt-2 inline-flex items-center gap-2 bg-[#008060] text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-[#006e52] transition-colors">
-                          <HiPlus className="text-base" /> Add Subcategory
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

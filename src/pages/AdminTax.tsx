@@ -47,7 +47,7 @@ const AdminTax = () => {
 
   if (loading) {
     return (
-      <div>
+      <div className="p-4 lg:p-6">
         <h1 className="text-xl font-semibold text-[#202223] mb-6">Tax Settings</h1>
         <p className="text-sm text-[#6d7175]">Loading...</p>
       </div>
@@ -55,8 +55,8 @@ const AdminTax = () => {
   }
 
   return (
-    <div>
-      <h1 className="text-xl font-semibold text-[#202223] mb-6">Tax Settings</h1>
+    <div className="p-4 lg:p-6">
+      <h1 className="text-xl font-semibold text-[#202223] mb-5">Tax Settings</h1>
 
       <div className="bg-white border border-[#e0e0e0] rounded-lg max-w-2xl">
         <div className="px-6 py-4 border-b border-[#e0e0e0]">

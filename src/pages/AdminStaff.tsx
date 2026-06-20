@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import customFetch from "../axios/custom";
 import toast from "react-hot-toast";
-import { HiPencilSquare, HiTrash, HiPlus, HiXMark } from "react-icons/hi2";
+import { HiPencilSquare, HiTrash, HiPlus, HiXMark, HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import ConfirmModal from "../components/ConfirmModal";
 
 interface Staff {
@@ -34,6 +34,7 @@ const AdminStaff = () => {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Staff | null>(null);
   const [search, setSearch] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
   const [form, setForm] = useState<{ [key: string]: any }>(getDefaultForm);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -102,8 +103,8 @@ const AdminStaff = () => {
   );
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 lg:p-6">
+      <div className="flex items-center justify-between mb-5">
         <h1 className="text-xl font-semibold text-[#202223]">Staff Accounts</h1>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
@@ -194,46 +195,78 @@ const AdminStaff = () => {
         </div>
       )}
 
-      <div className="mb-4">
-        <input type="text" placeholder="Search staff..." value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full max-w-sm border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]"
-        />
-      </div>
+      <div className="bg-white border border-[#e0e0e0] rounded-lg overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-[#e0e0e0]">
+          <div className="flex items-center gap-3">
+            <button className="px-3 py-1 text-sm font-medium text-[#2c6ecb] bg-[#f1f8fe] rounded-lg border border-[#2c6ecb]">
+              All
+            </button>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowSearch(!showSearch)}
+              className={`p-2 rounded transition-colors ${showSearch ? "bg-blue-50 text-[#2c6ecb]" : "text-[#6d7175] hover:text-[#202223] hover:bg-gray-100"}`}
+              title="Search"
+            >
+              <HiOutlineMagnifyingGlass className="text-lg" />
+            </button>
+          </div>
+        </div>
 
-      <div className="bg-white border border-[#e0e0e0] rounded-lg overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-[#fafafa]">
-              <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase">Name</th>
-              <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase">Email</th>
-              <th className="text-right py-3 px-5 text-xs font-medium text-[#6d7175] uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((item) => (
-              <tr key={item.id} className="border-t border-[#e0e0e0] hover:bg-[#fafafa]">
-                <td className="py-3 px-5 font-medium text-[#202223]">{item.f_name} {item.l_name}</td>
-                <td className="py-3 px-5 text-[#6d7175]">{item.email}</td>
-                <td className="py-3 px-5 text-right">
-                  <div className="flex justify-end gap-1">
-                    <button onClick={() => handleEdit(item)}
-                      className="p-1.5 hover:bg-[#f1f1f1] rounded text-[#6d7175] hover:text-[#2c6ecb]">
-                      <HiPencilSquare className="text-base" />
-                    </button>
-                    <button onClick={() => setDeleteTarget({ id: item.id })}
-                      className="p-1.5 hover:bg-[#f1f1f1] rounded text-[#6d7175] hover:text-[#d72c0d]">
-                      <HiTrash className="text-base" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {filtered.length === 0 && (
-          <p className="text-sm text-[#6d7175] p-6 text-center">No staff found.</p>
+        {showSearch && (
+          <div className="px-5 py-2 border-b border-[#e0e0e0] bg-[#fafafa]">
+            <div className="relative max-w-xs">
+              <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6d7175] text-sm" />
+              <input type="text" placeholder="Search staff..." value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                autoFocus
+                className="w-full border border-[#e0e0e0] rounded-lg pl-9 pr-8 py-1.5 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]"
+              />
+              {search && (
+                <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#6d7175] hover:text-[#202223]">
+                  <HiXMark className="text-sm" />
+                </button>
+              )}
+            </div>
+          </div>
         )}
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-[#fafafa] border-b border-[#e0e0e0]">
+                <th className="text-left py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Name</th>
+                <th className="text-left py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Email</th>
+                <th className="text-right py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((item) => (
+                <tr key={item.id} className="border-b border-[#e0e0e0] hover:bg-[#fafafa] transition-colors">
+                  <td className="py-3 pl-5 pr-5 font-medium text-[#202223]">{item.f_name} {item.l_name}</td>
+                  <td className="py-3 pl-5 pr-5 text-[#6d7175]">{item.email}</td>
+                  <td className="py-3 pl-5 pr-5 text-right">
+                    <div className="flex justify-end gap-1">
+                      <button onClick={() => handleEdit(item)}
+                        className="p-1.5 hover:bg-[#f1f1f1] rounded text-[#6d7175] hover:text-[#2c6ecb]">
+                        <HiPencilSquare className="text-base" />
+                      </button>
+                      <button onClick={() => setDeleteTarget({ id: item.id })}
+                        className="p-1.5 hover:bg-[#f1f1f1] rounded text-[#6d7175] hover:text-[#d72c0d]">
+                        <HiTrash className="text-base" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="py-16 text-center text-sm text-[#6d7175]">No staff found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <ConfirmModal

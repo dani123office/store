@@ -132,7 +132,7 @@ const Admin = () => {
                     <HiOutlineChevronDown className={`text-sm transition-transform ${productsOpen ? "rotate-180" : ""}`} />
                   </button>
                   {productsOpen && (
-                    <div className="ml-2 mt-0.5 space-y-0.5 border-l-2 border-[#e0e0e0] pl-2">
+                    <div className="ml-1 mt-0.5 space-y-0.5 border-l-2 border-[#e0e0e0] pl-2">
                       {item.children.map((child) => {
                         const C = child.icon;
                         const active = isActive(child.path);
@@ -196,7 +196,7 @@ const Admin = () => {
               <HiOutlineChevronDown className={`text-sm transition-transform ${onlineStoreOpen ? "rotate-180" : ""}`} />
             </button>
             {onlineStoreOpen && (
-              <div className="ml-2 mt-0.5 space-y-0.5 border-l-2 border-[#e0e0e0] pl-2">
+              <div className="ml-1 mt-0.5 space-y-0.5 border-l-2 border-[#e0e0e0] pl-2">
                 <Link
                   to="/admin/pages"
                   onClick={() => setSidebarOpen(false)}
@@ -279,7 +279,7 @@ const Admin = () => {
             <HiOutlineChevronDown className={`text-sm transition-transform ${settingsOpen ? "rotate-180" : ""}`} />
           </button>
           {settingsOpen && (
-            <div className="ml-2 mt-0.5 space-y-0.5 border-l-2 border-[#e0e0e0] pl-2">
+            <div className="ml-1 mt-0.5 space-y-0.5 border-l-2 border-[#e0e0e0] pl-2">
               <Link
                 to="/admin/settings"
                 onClick={() => setSidebarOpen(false)}
