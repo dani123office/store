@@ -168,7 +168,7 @@ const AdminThemeEditor = () => {
     };
 
     const fetchData = async () => {
-      await runMigration();
+      runMigration();
       try {
         const [storeRes, catRes] = await Promise.all([
           customFetch.get("/stores"),

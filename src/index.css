@@ -37,6 +37,31 @@
     gap: 1.25rem;
   }
 
+  .horizontal-scroll-list {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 1.25rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 0.5rem;
+  }
+  
+  .horizontal-scroll-list::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .horizontal-scroll-list > * {
+    flex: 0 0 240px;
+    scroll-snap-align: start;
+  }
+  
+  @media (min-width: 768px) {
+    .horizontal-scroll-list > * {
+      flex: 0 0 280px;
+    }
+  }
+
   .product-card {
     cursor: pointer;
   }

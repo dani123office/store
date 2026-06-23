@@ -29,7 +29,7 @@ const Banner = ({ themeSettings }: BannerProps) => {
 
   if (slides.length === 0) {
     return (
-      <div className="hero-banner w-full flex flex-col justify-end items-center pb-16 md:pb-24 bg-gray-900 h-[280px] lg:h-[550px]">
+      <div className="hero-banner w-full flex flex-col justify-end items-center pb-16 md:pb-24 bg-gray-900 h-[85vh] md:h-[calc(100vh-120px)]">
         <h2 className="text-white text-center text-4xl md:text-6xl font-light tracking-[0.15em] uppercase font-serif">
           Luxury Designer Dresses
         </h2>
@@ -38,7 +38,7 @@ const Banner = ({ themeSettings }: BannerProps) => {
   }
 
   return (
-    <div className="relative w-full h-[280px] lg:h-[550px] overflow-hidden bg-gray-900 select-none">
+    <div className="relative w-full h-[85vh] md:h-[calc(100vh-120px)] overflow-hidden bg-gray-900 select-none">
       {slides.map((slide, index) => {
         const isActive = index === activeIndex;
         const imageUrl = slide.image.startsWith("http") || slide.image.startsWith("/")

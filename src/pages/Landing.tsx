@@ -108,7 +108,7 @@ const Landing = () => {
           <h2 className="section-title mb-12 font-serif">
             {activeSettings.trending_products?.title || "Trending Now"}
           </h2>
-          <div className="collection-grid">
+          <div className="horizontal-scroll-list">
             {trendingProducts.map((product: Product) => (
               <ProductItem
                 key={product.id}

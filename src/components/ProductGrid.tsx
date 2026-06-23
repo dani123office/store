@@ -2,9 +2,14 @@ import React from "react";
 import ProductItem from "./ProductItem";
 import { nanoid } from "nanoid";
 
-const ProductGrid = ({ products }: { products?: Product[] }) => {
+interface ProductGridProps {
+  products?: Product[];
+  className?: string;
+}
+
+const ProductGrid = ({ products, className = "collection-grid" }: ProductGridProps) => {
   return (
-    <div className="collection-grid">
+    <div className={className}>
       {products &&
         products.map((product: Product) => (
           <ProductItem

@@ -48,7 +48,7 @@ const HomeCollectionSection = ({ themeSettings }: HomeCollectionSectionProps) =>
           category={activeCategory === "all" ? undefined : activeCategory}
           limit={8}
         >
-          <ProductGrid />
+          <ProductGrid className="horizontal-scroll-list" />
         </ProductGridWrapper>
       </div>
 
