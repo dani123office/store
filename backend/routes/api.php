@@ -185,3 +185,5 @@ Route::get('/product-sizes', [ProductSizeController::class, 'index']);
 Route::get('/product-widths', [ProductWidthController::class, 'index']);
 
 Route::post('/upload', [App\Http\Controllers\Api\UploadController::class, 'store']);
+Route::get('/media', [App\Http\Controllers\Api\MediaController::class, 'index']);
+Route::delete('/media/{filename}', [App\Http\Controllers\Api\MediaController::class, 'destroy'])->where('filename', '.*');

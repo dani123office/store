@@ -381,6 +381,14 @@ const AdminSubCategories = () => {
           </div>
         )}
       </div>
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Delete subcategory?"
+        description="Are you sure you want to delete this subcategory? This action cannot be undone."
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteTarget(null)}
+        loading={deleting}
+      />
     </div>
   );
 };

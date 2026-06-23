@@ -377,6 +377,14 @@ const AdminCollections = () => {
           </div>
         )}
       </div>
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Delete collection?"
+        description="Are you sure you want to delete this collection? This action cannot be undone."
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteTarget(null)}
+        loading={deleting}
+      />
     </div>
   );
 };

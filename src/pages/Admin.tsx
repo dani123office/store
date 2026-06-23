@@ -6,7 +6,7 @@ import {
   HiOutlineChevronDown, HiOutlineBars3CenterLeft,
   HiOutlineCircleStack, HiOutlineClipboardDocument,
   HiOutlineMegaphone, HiXMark, HiBars3, HiArrowRightOnRectangle,
-  HiOutlineMagnifyingGlass, HiOutlineBell,
+  HiOutlineMagnifyingGlass, HiOutlineBell, HiOutlinePhoto,
 } from "react-icons/hi2";
 
 interface SidebarChild {
@@ -58,7 +58,9 @@ const Admin = () => {
     location.pathname.startsWith("/admin/pages") ||
     location.pathname.startsWith("/admin/menus") ||
     location.pathname.startsWith("/admin/theme-editor") ||
-    location.pathname.startsWith("/admin/nav")
+    location.pathname.startsWith("/admin/nav") ||
+    location.pathname.startsWith("/admin/media") ||
+    location.pathname.startsWith("/admin/seo")
   );
   const [settingsOpen, setSettingsOpen] = useState(
     location.pathname.startsWith("/admin/settings") ||
@@ -186,7 +188,10 @@ const Admin = () => {
               className={`flex items-center gap-3 w-full px-3 py-2 text-sm rounded-lg transition-colors ${
               location.pathname.startsWith("/admin/pages") ||
               location.pathname.startsWith("/admin/menus") ||
-              location.pathname.startsWith("/admin/theme-editor")
+              location.pathname.startsWith("/admin/theme-editor") ||
+              location.pathname.startsWith("/admin/nav") ||
+              location.pathname.startsWith("/admin/media") ||
+              location.pathname.startsWith("/admin/seo")
                 ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
                 : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
               }`}
@@ -244,6 +249,18 @@ const Admin = () => {
                 >
                   <HiOutlineBars3CenterLeft className="text-base flex-shrink-0" />
                   Navigation
+                </Link>
+                <Link
+                  to="/admin/media"
+                  onClick={() => setSidebarOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    location.pathname.startsWith("/admin/media")
+                      ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
+                      : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
+                  }`}
+                >
+                  <HiOutlinePhoto className="text-base flex-shrink-0" />
+                  Media
                 </Link>
                 <Link
                   to="/admin/seo"

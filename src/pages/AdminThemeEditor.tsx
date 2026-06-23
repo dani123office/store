@@ -154,8 +154,7 @@ const AdminThemeEditor = () => {
   const [categories, setCategories] = useState<{ id: number; cat_title: string }[]>([]);
   const [previewKey, setPreviewKey] = useState(0);
 
-  // Simulated active slideshow index in preview
-  const [previewSlideIdx, setPreviewSlideIdx] = useState(0);
+
 
   useEffect(() => {
     // Auto-migrate database table when loading Theme Editor
@@ -232,14 +231,7 @@ const AdminThemeEditor = () => {
     fetchData();
   }, []);
 
-  // Set interval to rotate preview slideshow
-  useEffect(() => {
-    if (settings.slides.length <= 1) return;
-    const interval = setInterval(() => {
-      setPreviewSlideIdx((prev) => (prev + 1) % settings.slides.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [settings.slides]);
+
 
   const handleSave = async () => {
     if (!store) {
@@ -330,7 +322,6 @@ const AdminThemeEditor = () => {
       ...prev,
       slides: [...prev.slides, newSlide],
     }));
-    setPreviewSlideIdx(settings.slides.length);
     toast.success("Slide added");
   };
 
@@ -343,7 +334,6 @@ const AdminThemeEditor = () => {
       ...prev,
       slides: prev.slides.filter((s) => s.id !== id),
     }));
-    setPreviewSlideIdx(0);
     toast.success("Slide removed");
   };
 
@@ -379,7 +369,7 @@ const AdminThemeEditor = () => {
     );
   }
 
-  const activeSlide = settings.slides[previewSlideIdx] || settings.slides[0] || null;
+
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -670,8 +660,6 @@ const AdminThemeEditor = () => {
                     <div
                       key={slide.id}
                       className="border border-[#e0e0e0] rounded-xl p-4 bg-[#fafbfb] relative space-y-3 focus-within:border-neutral-500 transition-colors cursor-pointer"
-                      onFocus={() => setPreviewSlideIdx(index)}
-                      onClick={() => setPreviewSlideIdx(index)}
                     >
                       <div className="flex justify-between items-center">
                         <span className="text-xs font-bold text-[#6d7175]">SLIDE #{index + 1}</span>

@@ -10,31 +10,24 @@ interface MediaItem {
   size: string;
 }
 
-const initialMedia: MediaItem[] = [
-  { id: "1", name: "banner1.jpg", url: "/assets/banner1.jpg", size: "320 KB" },
-  { id: "2", name: "luxury fashion 7 1.png", url: "/assets/luxury fashion 7 1.png", size: "1.2 MB" },
-  { id: "3", name: "luxury fashion 7 2.png", url: "/assets/luxury fashion 7 2.png", size: "1.1 MB" },
-];
-
 const AdminMedia = () => {
   const [mediaList, setMediaList] = useState<MediaItem[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("zarka_media_library");
-    if (stored) {
-      setMediaList(JSON.parse(stored));
-    } else {
-      setMediaList(initialMedia);
-      localStorage.setItem("zarka_media_library", JSON.stringify(initialMedia));
+  const fetchMedia = async () => {
+    try {
+      const res = await customFetch.get("/media");
+      setMediaList(res.data);
+    } catch (e) {
+      console.error("Failed to fetch media", e);
+      toast.error("Failed to load media library");
     }
-  }, []);
-
-  const saveToStorage = (updated: MediaItem[]) => {
-    setMediaList(updated);
-    localStorage.setItem("zarka_media_library", JSON.stringify(updated));
   };
+
+  useEffect(() => {
+    fetchMedia();
+  }, []);
 
   const handleCopyUrl = (item: MediaItem) => {
     const fullUrl = window.location.origin + item.url;
@@ -44,15 +37,27 @@ const AdminMedia = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     const item = mediaList.find((m) => m.id === id);
-    if (item && (item.name.includes("banner") || item.name.includes("luxury"))) {
+    if (!item) return;
+
+    if (
+      item.name.includes("banner") ||
+      item.name.includes("luxury") ||
+      item.name === "1.jpg" ||
+      item.name.startsWith("product image")
+    ) {
       toast.error("System assets cannot be deleted.");
       return;
     }
-    const updated = mediaList.filter((m) => m.id !== id);
-    saveToStorage(updated);
-    toast.success("Image deleted from Media Library");
+
+    try {
+      await customFetch.delete(`/media/${item.name}`);
+      toast.success("Image deleted successfully");
+      fetchMedia();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to delete image");
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,21 +70,12 @@ const AdminMedia = () => {
       formData.append("file", files[0]);
 
       // Call Laravel Upload API
-      const res = await customFetch.post("/upload", formData, {
+      await customFetch.post("/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (res.data && res.data.url) {
-        const newItem: MediaItem = {
-          id: String(Date.now()),
-          name: files[0].name,
-          url: res.data.url,
-          size: `${Math.round(files[0].size / 1024)} KB`,
-        };
-        const updated = [newItem, ...mediaList];
-        saveToStorage(updated);
-        toast.success("Image uploaded successfully!");
-      }
+      toast.success("Image uploaded successfully!");
+      fetchMedia();
     } catch (err: any) {
       const msg = err?.response?.data?.message || err?.response?.data?.errors?.file?.[0] || "Upload failed. Make sure backend is running.";
       toast.error(msg);
