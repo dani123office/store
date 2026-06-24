@@ -330,7 +330,7 @@ const AdminOrders = () => {
                           src={`/assets/${item.image}`}
                           alt={item.title}
                           className="w-12 h-12 object-cover rounded border border-[#e0e0e0]"
-                          onError={(e) => { (e.target as HTMLImageElement).src = "https://via.placeholder.com/60?text=Product"; }}
+                          onError={(e) => { (e.target as HTMLImageElement).src = "/assets/product image 1.jpg"; }}
                         />
                         <div>
                           <p className="text-sm font-semibold text-[#202223]">{item.title}</p>

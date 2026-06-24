@@ -28,10 +28,17 @@ const UserProfile = () => {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
     if (!checkUserProfileFormData(data)) return;
+
+    // Clean payload: exclude empty password to prevent overriding/re-hashing on backend
+    const payload = { ...data };
+    if (!payload.password || String(payload.password).trim() === "") {
+      delete payload.password;
+    }
+
     const userId = JSON.parse(localStorage.getItem("user") || "{}").id;
     if (userId) {
       try {
-        await customFetch.put(`/users/${userId}`, data);
+        await customFetch.put(`/users/${userId}`, payload);
       } catch (e) {
         toast.error("User update failed");
         return;
@@ -52,6 +59,16 @@ const UserProfile = () => {
       fetchUser(userId);
     }
   }, [navigate]);
+
+  if (!user) {
+    return (
+      <div className="max-w-screen-lg mx-auto mt-24 px-5 flex items-center justify-center min-h-[300px]">
+        <div className="text-lg tracking-widest uppercase font-serif text-[#151515]/60 animate-pulse">
+          Loading Account...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-screen-lg mx-auto mt-24 px-5">
@@ -92,15 +109,14 @@ const UserProfile = () => {
             defaultValue={user?.email}
           />
         </div>
-        <div className="flex flex-col gap-1.5">
+         <div className="flex flex-col gap-1.5">
           <label htmlFor="password" className="text-xs tracking-wider uppercase text-[#151515]/70">Password</label>
           <input
             type="password"
             className="bg-white border border-[#E2E2E2] text-sm py-3 px-4 w-full outline-none focus:border-[#151515] transition-colors"
-            placeholder="Enter password"
+            placeholder="Enter new password (optional)"
             id="password"
             name="password"
-            defaultValue={user?.password}
           />
         </div>
         <Button type="submit" text="Update Profile" mode="black" />

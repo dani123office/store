@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { removeProductFromTheCart, removeCoupon } from "../features/cart/cartSlice";
 import customFetch from "../axios/custom";
@@ -24,6 +24,18 @@ const Checkout = () => {
   const [emailAddress, setEmailAddress] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (!user.id) {
+      toast.error("Please login to proceed to checkout.");
+      navigate("/login");
+    } else {
+      if (user.email) setEmailAddress(user.email);
+      if (user.name) setFirstName(user.name);
+      if (user.lastname) setLastName(user.lastname);
+    }
+  }, [navigate]);
   const [address, setAddress] = useState("");
   const [apartment, setApartment] = useState("");
   const [city, setCity] = useState("");
@@ -146,7 +158,7 @@ const Checkout = () => {
         });
       }
 
-      if (response.status === 201) {
+      if (response.status === 201 || response.status === 200) {
         toast.success("Payment verified! Order placed successfully.");
         // Clear cart items
         productsInCart.forEach((p) => {

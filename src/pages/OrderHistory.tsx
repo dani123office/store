@@ -6,7 +6,11 @@ import { formatDate } from "../utils/formatDate";
 
 export const loader = async () => {
   try {
-    const response = await customFetch.get("/orders");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (!user.id) {
+      return [];
+    }
+    const response = await customFetch.get(`/orders?user_id=${user.id}`);
     return response.data;
   } catch (error) {
     console.error("Failed to fetch orders:", error);

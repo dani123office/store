@@ -7,11 +7,21 @@ interface CategoriesSectionProps {
   themeSettings?: ThemeSettings;
 }
 
+// Default fallback — same as Header's defaultNavItems
 const fallbackCategories = [
-  { title: "Special Edition", image: "luxury category 1.png", link: "special-edition" },
-  { title: "Luxury Collection", image: "luxury category 2.png", link: "luxury-collection" },
-  { title: "Summer Edition", image: "luxury category 3.png", link: "summer-edition" },
-  { title: "Unique Collection", image: "luxury category 4.png", link: "unique-collection" },
+  { title: "New Arrivals", image: "product image 1.jpg", link: "new-arrivals" },
+  { title: "Unstitched", image: "product image 3.jpg", link: "unstitched" },
+  { title: "Ready To Wear", image: "product image 5.jpg", link: "ready-to-wear" },
+  { title: "Bridals", image: "product image 7.jpg", link: "bridals" },
+  { title: "Jewellery", image: "product image 9.jpg", link: "jewellery" },
+  { title: "Special Prices", image: "product image 11.jpg", link: "special-prices" },
+];
+
+// Cycle through product images for each nav item
+const imagePool = [
+  "product image 1.jpg", "product image 3.jpg", "product image 5.jpg",
+  "product image 7.jpg", "product image 9.jpg", "product image 11.jpg",
+  "product image 13.jpg", "product image 15.jpg", "product image 17.jpg",
 ];
 
 const CategoriesSection = ({ themeSettings }: CategoriesSectionProps) => {
@@ -19,28 +29,28 @@ const CategoriesSection = ({ themeSettings }: CategoriesSectionProps) => {
   const title = themeSettings?.categories_section?.title || "Shop By Category";
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchNavItems = async () => {
       try {
-        const res = await customFetch.get("/categories");
-        const data = res.data || [];
-        if (data.length > 0) {
-          setCategories(data.map((c: any) => ({
-            title: c.cat_title || c.title,
-            image: c.cat_img || "",
-            link: (c.cat_title || "").toLowerCase().replace(/\s+/g, "-"),
+        const res = await customFetch.get("/nav-items");
+        const data = res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          setCategories(data.map((item: any, idx: number) => ({
+            title: item.label,
+            image: imagePool[idx % imagePool.length],
+            link: item.slug,
           })));
         }
       } catch {
         // use fallback
       }
     };
-    fetchCategories();
+    fetchNavItems();
   }, []);
 
   return (
     <section className="max-w-screen-2xl mx-auto px-5 mt-20 mb-20">
       <h2 className="section-title mb-10 font-serif">{title}</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {categories.map((cat) => (
           <CategoryItem
             key={cat.link}
@@ -55,3 +65,4 @@ const CategoriesSection = ({ themeSettings }: CategoriesSectionProps) => {
 };
 
 export default CategoriesSection;
+

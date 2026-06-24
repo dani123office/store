@@ -232,7 +232,7 @@ const AdminProducts = () => {
                       <td className="py-3 pr-5">
                         <img src={`/assets/${product.image}`} alt={product.title}
                           className="w-10 h-10 object-cover rounded"
-                          onError={(e) => { (e.target as HTMLImageElement).src = "https://via.placeholder.com/40?text=N/A"; }}
+                          onError={(e) => { (e.target as HTMLImageElement).src = "/assets/product image 1.jpg"; }}
                         />
                       </td>
                       <td className="py-3 pr-5 font-medium text-[#202223]">{product.title}</td>

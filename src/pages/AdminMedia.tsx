@@ -122,7 +122,7 @@ const AdminMedia = () => {
                 src={item.url}
                 alt={item.name}
                 className="w-full h-full object-cover"
-                onError={(e) => { (e.target as HTMLImageElement).src = "https://via.placeholder.com/150?text=Image"; }}
+                onError={(e) => { (e.target as HTMLImageElement).src = "/assets/product image 1.jpg"; }}
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <button

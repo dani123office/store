@@ -202,10 +202,10 @@ const SingleProduct = () => {
                 }`}
               >
                 <img
-                  src={img.startsWith("luxury") || img.startsWith("banner") ? `/assets/${img}` : `/assets/${img}`}
+                  src={img ? `/assets/${img}` : "/assets/product image 1.jpg"}
                   alt="Thumbnail"
                   className="w-full h-full object-cover"
-                  onError={(e) => { (e.target as HTMLImageElement).src = `https://via.placeholder.com/64x80?text=Mock`; }}
+                  onError={(e) => { (e.target as HTMLImageElement).src = "/assets/product image 1.jpg"; }}
                 />
               </button>
             ))}
@@ -245,14 +245,14 @@ const SingleProduct = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                src={activeImage.startsWith("luxury") || activeImage.startsWith("banner") ? `/assets/${activeImage}` : `/assets/${activeImage}`}
+                src={activeImage ? `/assets/${activeImage}` : "/assets/product image 1.jpg"}
                 alt={singleProduct?.title}
                 className="w-full h-full object-cover transition-transform duration-100"
                 style={{
                   transform: isZoomed ? "scale(1.8)" : "scale(1)",
                   transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
                 }}
-                onError={(e) => { (e.target as HTMLImageElement).src = `https://via.placeholder.com/500x600?text=Mock`; }}
+                onError={(e) => { (e.target as HTMLImageElement).src = "/assets/product image 1.jpg"; }}
               />
             </AnimatePresence>
           </div>

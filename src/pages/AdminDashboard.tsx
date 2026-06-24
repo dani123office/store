@@ -223,7 +223,7 @@ const AdminDashboard = () => {
                       src={`/assets/${p.image}`}
                       alt={p.title}
                       className="w-10 h-12 object-cover rounded border border-[#e0e0e0]"
-                      onError={(e) => { (e.target as HTMLImageElement).src = "https://via.placeholder.com/40?text=Prod"; }}
+                      onError={(e) => { (e.target as HTMLImageElement).src = "/assets/product image 1.jpg"; }}
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between text-xs font-medium text-[#202223] mb-1">
@@ -319,7 +319,7 @@ const AdminDashboard = () => {
                       src={`/assets/${p.image}`}
                       alt={p.title}
                       className="w-8 h-10 object-cover rounded border border-[#e0e0e0]"
-                      onError={(e) => { (e.target as HTMLImageElement).src = "https://via.placeholder.com/40?text=Prod"; }}
+                      onError={(e) => { (e.target as HTMLImageElement).src = "/assets/product image 1.jpg"; }}
                     />
                     <div>
                       <h4 className="text-xs font-semibold text-[#202223] truncate max-w-[120px]">{p.title}</h4>

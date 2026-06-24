@@ -27,6 +27,7 @@ class AuthController extends Controller
             'name' => $user->name,
             'lastname' => $user->lastname,
             'email' => $user->email,
+            'role' => $user->role,
         ]);
     }
 
@@ -51,6 +52,7 @@ class AuthController extends Controller
             'name' => $user->name,
             'lastname' => $user->lastname,
             'email' => $user->email,
-        ]);
+            'role' => $user->role,
+        ], 201);
     }
 }

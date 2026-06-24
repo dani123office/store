@@ -265,10 +265,20 @@ const HomeLayout = () => {
               featured_collections: { ...defaultThemeSettings.featured_collections, ...(parsed.featured_collections || {}) },
               trending_products: { ...defaultThemeSettings.trending_products, ...(parsed.trending_products || {}) },
             });
+            return;
           }
+        }
+        // Fallback to local storage if store settings are not in the database response
+        const fallback = localStorage.getItem("zarka_theme_settings_fallback");
+        if (fallback) {
+          setSettings(JSON.parse(fallback));
         }
       } catch (e) {
         console.error("Failed to load store settings on frontend layout", e);
+        const fallback = localStorage.getItem("zarka_theme_settings_fallback");
+        if (fallback) {
+          setSettings(JSON.parse(fallback));
+        }
       }
     };
     fetchSettings();
@@ -371,7 +381,7 @@ const HomeLayout = () => {
                 src={`/assets/${item.image}`}
                 alt=""
                 className="w-full h-full object-cover"
-                onError={(e) => { (e.target as HTMLImageElement).src = "https://via.placeholder.com/48"; }}
+                onError={(e) => { (e.target as HTMLImageElement).src = "/assets/product image 1.jpg"; }}
               />
             </motion.div>
           );

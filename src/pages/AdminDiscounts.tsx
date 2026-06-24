@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { HiPlus, HiTrash, HiTag, HiXMark } from "react-icons/hi2";
 import toast from "react-hot-toast";
+import customFetch from "../axios/custom";
 
 interface Discount {
   id: string;
@@ -8,7 +9,8 @@ interface Discount {
   type: "Percentage" | "Fixed Amount";
   value: number;
   status: "Active" | "Expired";
-  expiryDate: string;
+  expiry_date?: string;
+  expiryDate?: string;
 }
 
 const defaultDiscounts: Discount[] = [
@@ -22,51 +24,91 @@ const AdminDiscounts = () => {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ code: "", type: "Percentage" as Discount["type"], value: "", expiryDate: "" });
 
-  useEffect(() => {
-    const stored = localStorage.getItem("zarka_discounts");
-    if (stored) {
-      setDiscounts(JSON.parse(stored));
-    } else {
-      setDiscounts(defaultDiscounts);
-      localStorage.setItem("zarka_discounts", JSON.stringify(defaultDiscounts));
+  const fetchDiscounts = async () => {
+    try {
+      const res = await customFetch.get("/db-coupons");
+      setDiscounts((res.data || []) as Discount[]);
+    } catch (e) {
+      console.error("Failed to fetch coupons from backend, using fallback", e);
+      const stored = localStorage.getItem("zarka_discounts");
+      if (stored) {
+        setDiscounts(JSON.parse(stored));
+      } else {
+        setDiscounts(defaultDiscounts);
+        localStorage.setItem("zarka_discounts", JSON.stringify(defaultDiscounts));
+      }
     }
+  };
+
+  useEffect(() => {
+    fetchDiscounts();
   }, []);
 
-  const saveToStorage = (updated: Discount[]) => {
-    setDiscounts(updated);
-    localStorage.setItem("zarka_discounts", JSON.stringify(updated));
+  const toggleStatus = async (id: string) => {
+    try {
+      await customFetch.put(`/db-coupons/${id}`);
+      toast.success("Discount status updated");
+      fetchDiscounts();
+    } catch (e) {
+      console.error("Backend toggle status failed, updating locally", e);
+      const updated = discounts.map((d) => (d.id === id ? { ...d, status: d.status === "Active" ? ("Expired" as const) : ("Active" as const) } : d));
+      setDiscounts(updated);
+      localStorage.setItem("zarka_discounts", JSON.stringify(updated));
+      toast.success("Discount status updated locally");
+    }
   };
 
-  const toggleStatus = (id: string) => {
-    const updated: Discount[] = discounts.map((d) => (d.id === id ? { ...d, status: d.status === "Active" ? "Expired" : "Active" } : d));
-    saveToStorage(updated);
-    toast.success("Discount status updated");
+  const handleDelete = async (id: string) => {
+    try {
+      await customFetch.delete(`/db-coupons/${id}`);
+      toast.success("Discount code deleted");
+      fetchDiscounts();
+    } catch (e) {
+      console.error("Backend delete failed, updating locally", e);
+      const updated = discounts.filter((d) => d.id !== id);
+      setDiscounts(updated);
+      localStorage.setItem("zarka_discounts", JSON.stringify(updated));
+      toast.success("Discount code deleted locally");
+    }
   };
 
-  const handleDelete = (id: string) => {
-    const updated = discounts.filter((d) => d.id !== id);
-    saveToStorage(updated);
-    toast.success("Discount code deleted");
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.code.trim() || !form.value) return;
 
-    const newDiscount: Discount = {
-      id: String(Date.now()),
-      code: form.code.toUpperCase().replace(/\s+/g, ""),
-      type: form.type,
-      value: Number(form.value),
-      status: "Active",
-      expiryDate: form.expiryDate || "No expiry",
-    };
+    const newDiscountCode = form.code.toUpperCase().replace(/\s+/g, "");
+    const newDiscountType = form.type;
+    const newDiscountValue = Number(form.value);
+    const newDiscountExpiry = form.expiryDate || null;
 
-    const updated = [newDiscount, ...discounts];
-    saveToStorage(updated);
-    toast.success("Discount code created");
-    setShowForm(false);
-    setForm({ code: "", type: "Percentage", value: "", expiryDate: "" });
+    try {
+      await customFetch.post("/db-coupons", {
+        code: newDiscountCode,
+        type: newDiscountType,
+        value: newDiscountValue,
+        expiry_date: newDiscountExpiry,
+      });
+      toast.success("Discount code created");
+      setShowForm(false);
+      setForm({ code: "", type: "Percentage", value: "", expiryDate: "" });
+      fetchDiscounts();
+    } catch (e) {
+      console.error("Backend create coupon failed, updating locally", e);
+      const newDiscount: Discount = {
+        id: String(Date.now()),
+        code: newDiscountCode,
+        type: newDiscountType,
+        value: newDiscountValue,
+        status: "Active",
+        expiryDate: newDiscountExpiry || "No expiry",
+      };
+      const updated = [newDiscount, ...discounts];
+      setDiscounts(updated);
+      localStorage.setItem("zarka_discounts", JSON.stringify(updated));
+      toast.success("Discount code created locally");
+      setShowForm(false);
+      setForm({ code: "", type: "Percentage", value: "", expiryDate: "" });
+    }
   };
 
   return (
@@ -180,7 +222,7 @@ const AdminDiscounts = () => {
                 <td className="py-3.5 px-5 text-right font-medium text-[#202223]">
                   {d.type === "Percentage" ? `${d.value}%` : `Rs.${d.value.toLocaleString()}`}
                 </td>
-                <td className="py-3.5 px-5 text-[#6d7175]">{d.expiryDate}</td>
+                <td className="py-3.5 px-5 text-[#6d7175]">{d.expiry_date || d.expiryDate || "No expiry"}</td>
                 <td className="py-3.5 px-5 text-center">
                   <button
                     onClick={() => toggleStatus(d.id)}

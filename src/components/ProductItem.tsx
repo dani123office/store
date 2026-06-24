@@ -52,13 +52,20 @@ const ProductItem = ({
           )}
         </button>
 
+        {/* Stock Badge Overlay */}
+        {stock === 0 && (
+          <div className="absolute top-3 left-3 z-20 bg-[#151515]/90 text-white text-[9px] font-bold tracking-[0.2em] uppercase px-3 py-1.5 shadow-sm">
+            Sold Out
+          </div>
+        )}
+
         <img
           src={`/assets/${image}`}
           alt={title}
-          className="w-full aspect-[3/4] object-cover transition-transform duration-500 group-hover:scale-105"
+          className={`w-full aspect-[3/4] object-cover transition-transform duration-500 group-hover:scale-105 ${stock === 0 ? "opacity-60 grayscale-[30%]" : ""}`}
         />
         <div className="quick-view">
-          Quick View
+          {stock === 0 ? "Out of Stock" : "Quick View"}
         </div>
       </Link>
       <div className="mt-4 text-left">

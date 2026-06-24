@@ -176,5 +176,8 @@ class DatabaseSeeder extends Seeder
         foreach ($navItems as $n) {
             NavItem::create($n);
         }
+
+        $this->call(StoreSeeder::class);
     }
 }
+

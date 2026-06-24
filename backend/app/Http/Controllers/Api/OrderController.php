@@ -11,7 +11,11 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with('user')->get();
+        $query = Order::with('user');
+        if (request()->has('user_id')) {
+            $query->where('user_id', request()->get('user_id'));
+        }
+        $orders = $query->get();
         return $orders->map(function ($order) {
             return $this->format($order);
         });
@@ -34,7 +38,7 @@ class OrderController extends Controller
         if ($input['user_id'] ?? null) {
             $order->load('user');
         }
-        return $this->format($order);
+        return response()->json($this->format($order), 201);
     }
 
     public function show(Order $order)

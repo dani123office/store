@@ -24,8 +24,11 @@ const SingleOrderHistory = () => {
     if (!user?.id) {
       toast.error("Please login to view this page");
       navigate("/login");
+    } else if (singleOrder?.user && singleOrder.user.id !== user.id) {
+      toast.error("Access denied. You are not authorized to view this order.");
+      navigate("/order-history");
     }
-  }, [user, navigate]);
+  }, [user, singleOrder, navigate]);
 
   return (
     <div className="max-w-screen-2xl mx-auto pt-20 px-5">

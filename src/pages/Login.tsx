@@ -23,7 +23,7 @@ const Login = () => {
       });
       const user = response.data;
       toast.success("You logged in successfully");
-      localStorage.setItem("user", JSON.stringify({ ...data, id: user.id }));
+      localStorage.setItem("user", JSON.stringify(user));
       store.dispatch(setLoginStatus(true));
       navigate("/user-profile");
     } catch {

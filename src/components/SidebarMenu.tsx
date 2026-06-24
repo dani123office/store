@@ -36,13 +36,20 @@ const SidebarMenu = ({
   return (
     <>
       {(isSidebarOpen || isAnimating) && (
-        <div
-          className={
-            isSidebarOpen
-              ? "fixed top-0 left-0 w-72 z-50 h-full transition-transform duration-300 ease-in-out bg-white shadow-lg transform translate-x-0"
-              : "fixed top-0 left-0 w-72 z-50 h-full transition-transform duration-300 ease-in-out bg-white shadow-lg transform -translate-x-full"
-          }
-        >
+        <>
+          <div
+            className={`fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity duration-300 ${
+              isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+            onClick={() => setIsSidebarOpen(false)}
+          />
+          <div
+            className={
+              isSidebarOpen
+                ? "fixed top-0 left-0 w-72 z-50 h-full transition-transform duration-300 ease-in-out bg-white shadow-2xl transform translate-x-0"
+                : "fixed top-0 left-0 w-72 z-50 h-full transition-transform duration-300 ease-in-out bg-white shadow-2xl transform -translate-x-full"
+            }
+          >
           <div className="flex justify-end mr-2 mt-2">
             <HiXMark
               className="text-2xl cursor-pointer"
@@ -113,6 +120,7 @@ const SidebarMenu = ({
             </Link>
           </div>
         </div>
+        </>
       )}
     </>
   );

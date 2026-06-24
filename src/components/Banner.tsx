@@ -62,6 +62,10 @@ const Banner = ({ themeSettings }: BannerProps) => {
                 src={imageUrl}
                 alt=""
                 onLoad={() => onImageLoad(imageUrl)}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/assets/banner1.jpg";
+                  onImageLoad(imageUrl);
+                }}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
                   loaded ? "opacity-100" : "opacity-0"
                 }`}
@@ -74,17 +78,17 @@ const Banner = ({ themeSettings }: BannerProps) => {
               />
             </div>
 
-            <div className="relative z-20 px-5 text-center flex flex-col items-center max-w-3xl space-y-4">
-              <h3 className="text-white/90 text-sm md:text-base tracking-[0.2em] font-light uppercase animate-fade-in">
+            <div className="relative z-20 px-8 py-10 md:px-16 md:py-14 text-center flex flex-col items-center max-w-2xl space-y-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-2xl mx-5 animate-fade-in">
+              <h3 className="text-white/90 text-xs md:text-sm tracking-[0.25em] font-light uppercase animate-fade-in">
                 {slide.subtitle}
               </h3>
-              <h2 className="text-white text-center text-4xl md:text-6xl font-light tracking-[0.15em] uppercase leading-tight font-serif">
+              <h2 className="text-white text-center text-3xl md:text-5xl font-light tracking-[0.18em] uppercase leading-tight font-serif">
                 {slide.title}
               </h2>
-              <div className="flex justify-center items-center gap-4 pt-4 flex-col sm:flex-row">
+              <div className="flex justify-center items-center gap-4 pt-2 flex-col sm:flex-row">
                 <Link
                   to={slide.btn_link || "/shop"}
-                  className="bg-white text-[#151515] text-xs md:text-sm tracking-[0.2em] uppercase font-semibold px-10 py-3.5 hover:bg-[#e6e6e6] transition-all duration-300 shadow-md"
+                  className="bg-white text-[#151515] text-xs tracking-[0.2em] uppercase font-semibold px-10 py-3.5 hover:bg-[#e6e6e6] transition-all duration-300 shadow-md"
                 >
                   {slide.btn_text || "Shop Now"}
                 </Link>

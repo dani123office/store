@@ -55,13 +55,23 @@ Route::put('/taxes/{tax}', [TaxController::class, 'update']);
 
 Route::get('/db-migrate-custom', function () {
     try {
+        $messages = [];
         if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'theme_settings')) {
             \Illuminate\Support\Facades\Schema::table('stores', function (\Illuminate\Database\Schema\Blueprint $table) {
                 $table->text('theme_settings')->nullable();
             });
-            return response()->json(['status' => 'success', 'message' => 'theme_settings column added successfully.']);
+            $messages[] = 'theme_settings column added to stores.';
         }
-        return response()->json(['status' => 'success', 'message' => 'theme_settings column already exists.']);
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('products', 'description')) {
+            \Illuminate\Support\Facades\Schema::table('products', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->text('description')->nullable();
+            });
+            $messages[] = 'description column added to products.';
+        }
+        return response()->json([
+            'status' => 'success',
+            'message' => empty($messages) ? 'migrations already up to date.' : implode(' ', $messages)
+        ]);
     } catch (\Exception $e) {
         return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
     }

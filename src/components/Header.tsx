@@ -49,7 +49,7 @@ const Header = ({ logoText }: HeaderProps) => {
 
   return (
     <>
-      <header className="bg-white border-b border-[#E2E2E2]">
+      <header className="sticky top-0 z-40 bg-white/75 backdrop-blur-md border-b border-[#E2E2E2]/60 shadow-sm transition-all duration-300">
         <div className="max-w-screen-2xl mx-auto px-5">
           <div className="flex items-center justify-between h-20">
             {/* Mobile menu trigger */}

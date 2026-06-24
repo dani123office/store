@@ -4,10 +4,14 @@ import toast from "react-hot-toast";
 import {
   HiOutlineTrash,
   HiOutlinePlus,
-  HiOutlineArrowUpTray,
   HiOutlineComputerDesktop,
   HiOutlineDevicePhoneMobile,
   HiOutlineArrowPath,
+  HiOutlinePhoto,
+  HiXMark,
+  HiCheck,
+  HiArrowUpTray,
+  HiOutlineMagnifyingGlass,
 } from "react-icons/hi2";
 
 interface Slide {
@@ -154,6 +158,90 @@ const AdminThemeEditor = () => {
   const [categories, setCategories] = useState<{ id: number; cat_title: string }[]>([]);
   const [previewKey, setPreviewKey] = useState(0);
 
+  // Media Modal states
+  const [showMediaModal, setShowMediaModal] = useState(false);
+  const [mediaList, setMediaList] = useState<any[]>([]);
+  const [loadingMedia, setLoadingMedia] = useState(false);
+  const [selectedMediaName, setSelectedMediaName] = useState<string | null>(null);
+  const [mediaSearch, setMediaSearch] = useState("");
+  const [mediaUploading, setMediaUploading] = useState(false);
+  const [mediaTarget, setMediaTarget] = useState<
+    | { type: "slide"; slideId: string }
+    | { type: "promo"; side: "left" | "right" }
+    | null
+  >(null);
+
+  const fetchMediaList = async () => {
+    setLoadingMedia(true);
+    try {
+      const res = await customFetch.get("/media");
+      setMediaList(res.data || []);
+    } catch {
+      toast.error("Failed to load media library");
+    } finally {
+      setLoadingMedia(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showMediaModal) {
+      fetchMediaList();
+    }
+  }, [showMediaModal]);
+
+  const handleModalUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("file", file);
+    setMediaUploading(true);
+    const loadToast = toast.loading("Uploading image to media library...");
+    try {
+      const res = await customFetch.post("/upload", fd);
+      toast.success("Image uploaded successfully!");
+      // Refresh media list
+      const mediaRes = await customFetch.get("/media");
+      setMediaList(mediaRes.data || []);
+      
+      // Auto-select the newly uploaded image
+      if (res.data && res.data.filename) {
+        setSelectedMediaName(res.data.filename);
+      }
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.response?.data?.errors?.file?.[0] || "Upload failed";
+      toast.error(msg);
+    } finally {
+      setMediaUploading(false);
+      toast.dismiss(loadToast);
+    }
+    e.target.value = "";
+  };
+
+  const handleSelectMedia = (filename: string) => {
+    if (!mediaTarget) return;
+
+    if (mediaTarget.type === "slide") {
+      setSettings((prev) => ({
+        ...prev,
+        slides: prev.slides.map((s) =>
+          s.id === mediaTarget.slideId ? { ...s, image: filename } : s
+        ),
+      }));
+      toast.success("Slide image updated");
+    } else if (mediaTarget.type === "promo") {
+      setSettings((prev) => ({
+        ...prev,
+        promotional_section: {
+          ...prev.promotional_section,
+          [mediaTarget.side === "left" ? "left_image" : "right_image"]: filename,
+        },
+      }));
+      toast.success("Promotional image updated");
+    }
+
+    setShowMediaModal(false);
+  };
+
 
 
   useEffect(() => {
@@ -255,58 +343,7 @@ const AdminThemeEditor = () => {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, slideId: string) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    const fd = new FormData();
-    fd.append("file", file);
-
-    const uploadToast = toast.loading("Uploading image...");
-    try {
-      const res = await customFetch.post("/upload", fd);
-      if (res.data && res.data.filename) {
-        setSettings((prev) => ({
-          ...prev,
-          slides: prev.slides.map((s) =>
-            s.id === slideId ? { ...s, image: res.data.filename } : s
-          ),
-        }));
-        toast.success("Image uploaded successfully!", { id: uploadToast });
-      }
-    } catch (err: any) {
-      console.error(err);
-      const msg = err?.response?.data?.message || err?.response?.data?.errors?.file?.[0] || "Upload failed";
-      toast.error(msg, { id: uploadToast });
-    }
-  };
-
-  const handlePromoUpload = async (e: React.ChangeEvent<HTMLInputElement>, side: "left" | "right") => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const fd = new FormData();
-    fd.append("file", file);
-
-    const uploadToast = toast.loading("Uploading image...");
-    try {
-      const res = await customFetch.post("/upload", fd);
-      if (res.data && res.data.filename) {
-        setSettings((prev) => ({
-          ...prev,
-          promotional_section: {
-            ...prev.promotional_section,
-            [side === "left" ? "left_image" : "right_image"]: res.data.filename,
-          },
-        }));
-        toast.success("Image uploaded successfully!", { id: uploadToast });
-      }
-    } catch (err: any) {
-      console.error(err);
-      const msg = err?.response?.data?.message || err?.response?.data?.errors?.file?.[0] || "Upload failed";
-      toast.error(msg, { id: uploadToast });
-    }
-  };
 
   const addSlide = () => {
     const newId = (settings.slides.length + 1).toString();
@@ -692,16 +729,17 @@ const AdminThemeEditor = () => {
                               onChange={(e) => updateSlideField(slide.id, "image", e.target.value)}
                               className="w-full border border-[#e0e0e0] rounded-lg px-2 py-1 text-xs outline-none focus:border-[#2c6ecb]"
                             />
-                            {/* Upload trigger */}
-                            <label className="flex items-center justify-center gap-1 cursor-pointer bg-white border border-[#e0e0e0] rounded px-2 py-1 text-[10px] font-semibold text-[#6d7175] hover:bg-gray-50 transition-colors">
-                              <HiOutlineArrowUpTray className="text-xs" /> Upload Custom Image
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => handleFileUpload(e, slide.id)}
-                                className="hidden"
-                              />
-                            </label>
+                            {/* Media Selector trigger */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setMediaTarget({ type: "slide", slideId: slide.id });
+                                setShowMediaModal(true);
+                              }}
+                              className="flex items-center justify-center gap-1 cursor-pointer bg-white border border-[#e0e0e0] rounded px-2 py-1.5 text-[10px] font-semibold text-[#6d7175] hover:bg-gray-50 transition-colors w-full"
+                            >
+                              <HiOutlinePhoto className="text-xs" /> Select from Media
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -792,15 +830,15 @@ const AdminThemeEditor = () => {
                           onChange={(e) => updateCollectionTab(idx, "category", e.target.value)}
                           className="w-full border border-[#e0e0e0] rounded-lg px-2 py-1 text-xs outline-none bg-white"
                         >
-                          <option value="all">Show All</option>
-                          <option value="new-arrivals">new-arrivals</option>
-                          <option value="unstitched">unstitched</option>
-                          <option value="ready-to-wear">ready-to-wear</option>
-                          <option value="bridals">bridals</option>
-                          <option value="jewellery">jewellery</option>
-                          <option value="special-prices">special-prices</option>
-                          {categories.map((c) => (
-                            <option key={c.id} value={c.cat_title.toLowerCase().replace(/\s+/g, "-")}>
+                          <option key="all" value="all">Show All</option>
+                          <option key="new-arrivals" value="new-arrivals">new-arrivals</option>
+                          <option key="unstitched" value="unstitched">unstitched</option>
+                          <option key="ready-to-wear" value="ready-to-wear">ready-to-wear</option>
+                          <option key="bridals" value="bridals">bridals</option>
+                          <option key="jewellery" value="jewellery">jewellery</option>
+                          <option key="special-prices" value="special-prices">special-prices</option>
+                          {categories.map((c, catIdx) => (
+                            <option key={`dynamic-${(c as any).cat_id || c.id || catIdx}`} value={c.cat_title.toLowerCase().replace(/\s+/g, "-")}>
                               {c.cat_title} (Dynamic)
                             </option>
                           ))}
@@ -916,10 +954,16 @@ const AdminThemeEditor = () => {
                               onChange={(e) => setSettings({ ...settings, promotional_section: { ...settings.promotional_section, left_image: e.target.value } })}
                               className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
                             />
-                            <label className="flex items-center justify-center gap-1 cursor-pointer bg-white border border-[#e0e0e0] rounded-lg px-3 py-2 text-xs font-semibold text-[#6d7175] hover:bg-gray-50 transition-colors">
-                              <HiOutlineArrowUpTray className="text-sm" /> Upload Image
-                              <input type="file" accept="image/*" onChange={(e) => handlePromoUpload(e, "left")} className="hidden" />
-                            </label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setMediaTarget({ type: "promo", side: "left" });
+                                setShowMediaModal(true);
+                              }}
+                              className="flex items-center justify-center gap-1 cursor-pointer bg-white border border-[#e0e0e0] rounded-lg px-3 py-2 text-xs font-semibold text-[#6d7175] hover:bg-gray-50 transition-colors"
+                            >
+                              <HiOutlinePhoto className="text-sm" /> Select from Media
+                            </button>
                           </div>
                         </div>
                         <div>
@@ -960,10 +1004,16 @@ const AdminThemeEditor = () => {
                               onChange={(e) => setSettings({ ...settings, promotional_section: { ...settings.promotional_section, right_image: e.target.value } })}
                               className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
                             />
-                            <label className="flex items-center justify-center gap-1 cursor-pointer bg-white border border-[#e0e0e0] rounded-lg px-3 py-2 text-xs font-semibold text-[#6d7175] hover:bg-gray-50 transition-colors">
-                              <HiOutlineArrowUpTray className="text-sm" /> Upload Image
-                              <input type="file" accept="image/*" onChange={(e) => handlePromoUpload(e, "right")} className="hidden" />
-                            </label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setMediaTarget({ type: "promo", side: "right" });
+                                setShowMediaModal(true);
+                              }}
+                              className="flex items-center justify-center gap-1 cursor-pointer bg-white border border-[#e0e0e0] rounded-lg px-3 py-2 text-xs font-semibold text-[#6d7175] hover:bg-gray-50 transition-colors"
+                            >
+                              <HiOutlinePhoto className="text-sm" /> Select from Media
+                            </button>
                           </div>
                         </div>
                         <div>
@@ -1099,6 +1149,123 @@ const AdminThemeEditor = () => {
           </div>
         </div>
       </div>
+
+      {/* Media Selector Modal */}
+      {showMediaModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowMediaModal(false)} />
+          <div className="relative bg-white w-full max-w-4xl h-[80vh] rounded-xl shadow-2xl flex flex-col overflow-hidden border border-gray-100 animate-fade-in text-left">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Select Media</h3>
+                <p className="text-xs text-gray-500">Choose an existing image or upload a new one to the store library</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowMediaModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1.5 hover:bg-gray-100 rounded-lg"
+              >
+                <HiXMark className="text-xl" />
+              </button>
+            </div>
+
+            {/* Modal Controls (Search & Upload) */}
+            <div className="px-6 py-3 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 flex-shrink-0">
+              <div className="relative w-full sm:max-w-xs">
+                <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+                <input
+                  type="text"
+                  placeholder="Search images by name..."
+                  value={mediaSearch}
+                  onChange={(e) => setMediaSearch(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg pl-9 pr-4 py-1.5 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] bg-white"
+                />
+              </div>
+
+              <label className="flex items-center gap-2 bg-[#008060] text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-[#006e52] cursor-pointer transition-colors shadow-sm w-full sm:w-auto justify-center">
+                <HiArrowUpTray className="text-sm" />
+                {mediaUploading ? "Uploading..." : "Upload New File"}
+                <input type="file" accept="image/*" className="hidden" onChange={handleModalUpload} disabled={mediaUploading} />
+              </label>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-6 bg-gray-50/30">
+              {loadingMedia ? (
+                <div className="h-full flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2c6ecb]" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
+                  {mediaList
+                    .filter((item) => item.name.toLowerCase().includes(mediaSearch.toLowerCase()))
+                    .map((item) => {
+                      const isSelected = selectedMediaName === item.name;
+                      return (
+                        <div
+                          key={item.id}
+                          onClick={() => setSelectedMediaName(item.name)}
+                          onDoubleClick={() => {
+                            handleSelectMedia(item.name);
+                          }}
+                          className={`aspect-square bg-white rounded-lg overflow-hidden border-2 cursor-pointer transition-all relative flex items-center justify-center group shadow-sm ${
+                            isSelected
+                              ? "border-[#2c6ecb] ring-2 ring-[#2c6ecb]/20"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <img
+                            src={item.url}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => { (e.target as HTMLImageElement).src = "/assets/product image 1.jpg"; }}
+                          />
+                          {isSelected && (
+                            <div className="absolute top-2 right-2 bg-[#2c6ecb] text-white rounded-full p-1 shadow-md">
+                              <HiCheck className="text-[10px]" />
+                            </div>
+                          )}
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] truncate p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {item.name}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  {mediaList.filter((item) => item.name.toLowerCase().includes(mediaSearch.toLowerCase())).length === 0 && (
+                    <div className="col-span-full py-16 text-center text-sm text-gray-500">
+                      No matching media items found in library.
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3 bg-gray-50/50 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowMediaModal(false)}
+                className="px-4 py-2 border border-gray-200 text-sm font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectedMediaName) {
+                    handleSelectMedia(selectedMediaName);
+                  }
+                }}
+                disabled={!selectedMediaName}
+                className="px-4 py-2 bg-[#2c6ecb] text-white text-sm font-medium rounded-lg hover:bg-[#1e5ab0] disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors shadow-sm"
+              >
+                Select Image
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

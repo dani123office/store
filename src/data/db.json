@@ -1,17 +1,73 @@
 {
   "categories": [
-    { "id": "1", "cat_title": "Unstitched", "cat_img": "", "created_at": null, "updated_at": null },
-    { "id": "2", "cat_title": "Ready To Wear", "cat_img": "", "created_at": null, "updated_at": null },
-    { "id": "3", "cat_title": "Bridals", "cat_img": "", "created_at": null, "updated_at": null },
-    { "id": "4", "cat_title": "Jewellery", "cat_img": "", "created_at": null, "updated_at": null }
+    {
+      "id": "1",
+      "cat_title": "Unstitched",
+      "cat_img": "",
+      "created_at": null,
+      "updated_at": null
+    },
+    {
+      "id": "2",
+      "cat_title": "Ready To Wear",
+      "cat_img": "",
+      "created_at": null,
+      "updated_at": null
+    },
+    {
+      "id": "3",
+      "cat_title": "Bridals",
+      "cat_img": "",
+      "created_at": null,
+      "updated_at": null
+    },
+    {
+      "id": "4",
+      "cat_title": "Jewellery",
+      "cat_img": "",
+      "created_at": null,
+      "updated_at": null
+    }
   ],
   "sub-categories": [
-    { "subcat_id": "1", "cat_id": "1", "subcat_title": "Summer Collection", "subcat_img": "", "handle": "summer-collection", "SEOdescription": "", "SEOtitle": "" },
-    { "subcat_id": "2", "cat_id": "2", "subcat_title": "Winter Collection", "subcat_img": "", "handle": "winter-collection", "SEOdescription": "", "SEOtitle": "" }
+    {
+      "subcat_id": "1",
+      "cat_id": "1",
+      "subcat_title": "Summer Collection",
+      "subcat_img": "",
+      "handle": "summer-collection",
+      "SEOdescription": "",
+      "SEOtitle": ""
+    },
+    {
+      "subcat_id": "2",
+      "cat_id": "2",
+      "subcat_title": "Winter Collection",
+      "subcat_img": "",
+      "handle": "winter-collection",
+      "SEOdescription": "",
+      "SEOtitle": ""
+    }
   ],
   "cat-items": [
-    { "cat_item_id": "1", "subcat_id": "1", "cat_item_title": "Summer Dresses", "cat_item_img": "", "SEOdescription": "", "SEOtitle": "", "handle": "summer-dresses" },
-    { "cat_item_id": "2", "subcat_id": "2", "cat_item_title": "Winter Coats", "cat_item_img": "", "SEOdescription": "", "SEOtitle": "", "handle": "winter-coats" }
+    {
+      "cat_item_id": "1",
+      "subcat_id": "1",
+      "cat_item_title": "Summer Dresses",
+      "cat_item_img": "",
+      "SEOdescription": "",
+      "SEOtitle": "",
+      "handle": "summer-dresses"
+    },
+    {
+      "cat_item_id": "2",
+      "subcat_id": "2",
+      "cat_item_title": "Winter Coats",
+      "cat_item_img": "",
+      "SEOdescription": "",
+      "SEOtitle": "",
+      "handle": "winter-coats"
+    }
   ],
   "stores": [
     {
@@ -33,11 +89,41 @@
       "Currency": "PKR",
       "theme_settings": {
         "hero_slides": [
-          { "image": "hero-1.jpg", "title": "Luxury Redefined", "subtitle": "Discover our latest collection" },
-          { "image": "hero-2.jpg", "title": "Elegance in Every Stitch", "subtitle": "Handcrafted with love" }
+          {
+            "image": "hero-1.jpg",
+            "title": "Luxury Redefined",
+            "subtitle": "Discover our latest collection"
+          },
+          {
+            "image": "hero-2.jpg",
+            "title": "Elegance in Every Stitch",
+            "subtitle": "Handcrafted with love"
+          }
         ],
-        "categories_section": { "enabled": true, "title": "Shop By Category" }
+        "categories_section": {
+          "enabled": true,
+          "title": "Shop By Category"
+        }
       }
+    },
+    {
+      "id": "1782206986224",
+      "StoreName": "Zarka Couture",
+      "StoreEmail": "info@zarkaboutique.com",
+      "SenderEmail": "noreply@zarkaboutique.com",
+      "StoreIndustry": "Fashion",
+      "LegalName": "Zarka Couture LLC",
+      "Phone": "+92-300-1234567",
+      "Streets": "123 Fashion Street",
+      "Apartment": "",
+      "City": "Karachi",
+      "ZipCode": "74000",
+      "Country": "Pakistan",
+      "TimeZone": "UTC+5",
+      "UnitSystem": "metric",
+      "WeightUnit": "kg",
+      "Currency": "PKR",
+      "theme_settings": "{\"announcement\":{\"text\":\"Free Shipping Nationwide — For Queries: +923-111-111-975\",\"bg_color\":\"#000000\",\"text_color\":\"#ffffff\",\"enabled\":false},\"logo_text\":\"ZARKA COUTURE\",\"slides\":[{\"id\":\"1\",\"title\":\"SATORI 2026\",\"subtitle\":\"STILLNESS & LUXURY\",\"image\":\"banner1.jpg\",\"btn_text\":\"LIVE NOW\",\"btn_link\":\"/shop/luxury-collection\"},{\"id\":\"2\",\"title\":\"FESTIVE EID II 2026\",\"subtitle\":\"NEW ARRIVALS\",\"image\":\"banner.jpg\",\"btn_text\":\"SHOP NOW\",\"btn_link\":\"/shop/unstitched\"}],\"categories_section\":{\"enabled\":true,\"title\":\"Shop By Category\"},\"featured_collections\":{\"enabled\":true,\"title\":\"Featured Collections\",\"tabs\":[{\"label\":\"ZSJ BASICS 2026\",\"category\":\"special-edition\"},{\"label\":\"FESTIVE EID II 2026\",\"category\":\"luxury-collection\"},{\"label\":\"PRET EID II 2026\",\"category\":\"summer-edition\"},{\"label\":\"SATORI 2026\",\"category\":\"unique-collection\"}]},\"trending_products\":{\"enabled\":true,\"title\":\"Top Trending Products\",\"limit\":5},\"whatsapp\":{\"phone\":\"+923173179230\",\"enabled\":true,\"message\":\"Hi, I would like to make an inquiry.\",\"position\":\"bottom-right\"},\"installments\":{\"enabled\":true,\"provider\":\"baadmay\",\"count\":3},\"promotional_section\":{\"enabled\":true,\"left_image\":\"luxury fashion 7 1.png\",\"left_subtitle\":\"New Season\",\"left_title\":\"New Arrivals\",\"left_btn_text\":\"Discover Now\",\"left_btn_link\":\"/shop/new-arrivals\",\"right_image\":\"luxury fashion 7 2.png\",\"right_subtitle\":\"Luxury Bridal\",\"right_title\":\"Bridal Couture\",\"right_btn_text\":\"Explore Collection\",\"right_btn_link\":\"/shop/bridals\"}}"
     }
   ],
   "products": [

@@ -30,7 +30,11 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $user->update($request->all());
+        $data = $request->all();
+        if (array_key_exists('password', $data) && ($data['password'] === null || $data['password'] === '')) {
+            unset($data['password']);
+        }
+        $user->update($data);
         $user = $user->fresh();
         $user->id = (string) $user->id;
         return $user;

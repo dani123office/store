@@ -109,7 +109,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm transition-opacity animate-fade">
-      <div className="min-h-screen bg-white py-8 px-5">
+      <div className="min-h-screen bg-[#DCD7CB] py-8 px-5">
         <div className="max-w-4xl mx-auto">
           {/* Top Header Controls */}
           <div className="flex items-center justify-between border-b border-[#E2E2E2] pb-6 mb-8">

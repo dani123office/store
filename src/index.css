@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply font-sans text-[#151515] bg-white antialiased;
+    @apply font-sans text-[#151515] bg-[#DCD7CB] antialiased;
   }
 
   /* Smooth scrolling across the entire site */

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import customFetch from "../axios/custom";
+import toast from "react-hot-toast";
 import {
   HiOutlineMagnifyingGlass, HiOutlineAdjustmentsHorizontal,
   HiOutlineChevronUpDown, HiPlus, HiXMark,
@@ -81,10 +82,19 @@ const AdminInventory = () => {
     }
   };
 
-  const updateField = (id: string, field: "available" | "onHand", value: string) => {
+  const updateField = (id: string, _field: "available" | "onHand", value: string) => {
     const num = parseInt(value, 10);
     if (isNaN(num)) return;
-    setItems((prev) => prev.map((d) => (d.id === id ? { ...d, [field]: num } : d)));
+    setItems((prev) => prev.map((d) => (d.id === id ? { ...d, available: num, onHand: num } : d)));
+  };
+
+  const handleStockSave = async (id: string, newStock: number) => {
+    try {
+      await customFetch.put(`/products/${id}`, { stock: newStock });
+      toast.success("Stock updated successfully");
+    } catch {
+      toast.error("Failed to update stock in database");
+    }
   };
 
   const toggleSort = (field: SortField) => {
@@ -285,6 +295,12 @@ const AdminInventory = () => {
                     <td className="py-3 pr-5">
                       <input type="number" value={item.available}
                         onChange={(e) => updateField(item.id, "available", e.target.value)}
+                        onBlur={() => handleStockSave(item.id, item.available)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
                         className="w-16 text-right text-sm text-[#202223] border border-[#e0e0e0] rounded px-2 py-1 outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] transition-colors" />
                     </td>
                   )}
@@ -292,6 +308,12 @@ const AdminInventory = () => {
                     <td className="py-3 pr-5">
                       <input type="number" value={item.onHand}
                         onChange={(e) => updateField(item.id, "onHand", e.target.value)}
+                        onBlur={() => handleStockSave(item.id, item.onHand)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
                         className="w-16 text-right text-sm text-[#202223] border border-[#e0e0e0] rounded px-2 py-1 outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] transition-colors" />
                     </td>
                   )}

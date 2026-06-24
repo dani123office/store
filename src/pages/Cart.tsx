@@ -51,7 +51,7 @@ const Cart = () => {
   };
 
   return (
-    <div className="bg-white mx-auto max-w-screen-2xl px-5">
+    <div className="bg-transparent mx-auto max-w-screen-2xl px-5">
       <div className="pb-24 pt-16">
         <h1 className="text-2xl md:text-3xl font-light tracking-[0.15em] uppercase">
           Shopping Cart
@@ -107,13 +107,16 @@ const Cart = () => {
                         <input
                           type="number"
                           id="quantity"
+                          min="1"
                           className="w-16 h-7 indent-1 bg-white border border-[#E2E2E2] text-sm"
                           value={product?.quantity}
                           onChange={(e) => {
+                            const val = parseInt(e.target.value);
+                            if (isNaN(val) || val < 1) return;
                             dispatch(
                               updateProductQuantity({
                                 id: product?.id,
-                                quantity: parseInt(e.target.value),
+                                quantity: val,
                               })
                             );
                           }}
@@ -273,7 +276,7 @@ const Cart = () => {
               <div className="mt-6">
                 <Link
                   to="/checkout"
-                  className="text-white bg-[#151515] text-center text-sm tracking-[0.15em] uppercase font-medium leading-[72px] w-full h-12 flex items-center justify-center hover:bg-[#151515]/90 transition-colors"
+                  className="text-white bg-[#151515] text-center text-sm tracking-[0.15em] uppercase font-medium w-full h-12 flex items-center justify-center hover:bg-[#151515]/90 transition-colors shadow-md"
                 >
                   Checkout
                 </Link>

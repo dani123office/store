@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   HiOutlineHome, HiOutlineShoppingBag, HiOutlineCube, HiOutlineUsers,
   HiOutlineTag, HiOutlineSquares2X2, HiOutlineGlobeAlt,
@@ -72,7 +73,13 @@ const Admin = () => {
   useEffect(() => {
     const stored = localStorage.getItem("user");
     if (stored) {
-      setUser(JSON.parse(stored));
+      const parsedUser = JSON.parse(stored);
+      if (parsedUser.role === "admin") {
+        setUser(parsedUser);
+      } else {
+        toast.error("Access denied. Admin privileges required.");
+        navigate("/");
+      }
     } else {
       navigate("/login");
     }

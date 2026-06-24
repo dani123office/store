@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/((?!assets|preloader\\.json).*)", "destination": "/index.html" }
+  ]
+}
