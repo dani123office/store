@@ -21,7 +21,11 @@ echo "SESSION_DRIVER=file" >> /var/www/html/.env
 echo "CACHE_STORE=file" >> /var/www/html/.env
 
 
-# Run migrations on startup (safe for SQLite)
+# Clear config and route cache so Laravel reads the dynamic .env at runtime
+php /var/www/html/artisan config:clear || true
+php /var/www/html/artisan route:clear || true
+
+# Run migrations on startup
 php /var/www/html/artisan migrate --force 2>/dev/null || true
 
 # Seed database if users table is empty
