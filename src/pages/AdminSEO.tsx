@@ -7,7 +7,7 @@ const defaultSEO = {
   defaultMetaDescription: "Premium luxury designer dresses, unstitched, ready to wear, bridals & jewellery. Free shipping nationwide.",
   gaTrackingId: "G-XXXXXXXXXX",
   fbPixelId: "123456789012345",
-  robotsTxt: "User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: http://localhost:5173/sitemap.xml",
+  robotsTxt: `User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: ${window.location.origin}/sitemap.xml`,
 };
 
 const AdminSEO = () => {

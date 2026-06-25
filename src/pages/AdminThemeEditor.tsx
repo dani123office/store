@@ -1129,7 +1129,7 @@ const AdminThemeEditor = () => {
               <span className="w-3 h-3 rounded-full bg-yellow-400"></span>
               <span className="w-3 h-3 rounded-full bg-green-400"></span>
               <span className="text-[10px] text-gray-500 font-mono ml-4 truncate flex-1">
-                http://localhost:5173/
+                {window.location.origin}/
               </span>
               <button
                 onClick={() => setPreviewKey((k) => k + 1)}
@@ -1142,7 +1142,7 @@ const AdminThemeEditor = () => {
 
             <iframe
               key={previewKey}
-              src="http://localhost:5173/"
+              src={window.location.origin + "/"}
               className="w-full flex-1 border-0"
               title="Store Preview"
             />
