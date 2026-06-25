@@ -5,6 +5,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../hooks";
 import { setLoginStatus } from "../features/auth/authSlice";
 import { store } from "../store";
+import customFetch from "../axios/custom";
+
+const defaultNavItems = [
+  { label: "New Arrivals", path: "/shop/new-arrivals" },
+  { label: "Unstitched", path: "/shop/unstitched" },
+  { label: "Ready To Wear", path: "/shop/ready-to-wear" },
+  { label: "Bridals", path: "/shop/bridals" },
+  { label: "Jewellery", path: "/shop/jewellery" },
+  { label: "Special Prices", path: "/shop/special-prices" },
+];
 
 const SidebarMenu = ({
   isSidebarOpen,
@@ -14,6 +24,7 @@ const SidebarMenu = ({
   setIsSidebarOpen: (prev: boolean) => void;
 }) => {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [navItems, setNavItems] = useState(defaultNavItems);
   const { loginStatus } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
 
@@ -23,6 +34,24 @@ const SidebarMenu = ({
     store.dispatch(setLoginStatus(false));
     navigate("/login");
   };
+
+  useEffect(() => {
+    const fetchNavItems = async () => {
+      try {
+        const res = await customFetch.get("/nav-items");
+        const data = res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          setNavItems(data.map((item: any) => ({
+            label: item.label,
+            path: `/shop/${item.slug}`,
+          })));
+        }
+      } catch (e) {
+        console.warn("Failed to fetch nav items for sidebar", e);
+      }
+    };
+    fetchNavItems();
+  }, []);
 
   useEffect(() => {
     if (isSidebarOpen) {
@@ -72,13 +101,16 @@ const SidebarMenu = ({
             >
               Home
             </Link>
-            <Link
-              to="/shop"
-              className="py-3 border-b border-[#E2E2E2] w-full block flex justify-center text-sm tracking-wider uppercase"
-              onClick={() => setIsSidebarOpen(false)}
-            >
-              Shop
-            </Link>
+            {navItems.map((item) => (
+              <Link
+                key={item.label}
+                to={item.path}
+                className="py-3 border-b border-[#E2E2E2] w-full block flex justify-center text-sm tracking-wider uppercase font-medium text-[#151515] hover:bg-gray-50 transition-colors"
+                onClick={() => setIsSidebarOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
             <Link
               to="/search"
               className="py-3 border-b border-[#E2E2E2] w-full block flex justify-center text-sm tracking-wider uppercase"
