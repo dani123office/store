@@ -1,5 +1,11 @@
 {
   "rewrites": [
     { "source": "/((?!assets|preloader\\.json).*)", "destination": "/index.html" }
-  ]
+  ],
+  "experimentalServices": {
+    "frontend": {
+      "routePrefix": "/",
+      "framework": "vite"
+    }
+  }
 }
