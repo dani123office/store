@@ -482,12 +482,6 @@ const AdminThemeEditor = () => {
               WhatsApp
             </button>
             <button
-              onClick={() => setActiveTab("installments")}
-              className={`px-4 py-3 border-b-2 whitespace-nowrap ${activeTab === "installments" ? "border-[#2c6ecb] text-[#2c6ecb] bg-white font-semibold" : "border-transparent hover:text-[#202223]"}`}
-            >
-              Installments
-            </button>
-            <button
               onClick={() => setActiveTab("promotional")}
               className={`px-4 py-3 border-b-2 whitespace-nowrap ${activeTab === "promotional" ? "border-[#2c6ecb] text-[#2c6ecb] bg-white font-semibold" : "border-transparent hover:text-[#202223]"}`}
             >
@@ -1051,68 +1045,6 @@ const AdminThemeEditor = () => {
               </div>
             )}
 
-            {/* 6. Installments Payments Indicator */}
-            {activeTab === "installments" && (
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-[#202223] border-b pb-2">Baadmay Installments Indicator</h3>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="inst_enabled"
-                    checked={settings.installments.enabled}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        installments: { ...settings.installments, enabled: e.target.checked },
-                      })
-                    }
-                    className="rounded text-[#2c6ecb] focus:ring-[#2c6ecb] border-[#e0e0e0]"
-                  />
-                  <label htmlFor="inst_enabled" className="text-xs font-medium text-[#202223] cursor-pointer">
-                    Enable Installment indicator on Product Pages
-                  </label>
-                </div>
-
-                {settings.installments.enabled && (
-                  <>
-                    <div>
-                      <label className="block text-xs font-semibold text-[#202223] mb-1">Payment Provider Brand</label>
-                      <select
-                        value={settings.installments.provider}
-                        onChange={(e) =>
-                          setSettings({
-                            ...settings,
-                            installments: { ...settings.installments, provider: e.target.value },
-                          })
-                        }
-                        className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none bg-white"
-                      >
-                        <option value="baadmay">Baadmay (Pay in 3 Installments)</option>
-                        <option value="alfa-mall">Alfa Mall</option>
-                        <option value="kalpay">Kalpay</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-[#202223] mb-1">Installments Duration (Months)</label>
-                      <input
-                        type="number"
-                        min={2}
-                        max={12}
-                        value={settings.installments.count}
-                        onChange={(e) =>
-                          setSettings({
-                            ...settings,
-                            installments: { ...settings.installments, count: parseInt(e.target.value) || 3 },
-                          })
-                        }
-                        className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
           </div>
         </div>
 

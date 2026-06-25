@@ -121,7 +121,7 @@ export const defaultThemeSettings: ThemeSettings = {
     position: "bottom-right",
   },
   installments: {
-    enabled: true,
+    enabled: false,
     provider: "baadmay",
     count: 3,
   },

@@ -1,10 +1,9 @@
-import { useParams, useOutletContext, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { addProductToTheCart } from "../features/cart/cartSlice";
 import { toggleWishlist } from "../features/wishlist/wishlistSlice";
 import { Dropdown, ProductItem, QuantityInput } from "../components";
-import { ThemeSettings } from "./HomeLayout";
 import customFetch from "../axios/custom";
 import toast from "react-hot-toast";
 import { HiHeart, HiOutlineHeart, HiStar, HiCheckCircle } from "react-icons/hi2";
@@ -23,7 +22,6 @@ const colorsMap: { [key: string]: string } = {
 const sizesList = ["XS", "S", "M", "L", "XL", "XXL"];
 
 const SingleProduct = () => {
-  const settings = useOutletContext<ThemeSettings>();
   const [products, setProducts] = useState<Product[]>([]);
   const [singleProduct, setSingleProduct] = useState<Product | null>(null);
   const [size, setSize] = useState<string>("M");
@@ -279,18 +277,6 @@ const SingleProduct = () => {
             </p>
           </div>
 
-          {/* Installment widget */}
-          {settings?.installments?.enabled && singleProduct && (
-            <div className="bg-[#f0e6ff] border border-[#d8c3ff] rounded-lg p-3.5 flex items-center gap-3 text-xs md:text-sm text-[#4b10b0] font-medium tracking-wide">
-              <span className="bg-[#5c00e6] text-white text-[9px] font-bold uppercase px-2 py-0.5 rounded tracking-wider">
-                {settings.installments.provider === "baadmay" ? "baadmay" : "installment"}
-              </span>
-              <span>
-                Pay in {settings.installments.count || 3} Installments of{" "}
-                <span className="font-bold">Rs.{Math.round(singleProduct.price / (settings.installments.count || 3)).toLocaleString()}</span>
-              </span>
-            </div>
-          )}
 
           {/* Color Selection Swatches */}
           <div className="space-y-3">
