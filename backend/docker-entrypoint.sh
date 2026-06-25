@@ -6,6 +6,21 @@ if [ ! -z "$PORT" ]; then
     sed -i "s/:80/:$PORT/" /etc/apache2/sites-available/*.conf
 fi
 
+# Dynamically generate .env file using system env variables to ensure PHP can read them
+echo "APP_NAME=Store" > /var/www/html/.env
+echo "APP_ENV=production" >> /var/www/html/.env
+echo "APP_KEY=base64:egS+g2OC0U8NaEgM19xPl8+KEpytaxjyhH0dmA8x2Yo=" >> /var/www/html/.env
+echo "APP_DEBUG=false" >> /var/www/html/.env
+echo "DB_CONNECTION=${DB_CONNECTION:-sqlite}" >> /var/www/html/.env
+echo "DB_HOST=${DB_HOST}" >> /var/www/html/.env
+echo "DB_PORT=${DB_PORT}" >> /var/www/html/.env
+echo "DB_DATABASE=${DB_DATABASE}" >> /var/www/html/.env
+echo "DB_USERNAME=${DB_USERNAME}" >> /var/www/html/.env
+echo "DB_PASSWORD=${DB_PASSWORD}" >> /var/www/html/.env
+echo "SESSION_DRIVER=file" >> /var/www/html/.env
+echo "CACHE_STORE=file" >> /var/www/html/.env
+
+
 # Run migrations on startup (safe for SQLite)
 php /var/www/html/artisan migrate --force 2>/dev/null || true
 
