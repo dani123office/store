@@ -10,23 +10,32 @@ class ProductController extends Controller
 {
     public function index()
     {
-        return Product::all();
+        return Product::with(['categoryRelation', 'subcategory', 'collections'])->get();
     }
 
     public function store(Request $request)
     {
-        return Product::create($request->all());
+        $product = Product::create($request->except('collection_ids'));
+        if ($request->has('collection_ids')) {
+            $product->collections()->sync($request->input('collection_ids'));
+        }
+        return $product->load(['categoryRelation', 'subcategory', 'collections']);
     }
 
     public function show(Product $product)
     {
-        return $product;
+        return $product->load(['categoryRelation', 'subcategory', 'collections']);
     }
 
     public function update(Request $request, Product $product)
     {
-        $product->update($request->all());
-        return $product;
+        $product->update($request->except('collection_ids'));
+        if ($request->has('collection_ids')) {
+            $product->collections()->sync($request->input('collection_ids'));
+        } else {
+            $product->collections()->sync([]);
+        }
+        return $product->load(['categoryRelation', 'subcategory', 'collections']);
     }
 
     public function destroy(Product $product)

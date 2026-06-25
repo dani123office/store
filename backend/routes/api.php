@@ -48,6 +48,7 @@ Route::apiResource('/admin-menus', AdminMenuController::class);
 Route::apiResource('/admin-menu-items', AdminMenuItemController::class);
 Route::apiResource('/notifications', NotificationController::class);
 Route::apiResource('/nav-items', NavItemController::class);
+Route::apiResource('/collections', CollectionController::class);
 
 Route::get('/taxes', [TaxController::class, 'index']);
 Route::get('/taxes/{tax}', [TaxController::class, 'show']);
@@ -187,7 +188,6 @@ Route::get('/roles', [RoleController::class, 'index']);
 Route::get('/emarkets', [EmarketController::class, 'index']);
 Route::get('/c-timelines', [CTimelineController::class, 'index']);
 Route::get('/o-timelines', [OTimelineController::class, 'index']);
-Route::get('/collections', [CollectionController::class, 'index']);
 Route::get('/view-counts', [ViewCountController::class, 'index']);
 Route::get('/product-colors', [ProductColorController::class, 'index']);
 Route::get('/product-images', [ProductImageController::class, 'index']);
