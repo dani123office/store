@@ -77,68 +77,6 @@ Route::get('/db-migrate-custom', function () {
     }
 });
 
-Route::get('/db-clear-all-custom', function () {
-    try {
-        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        
-        \Illuminate\Support\Facades\DB::table('products')->truncate();
-        \Illuminate\Support\Facades\DB::table('product_images')->truncate();
-        \Illuminate\Support\Facades\DB::table('product_colors')->truncate();
-        \Illuminate\Support\Facades\DB::table('product_sizes')->truncate();
-        \Illuminate\Support\Facades\DB::table('product_widths')->truncate();
-        \Illuminate\Support\Facades\DB::table('categories')->truncate();
-        \Illuminate\Support\Facades\DB::table('sub_categories')->truncate();
-        \Illuminate\Support\Facades\DB::table('cat_items')->truncate();
-        \Illuminate\Support\Facades\DB::table('orders')->truncate();
-        \Illuminate\Support\Facades\DB::table('order_items')->truncate();
-        \Illuminate\Support\Facades\DB::table('order_details')->truncate();
-        \Illuminate\Support\Facades\DB::table('reviews')->truncate();
-        \Illuminate\Support\Facades\DB::table('carts')->truncate();
-        \Illuminate\Support\Facades\DB::table('nav_items')->truncate();
-        \Illuminate\Support\Facades\DB::table('collections')->truncate();
-        
-        \Illuminate\Support\Facades\DB::table('users')->where('email', '!=', 'admin@admin.com')->delete();
-        
-        $adminUser = \Illuminate\Support\Facades\DB::table('users')->where('email', 'admin@admin.com')->first();
-        if (!$adminUser) {
-            \Illuminate\Support\Facades\DB::table('users')->insert([
-                'name' => 'Admin',
-                'lastname' => 'User',
-                'email' => 'admin@admin.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('admin123'),
-                'role' => 'admin',
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-        }
-        
-        \Illuminate\Support\Facades\DB::table('admin_logins')->where('email', '!=', 'admin@admin.com')->delete();
-        
-        $adminLogin = \Illuminate\Support\Facades\DB::table('admin_logins')->where('email', 'admin@admin.com')->first();
-        if (!$adminLogin) {
-            \Illuminate\Support\Facades\DB::table('admin_logins')->insert([
-                'email' => 'admin@admin.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('admin123'),
-                'f_name' => 'Admin',
-                'l_name' => 'User',
-                'OrderPage' => 1, 'ProductPage' => 1, 'OrderDetailsPage' => 1, 'AddProductPage' => 1, 'UpdateProductPage' => 1,
-                'CategoryPage' => 1, 'AddCategoryPage' => 1, 'UpdateCategoryPage' => 1, 'CustomerPage' => 1, 'AboutCustomerPage' => 1,
-                'SubcategoryPage' => 1, 'AddSubcategoryPage' => 1, 'UpdateSubcategoryPage' => 1, 'CollectionPage' => 1, 'AddCollectionPage' => 1,
-                'UpdateCollectionPage' => 1, 'SettingsPage' => 1, 'GeneralPage' => 1, 'StaffAccountPage' => 1, 'StaffAreaPage' => 1,
-                'UpdateStaffAreaPage' => 1, 'TaxPage' => 1, 'PaymentPage' => 1, 'NotificationPage' => 1, 'TranslationPage' => 1,
-                'created_at' => now(), 'updated_at' => now()
-            ]);
-        }
-
-        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-        
-        return response()->json(['status' => 'success', 'message' => 'Database cleared successfully! Only admin@admin.com remains.']);
-    } catch (\Exception $e) {
-        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
-    }
-});
-
-
 Route::get('/db-migrate-custom-v2', function () {
     try {
         if (!\Illuminate\Support\Facades\Schema::hasTable('coupons')) {
