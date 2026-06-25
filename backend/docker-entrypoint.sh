@@ -25,5 +25,14 @@ php -r "
     }
 "
 
+# Disable conflicting Apache MPM modules at runtime to avoid more than one MPM error
+a2dismod mpm_event || true
+a2dismod mpm_worker || true
+a2enmod mpm_prefork || true
+rm -f /etc/apache2/mods-enabled/mpm_event.load
+rm -f /etc/apache2/mods-enabled/mpm_event.conf
+rm -f /etc/apache2/mods-enabled/mpm_worker.load
+rm -f /etc/apache2/mods-enabled/mpm_worker.conf
+
 # Start Apache
 apache2-foreground
