@@ -61,7 +61,7 @@ const Header = ({ logoText }: HeaderProps) => {
             </button>
 
             {/* Logo */}
-            <Link to="/" className="text-2xl md:text-3xl font-light tracking-[0.25em] uppercase text-[#151515] whitespace-nowrap font-serif">
+            <Link to="/" className="text-sm min-[375px]:text-base sm:text-xl md:text-2xl lg:text-3xl font-light tracking-[0.08em] min-[375px]:tracking-[0.15em] sm:tracking-[0.25em] uppercase text-[#151515] whitespace-nowrap font-serif">
               {logoText || "ZARKA COUTURE"}
             </Link>
 
@@ -78,7 +78,7 @@ const Header = ({ logoText }: HeaderProps) => {
               ))}
             </nav>
 
-            <div className="flex items-center gap-4.5">
+            <div className="flex items-center gap-2 sm:gap-4">
               <button
                 onClick={() => setIsSearchOpen(true)}
                 className="text-[#151515] hover:opacity-60 transition-opacity p-1 focus:outline-none"
