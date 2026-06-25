@@ -8,25 +8,25 @@ const AdminAnalytics = () => {
 
   const data = {
     today: {
-      sales: "Rs.45,200", salesDiff: "+12.4%", salesUp: true,
-      sessions: "1,240", sessionsDiff: "+8.1%", sessionsUp: true,
-      orders: "18", ordersDiff: "-2.3%", ordersUp: false,
-      conversion: "1.45%", conversionDiff: "+0.12%", conversionUp: true,
-      chartPoints: "20,80 40,75 60,60 80,45 100,50 120,35 140,25 160,30 180,15 200,20 220,10 240,5",
+      sales: "Rs.0", salesDiff: "0.0%", salesUp: true,
+      sessions: "0", sessionsDiff: "0.0%", sessionsUp: true,
+      orders: "0", ordersDiff: "0.0%", ordersUp: true,
+      conversion: "0.00%", conversionDiff: "0.00%", conversionUp: true,
+      chartPoints: "20,95 40,95 60,95 80,95 100,95 120,95 140,95 160,95 180,95 200,95 220,95 240,95",
     },
     "7d": {
-      sales: "Rs.385,900", salesDiff: "+24.8%", salesUp: true,
-      sessions: "8,920", sessionsDiff: "+15.3%", sessionsUp: true,
-      orders: "142", ordersDiff: "+18.9%", ordersUp: true,
-      conversion: "1.59%", conversionDiff: "+0.24%", conversionUp: true,
-      chartPoints: "20,70 40,65 60,40 80,48 100,35 120,28 140,42 160,25 180,18 200,22 220,12 240,8",
+      sales: "Rs.0", salesDiff: "0.0%", salesUp: true,
+      sessions: "0", sessionsDiff: "0.0%", sessionsUp: true,
+      orders: "0", ordersDiff: "0.0%", ordersUp: true,
+      conversion: "0.00%", conversionDiff: "0.00%", conversionUp: true,
+      chartPoints: "20,95 40,95 60,95 80,95 100,95 120,95 140,95 160,95 180,95 200,95 220,95 240,95",
     },
     "30d": {
-      sales: "Rs.1,620,450", salesDiff: "+18.2%", salesUp: true,
-      sessions: "35,400", sessionsDiff: "+11.5%", sessionsUp: true,
-      orders: "580", ordersDiff: "+14.6%", ordersUp: true,
-      conversion: "1.64%", conversionDiff: "+0.18%", conversionUp: true,
-      chartPoints: "20,60 40,55 60,48 80,38 100,42 120,30 140,24 160,28 180,20 200,15 220,10 240,4",
+      sales: "Rs.0", salesDiff: "0.0%", salesUp: true,
+      sessions: "0", sessionsDiff: "0.0%", sessionsUp: true,
+      orders: "0", ordersDiff: "0.0%", ordersUp: true,
+      conversion: "0.00%", conversionDiff: "0.00%", conversionUp: true,
+      chartPoints: "20,95 40,95 60,95 80,95 100,95 120,95 140,95 160,95 180,95 200,95 220,95 240,95",
     },
   };
 
@@ -122,24 +122,9 @@ const AdminAnalytics = () => {
 
         <div className="bg-white border border-[#e0e0e0] rounded-lg p-5 shadow-sm">
           <h2 className="text-sm font-semibold text-[#202223] mb-4">Top Selling Products</h2>
-          <div className="space-y-4">
-            {[
-              { title: "Zarka Couture Premium Silk Maxi", category: "Luxury Collection", sales: "Rs.98,000", units: 14 },
-              { title: "Elegant Embroidered Lawn Suit", category: "Summer Edition", sales: "Rs.82,500", units: 11 },
-              { title: "Luxury Organza Festive Kurta", category: "Luxury Collection", sales: "Rs.75,000", units: 8 },
-              { title: "Limited Edition Handcrafted Shawl", category: "Special Edition", sales: "Rs.68,000", units: 5 },
-            ].map((p, i) => (
-              <div key={i} className="flex items-center justify-between border-b border-[#fafafa] pb-3 last:border-0 last:pb-0">
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold text-[#202223] truncate">{p.title}</p>
-                  <p className="text-[10px] text-[#6d7175]">{p.category}</p>
-                </div>
-                <div className="text-right flex-shrink-0">
-                  <p className="text-xs font-semibold text-[#202223]">{p.sales}</p>
-                  <p className="text-[10px] text-[#6d7175]">{p.units} sold</p>
-                </div>
-              </div>
-            ))}
+          <div className="flex flex-col items-center justify-center h-48 text-center">
+            <p className="text-sm text-[#6d7175] font-medium">No sales data available yet</p>
+            <p className="text-xs text-[#8c9196] mt-1">Start selling to see metrics here.</p>
           </div>
         </div>
       </div>
