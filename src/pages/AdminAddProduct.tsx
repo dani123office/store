@@ -16,16 +16,18 @@ const AdminAddProduct = () => {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [productType, setProductType] = useState("");
-
-  const [collectionSearch, setCollectionSearch] = useState("");
+  const [selectedCatId, setSelectedCatId] = useState<string>("");
+  const [selectedSubcatId, setSelectedSubcatId] = useState<string>("");
+  const [selectedCollectionIds, setSelectedCollectionIds] = useState<number[]>([]);
+  
+  const [categories, setCategories] = useState<any[]>([]);
+  const [subcategories, setSubcategories] = useState<any[]>([]);
+  const [allCollections, setAllCollections] = useState<any[]>([]);
   const [tags, setTags] = useState("");
   const [activeToolbar, setActiveToolbar] = useState<Set<ToolbarButton>>(new Set());
   const [uploadedImage, setUploadedImage] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
-  const [categories, setCategories] = useState<{ id: string; cat_title: string }[]>([]);
-  const [navCategories, setNavCategories] = useState<string[]>([]);
 
   // Media Modal states
   const [showMediaModal, setShowMediaModal] = useState(false);
@@ -82,20 +84,21 @@ const AdminAddProduct = () => {
   };
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchOrgData = async () => {
       try {
-        const [catRes, navRes] = await Promise.all([
+        const [catRes, subRes, collRes] = await Promise.all([
           customFetch.get("/categories"),
-          customFetch.get("/nav-items"),
+          customFetch.get("/sub-categories"),
+          customFetch.get("/collections"),
         ]);
-        setCategories(catRes.data);
-        const navSlugs = (navRes.data || []).map((n: any) => n.slug);
-        setNavCategories(navSlugs);
+        setCategories(catRes.data || []);
+        setSubcategories(subRes.data || []);
+        setAllCollections(collRes.data || []);
       } catch (e) {
-        console.error("Failed to load categories:", e);
+        console.error("Failed to load organization data:", e);
       }
     };
-    fetchCategories();
+    fetchOrgData();
 
     if (!id) return;
     const fetchProduct = async () => {
@@ -104,10 +107,14 @@ const AdminAddProduct = () => {
         const p = res.data;
         setTitle(p.title || "");
         setDescription(p.description || "");
-        setProductType(p.category || "");
+        setSelectedCatId(p.category_id ? String(p.category_id) : "");
+        setSelectedSubcatId(p.subcategory_id ? String(p.subcategory_id) : "");
         setPrice(String(p.price ?? ""));
         setStock(String(p.stock ?? ""));
         setUploadedImage(p.image || "");
+        if (Array.isArray(p.collections)) {
+          setSelectedCollectionIds(p.collections.map((c: any) => c.id));
+        }
       } catch {
         toast.error("Failed to load product");
         navigate("/admin/products");
@@ -132,10 +139,16 @@ const AdminAddProduct = () => {
       toast.error("Title is required");
       return;
     }
+    const selectedCat = categories.find((c: any) => String(c.cat_id) === selectedCatId);
+    const catSlug = selectedCat ? selectedCat.cat_title.toLowerCase().replace(/\s+/g, "-") : "uncategorized";
+
     const payload = {
       title,
       description,
-      category: productType || "uncategorized",
+      category: catSlug,
+      category_id: selectedCatId ? Number(selectedCatId) : null,
+      subcategory_id: selectedSubcatId ? Number(selectedSubcatId) : null,
+      collection_ids: selectedCollectionIds,
       price: Number(price) || 0,
       stock: Number(stock) || 0,
       image: uploadedImage || "product image 1.jpg",
@@ -329,39 +342,68 @@ const AdminAddProduct = () => {
             <h3 className="text-xs font-semibold text-[#6d7175] uppercase tracking-wider mb-3">Organization</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[#202223] mb-1">Product type</label>
-                <select value={productType} onChange={(e) => setProductType(e.target.value)}
-                  className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm text-[#202223] outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] bg-white appearance-none animate-fade-in"
+                <label className="block text-sm font-medium text-[#202223] mb-1">Category *</label>
+                <select value={selectedCatId} onChange={(e) => {
+                  setSelectedCatId(e.target.value);
+                  setSelectedSubcatId("");
+                }}
+                  className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm text-[#202223] outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] bg-white appearance-none"
                   style={{ backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236d7175' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\")", backgroundPosition: "right 8px center", backgroundRepeat: "no-repeat", backgroundSize: "16px 16px" }}
                 >
                   <option value="">Select Category</option>
-                  {categories.map((cat) => {
-                    const slug = cat.cat_title.toLowerCase().replace(/\s+/g, "-");
-                    return (
-                      <option key={(cat as any).cat_id || cat.id} value={slug}>
-                        {cat.cat_title}
-                      </option>
-                    );
-                  })}
-                  {navCategories.length > 0 && (
-                    <optgroup label="Navigation">
-                      {navCategories.map((slug) => (
-                        <option key={slug} value={slug}>
-                          {slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
+                  {categories.map((cat: any) => (
+                    <option key={cat.cat_id} value={cat.cat_id}>{cat.cat_title}</option>
+                  ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#202223] mb-1">Collections</label>
-                <input type="text" value={collectionSearch} onChange={(e) => setCollectionSearch(e.target.value)}
-                  placeholder="Search for collections"
-                  className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] placeholder:text-[#b0b3b5]" />
-                <p className="text-xs text-[#6d7175] mt-1.5">Add this product to a collection so it's easy to find in your store.</p>
+                <label className="block text-sm font-medium text-[#202223] mb-1">Subcategory</label>
+                <select value={selectedSubcatId} onChange={(e) => setSelectedSubcatId(e.target.value)}
+                  disabled={!selectedCatId}
+                  className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm text-[#202223] outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] bg-white appearance-none disabled:bg-gray-50 disabled:text-gray-400"
+                  style={{ backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236d7175' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\")", backgroundPosition: "right 8px center", backgroundRepeat: "no-repeat", backgroundSize: "16px 16px" }}
+                >
+                  <option value="">Select Subcategory</option>
+                  {subcategories
+                    .filter((sub: any) => String(sub.cat_id) === selectedCatId)
+                    .map((sub: any) => (
+                      <option key={sub.subcat_id} value={sub.subcat_id}>{sub.subcat_title}</option>
+                    ))}
+                </select>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#202223] mb-2">Collections</label>
+                {allCollections.length > 0 ? (
+                  <div className="border border-[#e0e0e0] rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                    {allCollections.map((col: any) => {
+                      const isChecked = selectedCollectionIds.includes(col.id);
+                      return (
+                        <label key={col.id} className="flex items-center gap-2 text-sm text-[#202223] cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedCollectionIds([...selectedCollectionIds, col.id]);
+                              } else {
+                                setSelectedCollectionIds(selectedCollectionIds.filter((id) => id !== col.id));
+                              }
+                            }}
+                            className="rounded border-gray-300 text-[#2c6ecb] focus:ring-[#2c6ecb] w-4 h-4"
+                          />
+                          <span>{col.title}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-[#6d7175]">No collections available</p>
+                )}
+                <p className="text-xs text-[#6d7175] mt-1.5">Add this product to collections so it's easy to find on the website.</p>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-[#202223] mb-1">Tags</label>
                 <input type="text" value={tags} onChange={(e) => setTags(e.target.value)}

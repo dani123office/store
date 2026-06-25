@@ -23,10 +23,10 @@ interface SubCategory {
 
 function normalizeItems(data: any[]): Collection[] {
   return data.map((item) => ({
-    cat_item_id: item.cat_item_id || item.id || "",
-    cat_item_title: item.cat_item_title || "",
-    cat_item_img: item.cat_item_img || "",
-    subcat_id: item.subcat_id || "",
+    cat_item_id: String(item.id || ""),
+    cat_item_title: item.title || "",
+    cat_item_img: item.image || "",
+    subcat_id: String(item.cat_id || ""),
     handle: item.handle || "",
     SEOdescription: item.SEOdescription || "",
     SEOtitle: item.SEOtitle || "",
@@ -35,10 +35,10 @@ function normalizeItems(data: any[]): Collection[] {
 
 function normalizeSubcategories(data: any[]): SubCategory[] {
   return data.map((item) => ({
-    subcat_id: item.subcat_id || item.id || "",
-    cat_id: item.cat_id || "",
-    subcat_title: item.subcat_title || "",
-    handle: item.handle || "",
+    subcat_id: String(item.cat_id || item.id || ""),
+    cat_id: String(item.cat_id || item.id || ""),
+    subcat_title: item.cat_title || "",
+    handle: "",
   }));
 }
 
@@ -121,12 +121,12 @@ const AdminCollections = () => {
     setLoading(true);
     setError("");
     try {
-      const [itemsRes, subRes] = await Promise.all([
-        customFetch.get("/cat-items"),
-        customFetch.get("/sub-categories"),
+      const [itemsRes, catRes] = await Promise.all([
+        customFetch.get("/collections"),
+        customFetch.get("/categories"),
       ]);
       setItems(normalizeItems(itemsRes.data));
-      setSubcategories(normalizeSubcategories(subRes.data));
+      setSubcategories(normalizeSubcategories(catRes.data));
     } catch {
       setError("Failed to load collections. Make sure the backend is running.");
     } finally {
@@ -158,7 +158,7 @@ const AdminCollections = () => {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      await customFetch.delete(`/cat-items/${deleteTarget.cat_item_id}`);
+      await customFetch.delete(`/collections/${deleteTarget.cat_item_id}`);
       toast.success("Collection deleted");
       setDeleteTarget(null);
       fetchData();
@@ -170,12 +170,20 @@ const AdminCollections = () => {
     e.preventDefault();
     if (!form.cat_item_title.trim()) { toast.error("Title is required"); return; }
     setSaving(true);
+    const payload = {
+      title: form.cat_item_title,
+      image: form.cat_item_img,
+      cat_id: form.subcat_id ? Number(form.subcat_id) : null,
+      handle: form.handle,
+      SEOtitle: form.SEOtitle,
+      SEOdescription: form.SEOdescription,
+    };
     try {
       if (editing) {
-        await customFetch.put(`/cat-items/${editing.cat_item_id}`, form);
+        await customFetch.put(`/collections/${editing.cat_item_id}`, payload);
         toast.success("Collection updated");
       } else {
-        await customFetch.post("/cat-items", form);
+        await customFetch.post("/collections", payload);
         toast.success("Collection added");
       }
       resetForm();
@@ -262,12 +270,12 @@ const AdminCollections = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#202223] mb-1">Subcategory *</label>
-                <select required value={form.subcat_id}
+                <label className="block text-sm font-medium text-[#202223] mb-1">Category</label>
+                <select value={form.subcat_id}
                   onChange={(e) => setForm({ ...form, subcat_id: e.target.value })}
                   className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb] bg-white"
                 >
-                  <option value="">Select subcategory</option>
+                  <option value="">Select Category (Optional)</option>
                   {subcategories.map((sc) => (
                     <option key={sc.subcat_id} value={sc.subcat_id}>{sc.subcat_title}</option>
                   ))}
@@ -351,7 +359,7 @@ const AdminCollections = () => {
                   <th className="text-left py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase w-20">Image</th>
                   <th className="text-left py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Title</th>
                   <th className="text-left py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Handle</th>
-                  <th className="text-left py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Subcategory</th>
+                  <th className="text-left py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Category</th>
                   <th className="text-right py-3 pl-5 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase w-28">Actions</th>
                 </tr>
               </thead>

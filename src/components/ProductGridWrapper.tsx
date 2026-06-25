@@ -72,9 +72,40 @@ const ProductGridWrapper = ({
         );
       }
 
-      // 2. Filter by Category
+      // 2. Filter by Category / Subcategory / Collection
       if (category && category !== "all") {
-        processed = processed.filter((product: any) => product.category === category);
+        processed = processed.filter((product: any) => {
+          const filterSlug = category.toLowerCase().replace(/\s+/g, "-");
+
+          // Match category slug (old slug compatibility)
+          const catSlug = product.category?.toLowerCase().replace(/\s+/g, "-");
+          if (catSlug === filterSlug) return true;
+
+          // Match category relationship
+          const catRel = product.category_relation || product.categoryRelation;
+          if (catRel?.cat_title) {
+            const relCatSlug = catRel.cat_title.toLowerCase().replace(/\s+/g, "-");
+            if (relCatSlug === filterSlug) return true;
+          }
+
+          // Match subcategory relationship
+          if (product.subcategory?.subcat_title) {
+            const subcatSlug = product.subcategory.subcat_title.toLowerCase().replace(/\s+/g, "-");
+            if (subcatSlug === filterSlug) return true;
+          }
+
+          // Match collections relationship
+          if (Array.isArray(product.collections)) {
+            const belongsToCollection = product.collections.some((col: any) => {
+              const colTitleSlug = col.title?.toLowerCase().replace(/\s+/g, "-");
+              const colHandleSlug = col.handle?.toLowerCase().replace(/\s+/g, "-");
+              return colTitleSlug === filterSlug || colHandleSlug === filterSlug;
+            });
+            if (belongsToCollection) return true;
+          }
+
+          return false;
+        });
       }
 
       // 3. Filter by Color
