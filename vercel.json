@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/api/:path*", "destination": "https://store-production-3fb2.up.railway.app/api/:path*" },
     { "source": "/((?!assets|preloader\\.json).*)", "destination": "/index.html" }
   ],
   "experimentalServices": {
