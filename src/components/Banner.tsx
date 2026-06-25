@@ -10,6 +10,32 @@ const Banner = ({ themeSettings }: BannerProps) => {
   const slides = themeSettings?.slides || [];
   const [activeIndex, setActiveIndex] = useState(0);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd || slides.length <= 1) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      setActiveIndex((prev) => (prev + 1) % slides.length);
+    } else if (isRightSwipe) {
+      setActiveIndex((prev) => (prev - 1 + slides.length) % slides.length);
+    }
+  };
 
   const onImageLoad = useCallback((url: string) => {
     setLoadedImages((prev) => {
@@ -38,7 +64,12 @@ const Banner = ({ themeSettings }: BannerProps) => {
   }
 
   return (
-    <div className="relative w-full h-[85vh] md:h-[calc(100vh-120px)] overflow-hidden bg-gray-900 select-none">
+    <div
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      className="relative w-full h-[85vh] md:h-[calc(100vh-120px)] overflow-hidden bg-gray-900 select-none"
+    >
       {slides.map((slide, index) => {
         const isActive = index === activeIndex;
         const imageUrl = slide.image.startsWith("http") || slide.image.startsWith("/")
