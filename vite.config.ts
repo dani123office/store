@@ -9,11 +9,11 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        target: "https://store-production-3fb2.up.railway.app",
         changeOrigin: true,
       },
       "/assets": {
-        target: "http://localhost:8000",
+        target: "https://store-production-3fb2.up.railway.app",
         changeOrigin: true,
       },
     },
