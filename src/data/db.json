@@ -726,5 +726,13 @@
       "confirmPassword": "1233214321",
       "id": 4
     }
+  ],
+  "nav-items": [
+    { "id": "1", "label": "New Arrivals", "slug": "new-arrivals", "sort_order": 1 },
+    { "id": "2", "label": "Unstitched", "slug": "unstitched", "sort_order": 2 },
+    { "id": "3", "label": "Ready To Wear", "slug": "ready-to-wear", "sort_order": 3 },
+    { "id": "4", "label": "Bridals", "slug": "bridals", "sort_order": 4 },
+    { "id": "5", "label": "Jewellery", "slug": "jewellery", "sort_order": 5 },
+    { "id": "6", "label": "Special Prices", "slug": "special-prices", "sort_order": 6 }
   ]
 }
