@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { HiPlus, HiTrash, HiOutlineMegaphone, HiXMark } from "react-icons/hi2";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
+import customFetch from "../axios/custom";
 
 interface Campaign {
   id: string;
@@ -25,50 +26,63 @@ const AdminMarketing = () => {
   const [form, setForm] = useState({ name: "", channel: "Email", status: "Draft" as Campaign["status"], budget: "", revenue: "" });
 
   useEffect(() => {
-    const stored = localStorage.getItem("zarka_campaigns");
-    if (stored) {
-      setCampaigns(JSON.parse(stored));
-    } else {
-      setCampaigns(defaultCampaigns);
-      localStorage.setItem("zarka_campaigns", JSON.stringify(defaultCampaigns));
-    }
+    const fetchCampaigns = async () => {
+      try {
+        const res = await customFetch.get("/marketing-campaigns");
+        setCampaigns(res.data);
+      } catch (e) {
+        console.error("Failed to load campaigns from DB, fallback to default", e);
+        setCampaigns(defaultCampaigns);
+      }
+    };
+    fetchCampaigns();
   }, []);
 
-  const saveToStorage = (updated: Campaign[]) => {
-    setCampaigns(updated);
-    localStorage.setItem("zarka_campaigns", JSON.stringify(updated));
+  const handleStatusChange = async (id: string, newStatus: Campaign["status"]) => {
+    try {
+      await customFetch.put(`/marketing-campaigns/${id}`, { status: newStatus });
+      const updated = campaigns.map((c) => (c.id === id ? { ...c, status: newStatus } : c));
+      setCampaigns(updated);
+      toast.success("Campaign status updated");
+    } catch {
+      toast.error("Failed to update status on server.");
+    }
   };
 
-  const handleStatusChange = (id: string, newStatus: Campaign["status"]) => {
-    const updated = campaigns.map((c) => (c.id === id ? { ...c, status: newStatus } : c));
-    saveToStorage(updated);
-    toast.success("Campaign status updated");
+  const handleDelete = async (id: string) => {
+    try {
+      await customFetch.delete(`/marketing-campaigns/${id}`);
+      const updated = campaigns.filter((c) => c.id !== id);
+      setCampaigns(updated);
+      toast.success("Campaign deleted");
+    } catch {
+      toast.error("Failed to delete campaign from server.");
+    }
   };
 
-  const handleDelete = (id: string) => {
-    const updated = campaigns.filter((c) => c.id !== id);
-    saveToStorage(updated);
-    toast.success("Campaign deleted");
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) return;
 
-    const newCampaign: Campaign = {
-      id: String(Date.now()),
-      name: form.name,
-      channel: form.channel,
-      status: form.status,
-      budget: form.budget ? `Rs.${Number(form.budget).toLocaleString()}` : "Rs.0",
-      revenue: form.revenue ? `Rs.${Number(form.revenue).toLocaleString()}` : "Rs.0",
-    };
-
-    const updated = [newCampaign, ...campaigns];
-    saveToStorage(updated);
-    toast.success("Campaign created successfully");
-    setShowForm(false);
-    setForm({ name: "", channel: "Email", status: "Draft", budget: "", revenue: "" });
+    try {
+      const budgetVal = form.budget ? `Rs.${Number(form.budget).toLocaleString()}` : "Rs.0";
+      const revenueVal = form.revenue ? `Rs.${Number(form.revenue).toLocaleString()}` : "Rs.0";
+      
+      const res = await customFetch.post("/marketing-campaigns", {
+        name: form.name,
+        channel: form.channel,
+        status: form.status,
+        budget: budgetVal,
+        revenue: revenueVal
+      });
+      
+      setCampaigns([res.data, ...campaigns]);
+      toast.success("Campaign created successfully");
+      setShowForm(false);
+      setForm({ name: "", channel: "Email", status: "Draft", budget: "", revenue: "" });
+    } catch (e) {
+      toast.error("Failed to save campaign to server.");
+    }
   };
 
   return (

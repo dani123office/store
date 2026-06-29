@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { HiCheck, HiOutlineSquare3Stack3D, HiOutlineArrowUpRight } from "react-icons/hi2";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import customFetch from "../axios/custom";
 
 interface AppItem {
   id: string;
@@ -21,20 +22,35 @@ const defaultApps: AppItem[] = [
 ];
 
 const AdminApps = () => {
-  const [apps, setApps] = useState<AppItem[]>([]);
+  const [apps, setApps] = useState<AppItem[]>(defaultApps);
+  const [storeId, setStoreId] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const stored = localStorage.getItem("zarka_apps");
-    if (stored) {
-      setApps(JSON.parse(stored));
-    } else {
-      setApps(defaultApps);
-      localStorage.setItem("zarka_apps", JSON.stringify(defaultApps));
-    }
+    const fetchInstalledApps = async () => {
+      try {
+        const res = await customFetch.get("/stores");
+        if (res.data && res.data.length > 0) {
+          const store = res.data[0];
+          setStoreId(store.id || "1");
+          const installedStr = store.installed_apps || "1,4"; // default installed apps
+          const installedIds = installedStr.split(",").map((s: string) => s.trim());
+          
+          const updatedApps = defaultApps.map(app => ({
+            ...app,
+            installed: installedIds.includes(app.id)
+          }));
+          setApps(updatedApps);
+        }
+      } catch (e) {
+        console.error("Failed to load store installed apps, fallback to defaults", e);
+        setApps(defaultApps);
+      }
+    };
+    fetchInstalledApps();
   }, []);
 
-  const handleToggleInstall = (id: string) => {
+  const handleToggleInstall = async (id: string) => {
     const updated = apps.map((app) => {
       if (app.id === id) {
         const nextInstalled = !app.installed;
@@ -52,8 +68,18 @@ const AdminApps = () => {
       }
       return app;
     });
+
     setApps(updated);
-    localStorage.setItem("zarka_apps", JSON.stringify(updated));
+
+    try {
+      const installedIds = updated.filter(a => a.installed).map(a => a.id).join(",");
+      await customFetch.post("/stores", {
+        id: storeId,
+        installed_apps: installedIds
+      });
+    } catch (e) {
+      console.error("Failed to save installed apps to database", e);
+    }
   };
 
   const handleOpenDetails = (app: AppItem) => {

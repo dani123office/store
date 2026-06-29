@@ -5,7 +5,7 @@ import {
   HiOutlineUser, HiOutlineGlobeAlt, 
   HiOutlinePlay, HiOutlinePause, 
   HiOutlineTrash, HiOutlineSparkles, HiOutlineBookOpen,
-  HiOutlineChevronRight
+  HiOutlineChevronRight, HiOutlineLink, HiOutlineExclamationTriangle
 } from "react-icons/hi2";
 import { FaFacebook } from "react-icons/fa";
 import customFetch from "../axios/custom";
@@ -37,25 +37,26 @@ interface AdCampaign {
   productImage: string;
   productPrice: number;
   targetInterests: string[];
+  isReal?: boolean;
 }
 
 const mockBusinessManagers = [
-  { id: "bm_1", name: "Zarka Group Holding LLC (Primary)" },
+  { id: "bm_1", name: "Sandbox Business Manager (Simulation)" },
   { id: "bm_2", name: "Zarka Couture Digital Agency" }
 ];
 
 const mockAdAccounts = [
-  { id: "act_92716382", name: "Zarka Couture PK Ads" },
+  { id: "act_92716382", name: "Sandbox Ad Account (act_92716382)" },
   { id: "act_48261053", name: "Zarka Global Agency USD" }
 ];
 
 const mockPages = [
-  { id: "page_1092837", name: "Zarka Couture Official" },
+  { id: "page_1092837", name: "Sandbox Facebook Page" },
   { id: "page_5819283", name: "Zarka Luxury Pret" }
 ];
 
 const mockPixels = [
-  { id: "123456789012345", name: "Zarka Master Web Pixel" },
+  { id: "123456789012345", name: "Sandbox Web Pixel (123456789012345)" },
   { id: "987654321098765", name: "Instagram Shop Pixel" }
 ];
 
@@ -98,16 +99,29 @@ const defaultCampaigns: AdCampaign[] = [
 
 const AdminFacebookAds = () => {
   const [activeTab, setActiveTab] = useState<"dashboard" | "campaigns" | "debugger">("dashboard");
+  const [storeId, setStoreId] = useState<string>("");
+  
+  // Connection states
   const [connected, setConnected] = useState(false);
+  const [isLiveMode, setIsLiveMode] = useState(false);
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [modalStep, setModalStep] = useState(1); // 1: OAuth, 2: BM/AdAccount, 3: Page/Pixel, 4: Finish
 
   // Meta Credentials State
-  const [selectedBM, setSelectedBM] = useState(mockBusinessManagers[0].id);
-  const [selectedAdAccount, setSelectedAdAccount] = useState(mockAdAccounts[0].id);
-  const [selectedPage, setSelectedPage] = useState(mockPages[0].id);
-  const [selectedPixel, setSelectedPixel] = useState(mockPixels[0].id);
+  const [accessToken, setAccessToken] = useState("");
+  const [selectedBM, setSelectedBM] = useState("");
+  const [selectedAdAccount, setSelectedAdAccount] = useState("");
+  const [selectedPage, setSelectedPage] = useState("");
+  const [selectedPixel, setSelectedPixel] = useState("");
   const [dataSharing, setDataSharing] = useState<"Standard" | "Enhanced" | "Maximum">("Maximum");
+
+  // Dynamic Options (fetched from Facebook API if token is provided)
+  const [liveBMs, setLiveBMs] = useState<any[]>([]);
+  const [liveAdAccounts, setLiveAdAccounts] = useState<any[]>([]);
+  const [livePages, setLivePages] = useState<any[]>([]);
+  const [livePixels, setLivePixels] = useState<any[]>([]);
+  const [metaUserName, setMetaUserName] = useState("Sandbox Store Admin");
+  const [isValidatingToken, setIsValidatingToken] = useState(false);
 
   // Campaigns & Store Products
   const [campaigns, setCampaigns] = useState<AdCampaign[]>([]);
@@ -122,7 +136,7 @@ const AdminFacebookAds = () => {
   const [adBudgetType, setAdBudgetType] = useState<"Daily" | "Lifetime">("Daily");
   const [adBudget, setAdBudget] = useState(2000);
   const [selectedProductId, setSelectedProductId] = useState("");
-  const [adPrimaryText, setAdPrimaryText] = useState("Discover the brand new collection from Zarka Couture. Exquisite craftmanship, premium luxury, designed for your elegant moments.");
+  const [adPrimaryText, setAdPrimaryText] = useState("Discover the brand new collection from Zarka Couture. Exquisite craftsmanship, premium luxury, designed for your elegant moments.");
   const [adAudienceRegion, setAdAudienceRegion] = useState("Pakistan");
   const [adAudienceInterests, setAdAudienceInterests] = useState("Fashion, Shopping, Luxury lifestyle");
   const [previewPlatform, setPreviewPlatform] = useState<"facebook-mobile" | "facebook-desktop" | "instagram">("facebook-mobile");
@@ -132,20 +146,40 @@ const AdminFacebookAds = () => {
   const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
   const [isSimulatingJourney, setIsSimulatingJourney] = useState(false);
 
-  // Load configuration from local storage
+  // Load configuration from database (/stores)
   useEffect(() => {
-    // 1. Connection settings
-    const isMetaConnected = localStorage.getItem("meta_connected") === "true";
-    setConnected(isMetaConnected);
-    if (isMetaConnected) {
-      setSelectedBM(localStorage.getItem("meta_bm") || mockBusinessManagers[0].id);
-      setSelectedAdAccount(localStorage.getItem("meta_ad_account") || mockAdAccounts[0].id);
-      setSelectedPage(localStorage.getItem("meta_page") || mockPages[0].id);
-      setSelectedPixel(localStorage.getItem("meta_pixel") || mockPixels[0].id);
-      setDataSharing((localStorage.getItem("meta_sharing") as any) || "Maximum");
-    }
+    const fetchStoreSettings = async () => {
+      try {
+        const res = await customFetch.get("/stores");
+        if (res.data && res.data.length > 0) {
+          const store = res.data[0];
+          setStoreId(store.id || "1");
+          
+          const isMetaConnected = store.fb_connected === 1 || store.fb_connected === true || localStorage.getItem("meta_connected") === "true";
+          setConnected(isMetaConnected);
+          
+          const token = store.fb_access_token || "";
+          setAccessToken(token);
+          setIsLiveMode(!!token);
+          
+          setSelectedBM(store.fb_business_manager || "");
+          setSelectedAdAccount(store.fb_ad_account || "");
+          setSelectedPage(store.fb_page || "");
+          setSelectedPixel(store.fb_pixel_id || "");
+          setDataSharing(store.fb_data_sharing || "Maximum");
+          
+          if (token && isMetaConnected) {
+            // Load live assets from Facebook Graph API using saved token
+            fetchLiveAssets(token, store.fb_ad_account);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load store settings from database", e);
+      }
+    };
+    fetchStoreSettings();
 
-    // 2. Campaigns
+    // Load campaigns from localStorage
     const storedCamps = localStorage.getItem("meta_campaigns");
     if (storedCamps) {
       setCampaigns(JSON.parse(storedCamps));
@@ -154,7 +188,7 @@ const AdminFacebookAds = () => {
       localStorage.setItem("meta_campaigns", JSON.stringify(defaultCampaigns));
     }
 
-    // 3. Products
+    // Load products
     const fetchProducts = async () => {
       try {
         const res = await customFetch.get("/products");
@@ -170,15 +204,13 @@ const AdminFacebookAds = () => {
     };
     fetchProducts();
 
-    // 4. Debugger event listener
+    // Debugger event listener
     const handlePixelEvent = (e: Event) => {
       const customEvent = e as CustomEvent<PixelLog>;
       setPixelLogs((prev) => [customEvent.detail, ...prev].slice(0, 100));
     };
-
     window.addEventListener("zarka-pixel-event", handlePixelEvent);
 
-    // Initial load of logs from localStorage
     const savedLogs = localStorage.getItem("zarka_pixel_logs");
     if (savedLogs) {
       setPixelLogs(JSON.parse(savedLogs));
@@ -189,78 +221,242 @@ const AdminFacebookAds = () => {
     };
   }, []);
 
-  const saveConnectionState = (isConnected: boolean) => {
-    setConnected(isConnected);
-    localStorage.setItem("meta_connected", String(isConnected));
-    if (isConnected) {
-      localStorage.setItem("meta_bm", selectedBM);
-      localStorage.setItem("meta_ad_account", selectedAdAccount);
-      localStorage.setItem("meta_page", selectedPage);
-      localStorage.setItem("meta_pixel", selectedPixel);
-      localStorage.setItem("meta_sharing", dataSharing);
+  // Fetch real Graph API assets (Businesses, Ad Accounts, Pages, Pixels, Campaigns)
+  const fetchLiveAssets = async (token: string, existingAdAccount?: string) => {
+    try {
+      // 1. Get User Profile Name
+      const meRes = await fetch(`https://graph.facebook.com/v19.0/me?access_token=${token}`);
+      const meData = await meRes.json();
+      if (meData.name) {
+        setMetaUserName(meData.name);
+      }
 
-      // Sync with Zarka SEO settings so Pixel is instantly active in HomeLayout storefront script injection!
+      // 2. Fetch Business Managers
+      const bmRes = await fetch(`https://graph.facebook.com/v19.0/me/businesses?access_token=${token}`);
+      const bmData = await bmRes.json();
+      if (Array.isArray(bmData.data)) {
+        setLiveBMs(bmData.data);
+      }
+
+      // 3. Fetch Ad Accounts
+      const adRes = await fetch(`https://graph.facebook.com/v19.0/me/adaccounts?fields=name,account_id,id&access_token=${token}`);
+      const adData = await adRes.json();
+      if (Array.isArray(adData.data)) {
+        setLiveAdAccounts(adData.data);
+      }
+
+      // 4. Fetch Facebook Pages
+      const pageRes = await fetch(`https://graph.facebook.com/v19.0/me/accounts?fields=name,id&access_token=${token}`);
+      const pageData = await pageRes.json();
+      if (Array.isArray(pageData.data)) {
+        setLivePages(pageData.data);
+      }
+
+      // 5. Fetch Pixels and Campaigns if Ad Account exists
+      const activeAdAcc = existingAdAccount || selectedAdAccount;
+      if (activeAdAcc) {
+        fetchLivePixelsAndCampaigns(activeAdAcc, token);
+      }
+    } catch (e) {
+      console.error("Failed to query Facebook Graph API assets", e);
+    }
+  };
+
+  const fetchLivePixelsAndCampaigns = async (adAccountId: string, token: string) => {
+    try {
+      // Pixels
+      const pixelRes = await fetch(`https://graph.facebook.com/v19.0/${adAccountId}/adspixels?fields=name,id&access_token=${token}`);
+      const pixelData = await pixelRes.json();
+      if (Array.isArray(pixelData.data)) {
+        setLivePixels(pixelData.data);
+      }
+
+      // Campaigns
+      const campRes = await fetch(`https://graph.facebook.com/v19.0/${adAccountId}/campaigns?fields=name,objective,status,daily_budget,lifetime_budget,insights{spend,reach,clicks,impressions,purchase_roas}&access_token=${token}`);
+      const campData = await campRes.json();
+      if (Array.isArray(campData.data)) {
+        const liveCamps: AdCampaign[] = campData.data.map((c: any) => {
+          const spendVal = c.insights?.data?.[0]?.spend ? parseFloat(c.insights.data[0].spend) : 0;
+          const reachVal = c.insights?.data?.[0]?.reach ? parseInt(c.insights.data[0].reach) : 0;
+          const clicksVal = c.insights?.data?.[0]?.clicks ? parseInt(c.insights.data[0].clicks) : 0;
+          const roasVal = c.insights?.data?.[0]?.purchase_roas?.[0]?.value ? parseFloat(c.insights.data[0].purchase_roas[0].value) : 0;
+          return {
+            id: c.id,
+            name: c.name,
+            objective: c.objective,
+            status: c.status === "ACTIVE" ? "Active" : "Paused",
+            budget: c.daily_budget ? parseInt(c.daily_budget) / 100 : c.lifetime_budget ? parseInt(c.lifetime_budget) / 100 : 0,
+            budgetType: c.daily_budget ? "Daily" : "Lifetime",
+            spend: spendVal,
+            reach: reachVal,
+            clicks: clicksVal,
+            purchases: Math.round(spendVal / 500), // estimate
+            roas: roasVal || 3.1,
+            productName: "Store Catalog Product",
+            productImage: "",
+            productPrice: 0,
+            targetInterests: [],
+            isReal: true
+          };
+        });
+        
+        // Merge with local campaigns
+        const merged = [...liveCamps, ...campaigns.filter(c => !c.isReal)];
+        setCampaigns(merged);
+        localStorage.setItem("meta_campaigns", JSON.stringify(merged));
+      }
+    } catch (e) {
+      console.error("Failed to load Pixels and Campaigns for Ad Account " + adAccountId, e);
+    }
+  };
+
+  const saveConnectionState = async (isConnected: boolean, pixelId: string) => {
+    setConnected(isConnected);
+    
+    // Save to Laravel Backend via POST /stores
+    try {
+      await customFetch.post("/stores", {
+        id: storeId,
+        fb_connected: isConnected ? 1 : 0,
+        fb_access_token: isConnected && isLiveMode ? accessToken : "",
+        fb_business_manager: isConnected ? selectedBM : "",
+        fb_ad_account: isConnected ? selectedAdAccount : "",
+        fb_page: isConnected ? selectedPage : "",
+        fb_pixel_id: isConnected ? pixelId : "",
+        fb_data_sharing: isConnected ? dataSharing : "Maximum"
+      });
+      
+      // Also update local storage fallback
+      localStorage.setItem("meta_connected", String(isConnected));
+    } catch (e) {
+      console.error("Failed to save Meta connection to backend database", e);
+    }
+
+    // Sync with Zarka SEO Manager settings so that script tags fire reactively on customer side
+    try {
       const seoStored = localStorage.getItem("zarka_seo_settings");
       const seoSettings = seoStored ? JSON.parse(seoStored) : {
         metaTitleTemplate: "{Page Title} | ZARKA COUTURE",
         defaultMetaDescription: "Premium luxury designer dresses, unstitched, ready to wear, bridals & jewellery. Free shipping nationwide.",
         gaTrackingId: "G-XXXXXXXXXX",
       };
-      seoSettings.fbPixelId = selectedPixel;
+      seoSettings.fbPixelId = isConnected ? pixelId : "123456789012345";
       localStorage.setItem("zarka_seo_settings", JSON.stringify(seoSettings));
-    } else {
-      localStorage.removeItem("meta_bm");
-      localStorage.removeItem("meta_ad_account");
-      localStorage.removeItem("meta_page");
-      localStorage.removeItem("meta_pixel");
-      localStorage.removeItem("meta_sharing");
-
-      // Disable/reset Pixel ID in SEO settings
-      const seoStored = localStorage.getItem("zarka_seo_settings");
-      if (seoStored) {
-        const seoSettings = JSON.parse(seoStored);
-        seoSettings.fbPixelId = "123456789012345"; // fallback/disabled placeholder
-        localStorage.setItem("zarka_seo_settings", JSON.stringify(seoSettings));
-      }
-    }
+    } catch (e) {}
   };
 
-  const handleStartConnection = () => {
+  const handleStartConnection = (live: boolean) => {
+    setIsLiveMode(live);
     setModalStep(1);
     setShowConnectModal(true);
   };
 
-  const handleOAuthConnect = () => {
-    setModalStep(2); // Proceed to BM & Ad account selection
-    toast.success("Log in verified! Connecting to Facebook Business Account.");
+  const handleOAuthConnect = async () => {
+    if (isLiveMode) {
+      if (!accessToken.trim()) {
+        toast.error("Please enter a valid Facebook User Access Token.");
+        return;
+      }
+      setIsValidatingToken(true);
+      try {
+        const response = await fetch(`https://graph.facebook.com/v19.0/me?access_token=${accessToken}`);
+        const data = await response.json();
+        if (data.error) {
+          toast.error(`Invalid Access Token: ${data.error.message}`);
+        } else {
+          setMetaUserName(data.name || "Meta User");
+          toast.success(`Access Token verified! Connected as ${data.name}`);
+          setModalStep(2);
+          fetchLiveAssets(accessToken);
+        }
+      } catch (e) {
+        toast.error("Failed to query Facebook API. Check network connectivity.");
+      } finally {
+        setIsValidatingToken(false);
+      }
+    } else {
+      // Sandbox mode connects instantly
+      setMetaUserName("Zarka Store Admin (Sandbox)");
+      setModalStep(2);
+      toast.success("Simulation OAuth connection initiated.");
+    }
   };
 
   const handleSaveAssets = () => {
-    setModalStep(3); // Proceed to Page & Pixel selection
+    // If live mode, make sure they selected real assets
+    if (isLiveMode) {
+      if (!selectedAdAccount) {
+        toast.error("Please select an Ad Account to link.");
+        return;
+      }
+      // Load pixels for selected account
+      fetchLivePixelsAndCampaigns(selectedAdAccount, accessToken);
+    } else {
+      // Setup default sandbox assets if empty
+      if (!selectedBM) setSelectedBM(mockBusinessManagers[0].id);
+      if (!selectedAdAccount) setSelectedAdAccount(mockAdAccounts[0].id);
+    }
+    setModalStep(3);
   };
 
   const handleFinishConnection = () => {
-    saveConnectionState(true);
+    const finalPixel = isLiveMode ? selectedPixel : (selectedPixel || mockPixels[0].id);
+    if (!finalPixel) {
+      toast.error("Please select or create a Pixel ID.");
+      return;
+    }
+    
+    saveConnectionState(true, finalPixel);
     setShowConnectModal(false);
-    toast.success("Meta Ads & Pixel Channel connected successfully! Pixel is now tracking live.");
+    toast.success("Meta Ads & Pixel connected successfully! Real-time synchronization active.");
   };
 
   const handleDisconnect = () => {
-    if (window.confirm("Are you sure you want to disconnect Meta Ads Manager and disable Facebook Pixel tracking?")) {
-      saveConnectionState(false);
+    if (window.confirm("Are you sure you want to disconnect Meta and disable Facebook Pixel tracking?")) {
+      saveConnectionState(false, "");
+      setAccessToken("");
+      setIsLiveMode(false);
+      setLiveBMs([]);
+      setLiveAdAccounts([]);
+      setLivePages([]);
+      setLivePixels([]);
+      setMetaUserName("Sandbox Store Admin");
       toast.success("Disconnected from Meta Account.");
     }
   };
 
-  const handleToggleCampaignStatus = (id: string) => {
-    const updated = campaigns.map((camp) => {
-      if (camp.id === id) {
-        const newStatus = camp.status === "Active" ? "Paused" : "Active";
-        toast.success(`Campaign "${camp.name}" is now ${newStatus.toLowerCase()}.`);
-        return { ...camp, status: newStatus as "Active" | "Paused" };
+  const handleToggleCampaignStatus = async (id: string, isReal: boolean) => {
+    const campaign = campaigns.find(c => c.id === id);
+    if (!campaign) return;
+    const newStatus = campaign.status === "Active" ? "Paused" : "Active";
+
+    if (isReal && isLiveMode) {
+      toast.loading("Updating status in Meta Ads Manager...");
+      try {
+        const metaStatus = newStatus === "Active" ? "ACTIVE" : "PAUSED";
+        const res = await fetch(`https://graph.facebook.com/v19.0/${id}?status=${metaStatus}&access_token=${accessToken}`, {
+          method: "POST"
+        });
+        const data = await res.json();
+        toast.dismiss();
+        if (data.success) {
+          toast.success(`Meta Ads campaign set to ${newStatus.toLowerCase()}.`);
+          updateLocalCampaignStatus(id, newStatus);
+        } else {
+          toast.error("Failed to update campaign status on Meta: " + data.error?.message);
+        }
+      } catch {
+        toast.dismiss();
+        toast.error("Network error updating campaign on Meta.");
       }
-      return camp;
-    });
+    } else {
+      updateLocalCampaignStatus(id, newStatus);
+      toast.success(`Simulation campaign status set to ${newStatus.toLowerCase()}.`);
+    }
+  };
+
+  const updateLocalCampaignStatus = (id: string, status: "Active" | "Paused") => {
+    const updated = campaigns.map((c) => (c.id === id ? { ...c, status } : c));
     setCampaigns(updated);
     localStorage.setItem("meta_campaigns", JSON.stringify(updated));
   };
@@ -274,7 +470,7 @@ const AdminFacebookAds = () => {
     }
   };
 
-  const handlePublishCampaign = (e: React.FormEvent) => {
+  const handlePublishCampaign = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!adName.trim() || !selectedProductId) {
       toast.error("Please fill in the campaign name and select a product.");
@@ -287,16 +483,42 @@ const AdminFacebookAds = () => {
     setIsPublishingAd(true);
     setPublishingStep(1);
 
-    // Simulated publishing step timeline
-    setTimeout(() => {
-      setPublishingStep(2);
-      setTimeout(() => {
-        setPublishingStep(3);
-        setTimeout(() => {
+    if (isLiveMode && accessToken) {
+      // LIVE MODE: Create campaign on real Facebook Ads Account
+      try {
+        const metaObjective = adObjective.includes("Sales") ? "OUTCOME_SALES" : "OUTCOME_TRAFFIC";
+        const metaStatus = "ACTIVE";
+        
+        // Setup payload variables
+        const payload: any = {
+          name: adName,
+          objective: metaObjective,
+          status: metaStatus,
+          special_ad_categories: "[]",
+          access_token: accessToken
+        };
+        
+        if (adBudgetType === "Daily") {
+          payload.daily_budget = adBudget * 100; // in cents
+        } else {
+          payload.lifetime_budget = adBudget * 100;
+        }
+
+        // Build query string params
+        const queryParams = new URLSearchParams(payload).toString();
+
+        setPublishingStep(2);
+        const res = await fetch(`https://graph.facebook.com/v19.0/${selectedAdAccount}/campaigns`, {
+          method: "POST",
+          body: queryParams
+        });
+        const data = await res.json();
+        
+        if (data.id) {
           setPublishingStep(4);
           setTimeout(() => {
             const newCampaign: AdCampaign = {
-              id: "camp_" + Date.now(),
+              id: data.id,
               name: adName,
               objective: adObjective,
               status: "Active",
@@ -310,7 +532,8 @@ const AdminFacebookAds = () => {
               productName: selectedProduct.title,
               productImage: selectedProduct.image,
               productPrice: parseFloat(selectedProduct.price),
-              targetInterests: adAudienceInterests.split(",").map((i) => i.trim())
+              targetInterests: adAudienceInterests.split(",").map((i) => i.trim()),
+              isReal: true
             };
 
             const updated = [newCampaign, ...campaigns];
@@ -319,18 +542,59 @@ const AdminFacebookAds = () => {
 
             setIsPublishingAd(false);
             setShowCreateAdForm(false);
-            // Reset form
             setAdName("");
-            setAdBudget(2000);
-            setAdPrimaryText("Discover the brand new collection from Zarka Couture. Exquisite craftmanship, premium luxury, designed for your elegant moments.");
-            setAdAudienceInterests("Fashion, Shopping, Luxury lifestyle");
-            
-            toast.success("Dynamic catalog campaign published successfully to Meta Ads Manager!");
+            toast.success("Real campaign published to Meta Ads Manager successfully!");
             setActiveTab("campaigns");
-          }, 1200);
-        }, 1200);
-      }, 1000);
-    }, 1000);
+          }, 1000);
+        } else {
+          setIsPublishingAd(false);
+          toast.error("Meta Ads API Error: " + (data.error?.message || "Failed to create campaign."));
+        }
+      } catch (err) {
+        setIsPublishingAd(false);
+        toast.error("Failed to contact Facebook Graph API server.");
+      }
+    } else {
+      // SANDBOX MODE: Simulate publishing
+      setTimeout(() => {
+        setPublishingStep(2);
+        setTimeout(() => {
+          setPublishingStep(3);
+          setTimeout(() => {
+            setPublishingStep(4);
+            setTimeout(() => {
+              const newCampaign: AdCampaign = {
+                id: "camp_" + Date.now(),
+                name: adName,
+                objective: adObjective,
+                status: "Active",
+                budget: adBudget,
+                budgetType: adBudgetType,
+                spend: 0,
+                reach: 0,
+                clicks: 0,
+                purchases: 0,
+                roas: 0,
+                productName: selectedProduct.title,
+                productImage: selectedProduct.image,
+                productPrice: parseFloat(selectedProduct.price),
+                targetInterests: adAudienceInterests.split(",").map((i) => i.trim())
+              };
+
+              const updated = [newCampaign, ...campaigns];
+              setCampaigns(updated);
+              localStorage.setItem("meta_campaigns", JSON.stringify(updated));
+
+              setIsPublishingAd(false);
+              setShowCreateAdForm(false);
+              setAdName("");
+              toast.success("Simulation catalog campaign published to sandbox registry.");
+              setActiveTab("campaigns");
+            }, 1000);
+          }, 1000);
+        }, 1000);
+      }, 800);
+    }
   };
 
   // Helper to simulate storefront customer journey and show events in debugger
@@ -341,10 +605,8 @@ const AdminFacebookAds = () => {
     toast.success("Simulating customer journey in a sandbox environment...");
 
     const mockProduct = products[0] || { id: "1", title: "Luxury Pret Summer Dress", price: 12000, category: "Ready to Wear" };
-
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    // Define pixel event dispatcher helper
     const fireSimulatedEvent = (eventName: string, data?: any) => {
       const path = eventName === "PageView" ? "/" :
                    eventName === "ViewContent" ? `/product/${mockProduct.id}` :
@@ -361,7 +623,6 @@ const AdminFacebookAds = () => {
       };
 
       setPixelLogs((prev) => [newLog, ...prev].slice(0, 100));
-      // Save to localStorage too
       try {
         const existing = localStorage.getItem("zarka_pixel_logs");
         const logs = existing ? JSON.parse(existing) : [];
@@ -370,13 +631,10 @@ const AdminFacebookAds = () => {
       } catch (e) {}
     };
 
-    // Run journey async
     (async () => {
-      // 1. PageView (Home)
       fireSimulatedEvent("PageView");
-      await delay(1500);
+      await delay(1200);
 
-      // 2. ViewContent (Product Details)
       fireSimulatedEvent("ViewContent", {
         content_ids: [mockProduct.id],
         content_name: mockProduct.title,
@@ -385,9 +643,8 @@ const AdminFacebookAds = () => {
         currency: "PKR",
         content_type: "product"
       });
-      await delay(2000);
+      await delay(1500);
 
-      // 3. AddToCart
       fireSimulatedEvent("AddToCart", {
         content_ids: [mockProduct.id],
         content_name: mockProduct.title,
@@ -397,18 +654,16 @@ const AdminFacebookAds = () => {
         content_type: "product",
         quantity: 1
       });
-      await delay(2000);
+      await delay(1500);
 
-      // 4. InitiateCheckout
       fireSimulatedEvent("InitiateCheckout", {
         num_items: 1,
         value: parseFloat(mockProduct.price),
         currency: "PKR",
         contents: [{ id: mockProduct.id, quantity: 1, price: parseFloat(mockProduct.price) }]
       });
-      await delay(2500);
+      await delay(1800);
 
-      // 5. Purchase
       fireSimulatedEvent("Purchase", {
         content_ids: [mockProduct.id],
         value: parseFloat(mockProduct.price),
@@ -429,7 +684,6 @@ const AdminFacebookAds = () => {
     toast.success("Live Pixel logs cleared.");
   };
 
-  // Find currently selected product for ad preview
   const currentAdProduct = products.find((p) => String(p.id) === String(selectedProductId)) || products[0];
 
   return (
@@ -449,7 +703,7 @@ const AdminFacebookAds = () => {
           {connected ? (
             <div className="flex items-center gap-2 bg-[#f1f8f5] text-[#008060] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#d3ecd8]">
               <span className="w-2.5 h-2.5 rounded-full bg-[#008060] animate-pulse" />
-              Connected &amp; Tracking
+              {isLiveMode ? "Live API Connected" : "Sandbox Connected"}
             </div>
           ) : (
             <div className="flex items-center gap-2 bg-gray-100 text-gray-500 text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200">
@@ -522,23 +776,37 @@ const AdminFacebookAds = () => {
                   <p className="text-sm text-gray-600 leading-relaxed">
                     Connect your Meta Ad Account and page to dynamically synchronize your product catalog, launch retargeting ads, and automatically track customer actions with Meta Pixel (Facebook Pixel) and Conversions API.
                   </p>
-                  <div className="pt-2">
+                  <div className="pt-2 flex flex-col sm:flex-row gap-3">
                     <button
-                      onClick={handleStartConnection}
-                      className="bg-[#1877f2] hover:bg-[#156cd4] text-white text-sm font-semibold px-6 py-3 rounded-lg shadow-md transition-all flex items-center gap-2 hover:scale-[1.01]"
+                      onClick={() => handleStartConnection(true)}
+                      className="bg-[#1877f2] hover:bg-[#156cd4] text-white text-sm font-semibold px-6 py-3 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
                     >
-                      <FaFacebook className="text-lg" />
-                      Connect Meta Account
+                      <HiOutlineLink className="text-lg" />
+                      Connect Real Meta Account (Live API)
+                    </button>
+                    <button
+                      onClick={() => handleStartConnection(false)}
+                      className="border border-[#1877f2] text-[#1877f2] hover:bg-[#1877f2]/5 text-sm font-semibold px-6 py-3 rounded-lg transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
+                    >
+                      Connect Sandbox Mode (Simulation)
                     </button>
                   </div>
                 </div>
               </div>
             ) : (
               <div className="bg-white border border-[#e0e0e0] rounded-xl p-6 space-y-6 shadow-sm">
-                <h3 className="text-sm font-bold text-[#202223] border-b pb-3 uppercase tracking-wider flex items-center gap-2">
-                  <HiOutlineShieldCheck className="text-lg text-green-600" />
-                  Meta Integration Details
-                </h3>
+                <div className="flex items-center justify-between border-b pb-3">
+                  <h3 className="text-sm font-bold text-[#202223] uppercase tracking-wider flex items-center gap-2">
+                    <HiOutlineShieldCheck className="text-lg text-green-600" />
+                    Meta Integration Details ({isLiveMode ? "Live Mode" : "Sandbox Mode"})
+                  </h3>
+                  {isLiveMode && (
+                    <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                      Live API Connection
+                    </span>
+                  )}
+                </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Account detail columns */}
@@ -548,9 +816,9 @@ const AdminFacebookAds = () => {
                         <HiOutlineUser className="text-xl" />
                       </div>
                       <div>
-                        <p className="text-[10px] uppercase font-bold text-gray-400">Meta Account</p>
-                        <p className="text-sm font-semibold text-gray-800">RT International Admin</p>
-                        <p className="text-xs text-gray-500">rt.admin@rt-international.com</p>
+                        <p className="text-[10px] uppercase font-bold text-gray-400">Meta Account User</p>
+                        <p className="text-sm font-semibold text-gray-800">{metaUserName}</p>
+                        <p className="text-xs text-gray-500">{isLiveMode ? "Facebook Graph API" : "Simulated Account Profile"}</p>
                       </div>
                     </div>
 
@@ -561,9 +829,12 @@ const AdminFacebookAds = () => {
                       <div>
                         <p className="text-[10px] uppercase font-bold text-gray-400">Connected Facebook Page</p>
                         <p className="text-sm font-semibold text-gray-800">
-                          {mockPages.find(p => p.id === selectedPage)?.name || "Zarka Couture"}
+                          {isLiveMode 
+                            ? (livePages.find(p => p.id === selectedPage)?.name || "Live Connected Page")
+                            : (mockPages.find(p => p.id === selectedPage)?.name || "Sandbox Facebook Page")
+                          }
                         </p>
-                        <p className="text-xs text-gray-500">ID: {selectedPage}</p>
+                        <p className="text-xs text-gray-500 font-mono">ID: {selectedPage || "page_1092837"}</p>
                       </div>
                     </div>
                   </div>
@@ -576,9 +847,12 @@ const AdminFacebookAds = () => {
                       <div>
                         <p className="text-[10px] uppercase font-bold text-gray-400">Active Ad Account</p>
                         <p className="text-sm font-semibold text-gray-800">
-                          {mockAdAccounts.find(a => a.id === selectedAdAccount)?.name || "Zarka Couture PK Ads"}
+                          {isLiveMode
+                            ? (liveAdAccounts.find(a => a.id === selectedAdAccount)?.name || "Live Connected Ad Account")
+                            : (mockAdAccounts.find(a => a.id === selectedAdAccount)?.name || "Sandbox Ad Account")
+                          }
                         </p>
-                        <p className="text-xs text-gray-500">ID: {selectedAdAccount}</p>
+                        <p className="text-xs text-gray-500 font-mono">ID: {selectedAdAccount || "act_92716382"}</p>
                       </div>
                     </div>
 
@@ -588,10 +862,10 @@ const AdminFacebookAds = () => {
                       </div>
                       <div>
                         <p className="text-[10px] uppercase font-bold text-gray-400">Meta Web Pixel ID</p>
-                        <p className="text-sm font-semibold text-gray-800">
-                          {mockPixels.find(p => p.id === selectedPixel)?.name || "Zarka Master Web Pixel"}
+                        <p className="text-sm font-semibold text-gray-800 font-mono">
+                          {selectedPixel || (isLiveMode ? "No Pixel Selected" : "123456789012345")}
                         </p>
-                        <p className="text-xs font-mono text-gray-500">{selectedPixel}</p>
+                        <p className="text-xs text-gray-500">Active tracking pixel ID</p>
                       </div>
                     </div>
                   </div>
@@ -599,7 +873,12 @@ const AdminFacebookAds = () => {
 
                 <div className="border-t pt-5 flex items-center justify-between">
                   <div className="text-xs text-gray-500">
-                    Connected Business Manager: <span className="font-semibold text-gray-700">{mockBusinessManagers.find(bm => bm.id === selectedBM)?.name}</span>
+                    Business Manager: <span className="font-semibold text-gray-700">
+                      {isLiveMode 
+                        ? (liveBMs.find(bm => bm.id === selectedBM)?.name || "Real Business Manager")
+                        : (mockBusinessManagers.find(bm => bm.id === selectedBM)?.name || "Sandbox Business Manager")
+                      }
+                    </span>
                   </div>
                   <button
                     onClick={handleDisconnect}
@@ -732,7 +1011,7 @@ const AdminFacebookAds = () => {
                     <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
                     Active Pixel Status
                   </div>
-                  <span className="text-xs font-mono font-bold text-gray-700">{selectedPixel}</span>
+                  <span className="text-xs font-mono font-bold text-gray-700 truncate max-w-[120px]">{selectedPixel}</span>
                 </div>
                 <div className="border-t pt-3 flex items-center justify-between text-xs text-gray-500">
                   <span>Match Quality Score</span>
@@ -1144,9 +1423,9 @@ const AdminFacebookAds = () => {
                     <th className="py-3 px-5">Campaign</th>
                     <th className="py-3 px-5">Status</th>
                     <th className="py-3 px-5">Objective</th>
-                    <th className="py-3 px-5 text-right">Spend (Rs.)</th>
-                    <th className="py-3 px-5 text-right">Budget (Rs.)</th>
-                    <th className="py-3 px-5 text-right">Link Clicks</th>
+                    <th className="py-3 px-5 text-right">Spend</th>
+                    <th className="py-3 px-5 text-right">Budget</th>
+                    <th className="py-3 px-5 text-right">Clicks</th>
                     <th className="py-3 px-5 text-right">Purchases</th>
                     <th className="py-3 px-5 text-right text-blue-700">ROAS</th>
                     <th className="py-3 px-5 text-right w-24">Actions</th>
@@ -1158,7 +1437,7 @@ const AdminFacebookAds = () => {
                       {/* Name */}
                       <td className="py-4 px-5">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded border overflow-hidden bg-gray-100 flex-shrink-0">
+                          <div className="w-10 h-10 rounded border overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center">
                             {c.productImage ? (
                               <img 
                                 src={c.productImage.startsWith("http") ? c.productImage : `/assets/${c.productImage}`} 
@@ -1166,7 +1445,7 @@ const AdminFacebookAds = () => {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <HiOutlineMegaphone className="w-full h-full p-2 text-gray-400" />
+                              <HiOutlineMegaphone className="w-6 h-6 text-gray-400" />
                             )}
                           </div>
                           <div>
@@ -1179,7 +1458,7 @@ const AdminFacebookAds = () => {
                       {/* Status */}
                       <td className="py-4 px-5">
                         <button
-                          onClick={() => handleToggleCampaignStatus(c.id)}
+                          onClick={() => handleToggleCampaignStatus(c.id, !!c.isReal)}
                           className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-colors border ${
                             c.status === "Active"
                               ? "bg-green-50 text-green-700 border-green-200"
@@ -1197,13 +1476,13 @@ const AdminFacebookAds = () => {
 
                       {/* Spend */}
                       <td className="py-4 px-5 text-right font-medium text-gray-700 text-xs">
-                        Rs.{c.spend.toLocaleString()}
+                        {isLiveMode && c.isReal ? `$${c.spend.toFixed(2)}` : `Rs.${c.spend.toLocaleString()}`}
                       </td>
 
                       {/* Budget */}
                       <td className="py-4 px-5 text-right font-medium text-gray-700 text-xs">
                         <span className="text-[9px] uppercase font-bold text-gray-400 block tracking-wider">{c.budgetType}</span>
-                        Rs.{c.budget.toLocaleString()}
+                        {isLiveMode && c.isReal ? `$${c.budget.toLocaleString()}` : `Rs.${c.budget.toLocaleString()}`}
                       </td>
 
                       {/* Clicks */}
@@ -1221,7 +1500,7 @@ const AdminFacebookAds = () => {
                       <td className="py-4 px-5 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
-                            onClick={() => handleToggleCampaignStatus(c.id)}
+                            onClick={() => handleToggleCampaignStatus(c.id, !!c.isReal)}
                             className="p-1.5 hover:bg-gray-100 rounded text-gray-500 transition-colors"
                             title={c.status === "Active" ? "Pause Campaign" : "Resume Campaign"}
                           >
@@ -1295,7 +1574,6 @@ const AdminFacebookAds = () => {
                     className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer select-none"
                   >
                     <div className="flex items-center gap-3">
-                      {/* Event badge color */}
                       <span className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
                         log.event === "PageView" ? "bg-gray-200 text-gray-700" :
                         log.event === "ViewContent" ? "bg-blue-100 text-blue-800" :
@@ -1349,7 +1627,7 @@ const AdminFacebookAds = () => {
             <div className="px-6 py-4 bg-[#1877f2] text-white flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <FaFacebook className="text-xl" />
-                <span className="font-bold text-sm">Meta Business Integration</span>
+                <span className="font-bold text-sm">Meta Business Integration Wizard</span>
               </div>
               <button 
                 onClick={() => setShowConnectModal(false)}
@@ -1361,24 +1639,76 @@ const AdminFacebookAds = () => {
 
             {/* Modal Body */}
             <div className="p-6 flex-1 space-y-6">
-              {/* STEP 1: LOGIN OAUTH */}
+              {/* STEP 1: CONFIGURE ACCESS TOKEN / CREDENTIALS OR SANDBOX */}
               {modalStep === 1 && (
-                <div className="text-center space-y-6 py-4">
-                  <div className="w-16 h-16 rounded-full bg-blue-50 text-[#1877f2] flex items-center justify-center mx-auto border border-blue-100">
-                    <FaFacebook className="text-3xl" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-base font-bold text-gray-800">Log in to Facebook</h3>
-                    <p className="text-xs text-gray-500 max-w-md mx-auto leading-relaxed">
-                      Zarka Couture needs permissions to manage your campaigns, catalog products, and receive pixel signals from your store.
-                    </p>
-                  </div>
-                  <button
-                    onClick={handleOAuthConnect}
-                    className="bg-[#1877f2] hover:bg-[#156cd4] text-white text-xs font-semibold px-6 py-3 rounded-lg flex items-center justify-center gap-2 mx-auto w-full max-w-xs transition-colors"
-                  >
-                    Continue as RT International
-                  </button>
+                <div className="space-y-4">
+                  {isLiveMode ? (
+                    <div className="space-y-4">
+                      <div className="space-y-1">
+                        <h3 className="text-base font-bold text-gray-800">Verify Facebook Graph API Token</h3>
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                          To make this a real, live-working Facebook Ads channel, please paste a Facebook User Access Token.
+                        </p>
+                      </div>
+
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3.5 text-xs text-amber-800 flex gap-2.5">
+                        <HiOutlineExclamationTriangle className="text-lg flex-shrink-0 text-amber-600 mt-0.5" />
+                        <div>
+                          <span className="font-bold">Required Token Permissions:</span> make sure the token is generated with <code>ads_management</code>, <code>ads_read</code>, <code>business_management</code>, and <code>pages_show_list</code>.
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          Facebook Access Token
+                        </label>
+                        <textarea
+                          rows={4}
+                          value={accessToken}
+                          onChange={(e) => setAccessToken(e.target.value)}
+                          placeholder="vcp_... or EAA..."
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-blue-500 font-mono"
+                        />
+                      </div>
+
+                      <div className="pt-2 flex justify-between gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setIsLiveMode(false)}
+                          className="text-xs text-gray-500 hover:text-gray-700"
+                        >
+                          Switch back to Sandbox simulation
+                        </button>
+                        <button
+                          onClick={handleOAuthConnect}
+                          disabled={isValidatingToken}
+                          className="bg-[#1877f2] hover:bg-[#156cd4] disabled:opacity-50 text-white text-xs font-semibold px-6 py-2.5 rounded-lg flex items-center gap-2"
+                        >
+                          {isValidatingToken ? "Validating token..." : "Verify & Connect"}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center space-y-6 py-4">
+                      <div className="w-16 h-16 rounded-full bg-blue-50 text-[#1877f2] flex items-center justify-center mx-auto border border-blue-100">
+                        <FaFacebook className="text-3xl" />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-base font-bold text-gray-800">Connect Sandbox mode</h3>
+                        <p className="text-xs text-gray-500 max-w-md mx-auto leading-relaxed">
+                          This initializes a sandbox simulation using mock Business Managers and Ad Accounts, allowing you to test out the page interfaces.
+                        </p>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <button
+                          onClick={handleOAuthConnect}
+                          className="bg-[#1877f2] hover:bg-[#156cd4] text-white text-xs font-semibold px-6 py-2.5 rounded-lg w-full max-w-xs transition-colors"
+                        >
+                          Continue as Sandbox Admin
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1386,8 +1716,8 @@ const AdminFacebookAds = () => {
               {modalStep === 2 && (
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <h3 className="text-base font-bold text-gray-800">Select Business Assets</h3>
-                    <p className="text-xs text-gray-400">Choose the Business Manager and Ad Account to link with your store.</p>
+                    <h3 className="text-base font-bold text-gray-800">Select Business Manager &amp; Ad Account</h3>
+                    <p className="text-xs text-gray-400">Choose the assets from your Facebook account to link to the store.</p>
                   </div>
 
                   <div className="space-y-4 pt-2">
@@ -1400,9 +1730,16 @@ const AdminFacebookAds = () => {
                         onChange={(e) => setSelectedBM(e.target.value)}
                         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500 bg-white"
                       >
-                        {mockBusinessManagers.map((bm) => (
-                          <option key={bm.id} value={bm.id}>{bm.name}</option>
-                        ))}
+                        <option value="">-- Choose Business Manager --</option>
+                        {isLiveMode ? (
+                          liveBMs.map((bm) => (
+                            <option key={bm.id} value={bm.id}>{bm.name} ({bm.id})</option>
+                          ))
+                        ) : (
+                          mockBusinessManagers.map((bm) => (
+                            <option key={bm.id} value={bm.id}>{bm.name}</option>
+                          ))
+                        )}
                       </select>
                     </div>
 
@@ -1415,9 +1752,16 @@ const AdminFacebookAds = () => {
                         onChange={(e) => setSelectedAdAccount(e.target.value)}
                         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500 bg-white"
                       >
-                        {mockAdAccounts.map((act) => (
-                          <option key={act.id} value={act.id}>{act.name}</option>
-                        ))}
+                        <option value="">-- Choose Ad Account --</option>
+                        {isLiveMode ? (
+                          liveAdAccounts.map((act) => (
+                            <option key={act.id} value={act.id}>{act.name} ({act.id})</option>
+                          ))
+                        ) : (
+                          mockAdAccounts.map((act) => (
+                            <option key={act.id} value={act.id}>{act.name}</option>
+                          ))
+                        )}
                       </select>
                     </div>
                   </div>
@@ -1438,7 +1782,7 @@ const AdminFacebookAds = () => {
                 <div className="space-y-4">
                   <div className="space-y-1">
                     <h3 className="text-base font-bold text-gray-800">Connect Facebook Page &amp; Pixel</h3>
-                    <p className="text-xs text-gray-400">Select which storefront page and tracking pixel should be activated.</p>
+                    <p className="text-xs text-gray-400">Select which page and tracking pixel should be activated.</p>
                   </div>
 
                   <div className="space-y-4 pt-2">
@@ -1451,9 +1795,16 @@ const AdminFacebookAds = () => {
                         onChange={(e) => setSelectedPage(e.target.value)}
                         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500 bg-white"
                       >
-                        {mockPages.map((p) => (
-                          <option key={p.id} value={p.id}>{p.name}</option>
-                        ))}
+                        <option value="">-- Choose Page --</option>
+                        {isLiveMode ? (
+                          livePages.map((p) => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                          ))
+                        ) : (
+                          mockPages.map((p) => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                          ))
+                        )}
                       </select>
                     </div>
 
@@ -1466,14 +1817,23 @@ const AdminFacebookAds = () => {
                         onChange={(e) => setSelectedPixel(e.target.value)}
                         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500 bg-white"
                       >
-                        {mockPixels.map((px) => (
-                          <option key={px.id} value={px.id}>{px.name} ({px.id})</option>
-                        ))}
+                        <option value="">-- Choose Pixel ID --</option>
+                        {isLiveMode ? (
+                          livePixels.map((px) => (
+                            <option key={px.id} value={px.id}>{px.name} ({px.id})</option>
+                          ))
+                        ) : (
+                          mockPixels.map((px) => (
+                            <option key={px.id} value={px.id}>{px.name} ({px.id})</option>
+                          ))
+                        )}
                       </select>
-                      <div className="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
-                        <HiOutlinePlus className="text-xs text-blue-500" />
-                        <span>Can&apos;t find your Pixel? Meta will automatically generate a new pixel during connection.</span>
-                      </div>
+                      {isLiveMode && livePixels.length === 0 && (
+                        <div className="text-[10px] text-amber-600 mt-1 flex items-start gap-1">
+                          <HiOutlineExclamationTriangle className="text-xs flex-shrink-0 mt-0.5" />
+                          <span>No pixels found on this Ad Account. You will need to create a pixel inside Meta Event Manager first.</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 

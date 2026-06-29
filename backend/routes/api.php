@@ -197,3 +197,147 @@ Route::get('/product-widths', [ProductWidthController::class, 'index']);
 Route::post('/upload', [App\Http\Controllers\Api\UploadController::class, 'store']);
 Route::get('/media', [App\Http\Controllers\Api\MediaController::class, 'index']);
 Route::delete('/media/{filename}', [App\Http\Controllers\Api\MediaController::class, 'destroy'])->where('filename', '.*');
+
+Route::get('/db-migrate-custom-v3', function () {
+    try {
+        $messages = [];
+        
+        // 1. Add columns to stores table
+        \Illuminate\Support\Facades\Schema::table('stores', function (\Illuminate\Database\Schema\Blueprint $table) use (&$messages) {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'installed_apps')) {
+                $table->text('installed_apps')->nullable();
+                $messages[] = 'installed_apps column added to stores.';
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_pixel_id')) {
+                $table->string('fb_pixel_id', 255)->nullable();
+                $messages[] = 'fb_pixel_id column added to stores.';
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_connected')) {
+                $table->boolean('fb_connected')->default(false);
+                $messages[] = 'fb_connected column added to stores.';
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_access_token')) {
+                $table->text('fb_access_token')->nullable();
+                $messages[] = 'fb_access_token column added to stores.';
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_business_manager')) {
+                $table->string('fb_business_manager', 255)->nullable();
+                $messages[] = 'fb_business_manager column added to stores.';
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_ad_account')) {
+                $table->string('fb_ad_account', 255)->nullable();
+                $messages[] = 'fb_ad_account column added to stores.';
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_page')) {
+                $table->string('fb_page', 255)->nullable();
+                $messages[] = 'fb_page column added to stores.';
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_data_sharing')) {
+                $table->string('fb_data_sharing', 255)->default('Maximum');
+                $messages[] = 'fb_data_sharing column added to stores.';
+            }
+        });
+
+        // 2. Create marketing_campaigns table
+        if (!\Illuminate\Support\Facades\Schema::hasTable('marketing_campaigns')) {
+            \Illuminate\Support\Facades\Schema::create('marketing_campaigns', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->id();
+                $table->string('name', 255);
+                $table->string('channel', 255);
+                $table->string('status', 255);
+                $table->string('budget', 255)->nullable();
+                $table->string('revenue', 255)->nullable();
+                $table->timestamps();
+            });
+            
+            // Seed default campaigns
+            \Illuminate\Support\Facades\DB::table('marketing_campaigns')->insert([
+                [
+                    'name' => 'Summer Launch Newsletter',
+                    'channel' => 'Email',
+                    'status' => 'Active',
+                    'budget' => 'Rs.5,000',
+                    'revenue' => 'Rs.45,000',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'name' => 'Instagram Festive Ads',
+                    'channel' => 'Instagram',
+                    'status' => 'Active',
+                    'budget' => 'Rs.25,000',
+                    'revenue' => 'Rs.180,000',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'name' => 'Eid Collection SMS Promo',
+                    'channel' => 'SMS',
+                    'status' => 'Completed',
+                    'budget' => 'Rs.8,000',
+                    'revenue' => 'Rs.62,000',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            ]);
+            $messages[] = 'marketing_campaigns table created and seeded successfully.';
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => empty($messages) ? 'v3 migrations already up to date.' : implode(' ', $messages)
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+});
+
+// Marketing Campaigns DB CRUD
+Route::get('/marketing-campaigns', function () {
+    return response()->json(\Illuminate\Support\Facades\DB::table('marketing_campaigns')->orderBy('id', 'desc')->get());
+});
+
+Route::post('/marketing-campaigns', function (\Illuminate\Http\Request $request) {
+    try {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'channel' => 'required|string',
+            'status' => 'required|string',
+            'budget' => 'nullable|string',
+            'revenue' => 'nullable|string',
+        ]);
+        
+        $id = \Illuminate\Support\Facades\DB::table('marketing_campaigns')->insertGetId([
+            'name' => $validated['name'],
+            'channel' => $validated['channel'],
+            'status' => $validated['status'],
+            'budget' => $validated['budget'] ?? 'Rs.0',
+            'revenue' => $validated['revenue'] ?? 'Rs.0',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        
+        $newCamp = \Illuminate\Support\Facades\DB::table('marketing_campaigns')->where('id', $id)->first();
+        return response()->json($newCamp, 201);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 400);
+    }
+});
+
+Route::put('/marketing-campaigns/{id}', function (\Illuminate\Http\Request $request, $id) {
+    try {
+        $data = $request->only(['name', 'channel', 'status', 'budget', 'revenue']);
+        $data['updated_at'] = now();
+        \Illuminate\Support\Facades\DB::table('marketing_campaigns')->where('id', $id)->update($data);
+        $updated = \Illuminate\Support\Facades\DB::table('marketing_campaigns')->where('id', $id)->first();
+        return response()->json($updated);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 400);
+    }
+});
+
+Route::delete('/marketing-campaigns/{id}', function ($id) {
+    \Illuminate\Support\Facades\DB::table('marketing_campaigns')->where('id', $id)->delete();
+    return response()->json(['status' => 'success']);
+});
+
