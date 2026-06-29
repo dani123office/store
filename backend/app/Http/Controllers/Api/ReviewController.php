@@ -24,7 +24,7 @@ class ReviewController extends Controller
             ]);
 
             $review = new Review();
-            $review->user_id = $request->user_id ?? 1; // default to guest user 1
+            $review->user_id = $request->user_id ?? null;
             $review->product_id = $validated['product_id'];
             $review->rating = $validated['rating'];
             $review->review = $validated['review'];

@@ -23,4 +23,9 @@ class TaxController extends Controller
         $tax->update($request->all());
         return $tax;
     }
+
+    public function store(Request $request)
+    {
+        return Tax::create($request->all());
+    }
 }

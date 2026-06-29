@@ -20,7 +20,6 @@ const colorsMap: { [key: string]: string } = {
   green: "#16a34a",
 };
 
-const sizesList = ["XS", "S", "M", "L", "XL", "XXL"];
 
 const SingleProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -28,6 +27,8 @@ const SingleProduct = () => {
   const [size, setSize] = useState<string>("M");
   const [color, setColor] = useState<string>("black");
   const [quantity, setQuantity] = useState<number>(1);
+  const [availableColors, setAvailableColors] = useState<string[]>([]);
+  const [availableSizes, setAvailableSizes] = useState<string[]>([]);
 
   // Gallery states
   const [activeImage, setActiveImage] = useState<string>("");
@@ -124,6 +125,57 @@ const SingleProduct = () => {
     fetchProducts();
   }, [params.id]);
 
+  useEffect(() => {
+    if (!singleProduct) return;
+
+    // 1. Process colors
+    const colorsList: string[] = [];
+    const relColors = singleProduct.colors as any;
+    if (relColors) {
+      if (relColors.color1) colorsList.push(relColors.color1);
+      if (relColors.color2) colorsList.push(relColors.color2);
+      if (relColors.color3) colorsList.push(relColors.color3);
+      if (relColors.color4) colorsList.push(relColors.color4);
+      if (relColors.color5) colorsList.push(relColors.color5);
+      if (relColors.color6) colorsList.push(relColors.color6);
+    }
+    const finalColors = colorsList.filter(Boolean).length > 0 ? colorsList.filter(Boolean) : ["black", "red", "blue", "white", "rose", "green"];
+    setAvailableColors(finalColors);
+    if (!finalColors.includes(color)) {
+      setColor(finalColors[0]);
+    }
+
+    // 2. Process sizes
+    const sizesList: string[] = [];
+    const relSizes = singleProduct.sizes as any;
+    if (relSizes) {
+      if (relSizes.size1) sizesList.push(relSizes.size1);
+      if (relSizes.size2) sizesList.push(relSizes.size2);
+      if (relSizes.size3) sizesList.push(relSizes.size3);
+      if (relSizes.size4) sizesList.push(relSizes.size4);
+      if (relSizes.size5) sizesList.push(relSizes.size5);
+      if (relSizes.size6) sizesList.push(relSizes.size6);
+    }
+    const finalSizes = sizesList.filter(Boolean).length > 0 ? sizesList.filter(Boolean) : ["XS", "S", "M", "L", "XL", "XXL"];
+    setAvailableSizes(finalSizes);
+    if (!finalSizes.includes(size)) {
+      setSize(finalSizes[0]);
+    }
+
+    // 3. Process additional images
+    const gallery = [singleProduct.image];
+    const relImg = (singleProduct.additional_images || (singleProduct as any).additionalImages) as any;
+    if (relImg) {
+      if (relImg.pro_img2) gallery.push(relImg.pro_img2);
+      if (relImg.pro_img3) gallery.push(relImg.pro_img3);
+      if (relImg.pro_img4) gallery.push(relImg.pro_img4);
+      if (relImg.pro_img5) gallery.push(relImg.pro_img5);
+    }
+    if (gallery.filter(Boolean).length > 1) {
+      setAdditionalImages(gallery.filter(Boolean));
+    }
+  }, [singleProduct]);
+
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (singleProduct) {
       if (Number(singleProduct.stock) <= 0) {
@@ -176,12 +228,14 @@ const SingleProduct = () => {
     setIsSubmittingReview(true);
 
     try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
       const payload = {
         product_id: params.id,
         rating: newRating,
         review: newReviewText,
-        username: reviewerName || "Guest Reviewer",
+        username: reviewerName || user.name || "Guest Reviewer",
         usercity: reviewerCity || "Lahore",
+        user_id: user.id || null,
       };
 
       const res = await customFetch.post("/reviews", payload);
@@ -330,7 +384,7 @@ const SingleProduct = () => {
               Color: <span className="text-[#151515] uppercase font-bold">{color}</span>
             </h4>
             <div className="flex gap-2">
-              {Object.keys(colorsMap).map((c) => {
+              {availableColors.map((c) => {
                 const isSelected = color === c;
                 return (
                   <button
@@ -339,11 +393,11 @@ const SingleProduct = () => {
                     className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all relative ${
                       isSelected ? "ring-2 ring-offset-2 ring-[#151515]" : "border-gray-300"
                     }`}
-                    style={{ backgroundColor: colorsMap[c] }}
+                    style={{ backgroundColor: colorsMap[c.toLowerCase()] || c }}
                     aria-label={`Select Color: ${c}`}
                   >
                     {isSelected && (
-                      <span className={`w-2 h-2 rounded-full ${c === "white" ? "bg-black" : "bg-white"}`} />
+                      <span className={`w-2 h-2 rounded-full ${c.toLowerCase() === "white" || c.toLowerCase() === "#ffffff" ? "bg-black" : "bg-white"}`} />
                     )}
                   </button>
                 );
@@ -358,7 +412,7 @@ const SingleProduct = () => {
               <span className="underline cursor-pointer">Size Guide</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {sizesList.map((sz) => {
+              {availableSizes.map((sz) => {
                 const isSelected = size === sz;
                 const isDisabled = isSizeDisabled(sz);
                 return (

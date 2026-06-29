@@ -31,8 +31,12 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $data = $request->all();
-        if (array_key_exists('password', $data) && ($data['password'] === null || $data['password'] === '')) {
-            unset($data['password']);
+        if (array_key_exists('password', $data)) {
+            if ($data['password'] === null || $data['password'] === '') {
+                unset($data['password']);
+            } else {
+                $data['password'] = \Illuminate\Support\Facades\Hash::make($data['password']);
+            }
         }
         $user->update($data);
         $user = $user->fresh();

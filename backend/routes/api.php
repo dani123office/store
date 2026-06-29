@@ -53,6 +53,7 @@ Route::apiResource('/collections', CollectionController::class);
 Route::get('/taxes', [TaxController::class, 'index']);
 Route::get('/taxes/{tax}', [TaxController::class, 'show']);
 Route::put('/taxes/{tax}', [TaxController::class, 'update']);
+Route::post('/taxes', [TaxController::class, 'store']);
 
 Route::get('/db-migrate-custom', function () {
     try {
@@ -189,9 +190,9 @@ Route::get('/emarkets', [EmarketController::class, 'index']);
 Route::get('/c-timelines', [CTimelineController::class, 'index']);
 Route::get('/o-timelines', [OTimelineController::class, 'index']);
 Route::get('/view-counts', [ViewCountController::class, 'index']);
-Route::get('/product-colors', [ProductColorController::class, 'index']);
-Route::get('/product-images', [ProductImageController::class, 'index']);
-Route::get('/product-sizes', [ProductSizeController::class, 'index']);
+Route::apiResource('/product-colors', ProductColorController::class);
+Route::apiResource('/product-images', ProductImageController::class);
+Route::apiResource('/product-sizes', ProductSizeController::class);
 Route::get('/product-widths', [ProductWidthController::class, 'index']);
 
 Route::post('/upload', [App\Http\Controllers\Api\UploadController::class, 'store']);

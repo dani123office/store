@@ -87,8 +87,9 @@ export const cartSlice = createSlice({
       );
       if (state.appliedCoupon) {
         if (state.appliedCoupon.type === "Percentage") {
-          state.appliedCoupon.discountAmount = Math.round(
-            (state.subtotal * state.appliedCoupon.value) / 100
+          state.appliedCoupon.discountAmount = Math.min(
+            state.subtotal,
+            Math.round((state.subtotal * state.appliedCoupon.value) / 100)
           );
         } else {
           state.appliedCoupon.discountAmount = Math.min(

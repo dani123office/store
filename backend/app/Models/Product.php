@@ -25,6 +25,21 @@ class Product extends Model
         return $this->belongsToMany(Collection::class, 'collection_product', 'product_id', 'collection_id');
     }
 
+    public function colors()
+    {
+        return $this->hasOne(ProductColor::class, 'pro_id', 'id');
+    }
+
+    public function sizes()
+    {
+        return $this->hasOne(ProductSize::class, 'pro_id', 'id');
+    }
+
+    public function additionalImages()
+    {
+        return $this->hasOne(ProductImage::class, 'pro_id', 'id');
+    }
+
     public function getCategoryAttribute()
     {
         if ($this->categoryRelation) {

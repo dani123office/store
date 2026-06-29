@@ -6,6 +6,9 @@ interface Product {
   price: number;
   popularity: number;
   stock: number;
+  colors?: any;
+  sizes?: any;
+  additional_images?: any;
 }
 
 interface ProductInCart extends Product {

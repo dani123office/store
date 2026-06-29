@@ -8,4 +8,5 @@ class ProductSize extends Model
 {
     public $timestamps = false;
     protected $guarded = [];
+    protected $primaryKey = 'size_id';
 }
