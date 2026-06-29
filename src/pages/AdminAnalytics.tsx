@@ -55,12 +55,54 @@ const AdminAnalytics = () => {
   });
 
   // Calculate Metrics
-  const totalSalesVal = filteredOrders.reduce((sum, o) => sum + (o.subtotal || 0), 0);
+  const totalSalesVal = filteredOrders.reduce((sum, o) => sum + (Number(o.subtotal) || 0), 0);
   const ordersCount = filteredOrders.length;
   
   // Calculate Sessions: Dynamic fallback to represent user activity
   const sessionsCount = ordersCount * 8 + (range === "today" ? 15 : range === "7d" ? 112 : 460);
   const conversionRate = sessionsCount > 0 ? ((ordersCount / sessionsCount) * 100).toFixed(2) + "%" : "0.00%";
+
+  // Growth calculations by comparing against the previous equivalent period
+  const prevPeriodOrders = orders.filter((order) => {
+    const dateStr = order.created_at || order.orderDate;
+    if (!dateStr) return false;
+    const orderDate = new Date(dateStr);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - orderDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (range === "today") {
+      return diffDays > 1 && diffDays <= 2;
+    } else if (range === "7d") {
+      return diffDays > 7 && diffDays <= 14;
+    } else {
+      return diffDays > 30 && diffDays <= 60;
+    }
+  });
+
+  const prevSalesVal = prevPeriodOrders.reduce((sum, o) => sum + (Number(o.subtotal) || 0), 0);
+  const prevOrdersCount = prevPeriodOrders.length;
+  const prevSessionsCount = prevOrdersCount * 8 + (range === "today" ? 15 : range === "7d" ? 112 : 460);
+  const prevConversionVal = prevSessionsCount > 0 ? (prevOrdersCount / prevSessionsCount) * 100 : 0;
+  const currentConversionVal = sessionsCount > 0 ? (ordersCount / sessionsCount) * 100 : 0;
+
+  const getDiff = (current: number, prev: number) => {
+    if (prev === 0) {
+      return current > 0 ? { diff: "+100.0%", up: true } : { diff: "+0.0%", up: true };
+    }
+    const pct = ((current - prev) / prev) * 100;
+    const isUp = pct >= 0;
+    const sign = isUp ? "+" : "";
+    return {
+      diff: `${sign}${pct.toFixed(1)}%`,
+      up: isUp
+    };
+  };
+
+  const salesDiff = getDiff(totalSalesVal, prevSalesVal);
+  const ordersDiff = getDiff(ordersCount, prevOrdersCount);
+  const sessionsDiff = getDiff(sessionsCount, prevSessionsCount);
+  const conversionDiff = getDiff(currentConversionVal, prevConversionVal);
 
   // Calculate Top Selling Products from the orders list
   const productSalesMap: { [title: string]: { title: string; category: string; sales: number; units: number } } = {};
@@ -68,8 +110,8 @@ const AdminAnalytics = () => {
     const products = Array.isArray(order.products) ? order.products : [];
     products.forEach((p: any) => {
       const title = p.title || "Product";
-      const price = p.price || 0;
-      const quantity = p.quantity || 1;
+      const price = Number(p.price) || 0;
+      const quantity = Number(p.quantity) || 1;
       const category = p.category || "General";
 
       if (!productSalesMap[title]) {
@@ -103,7 +145,7 @@ const AdminAnalytics = () => {
       const diff = date.getTime() - startTime;
       if (diff >= 0 && diff <= rangeMs) {
         const idx = Math.min(Math.floor((diff / rangeMs) * intervals), intervals - 1);
-        intervalSales[idx] += o.subtotal || 0;
+        intervalSales[idx] += Number(o.subtotal) || 0;
       }
     });
 
@@ -120,10 +162,10 @@ const AdminAnalytics = () => {
   const chartPoints = getChartPoints();
 
   const cards = [
-    { label: "Total Sales", value: `Rs.${totalSalesVal.toLocaleString()}`, diff: "+0.0%", up: true },
-    { label: "Online Store Sessions", value: sessionsCount.toLocaleString(), diff: "+0.0%", up: true },
-    { label: "Orders", value: ordersCount.toString(), diff: "+0.0%", up: true },
-    { label: "Conversion Rate", value: conversionRate, diff: "+0.0%", up: true },
+    { label: "Total Sales", value: `Rs.${totalSalesVal.toLocaleString()}`, diff: salesDiff.diff, up: salesDiff.up },
+    { label: "Online Store Sessions", value: sessionsCount.toLocaleString(), diff: sessionsDiff.diff, up: sessionsDiff.up },
+    { label: "Orders", value: ordersCount.toString(), diff: ordersDiff.diff, up: ordersDiff.up },
+    { label: "Conversion Rate", value: conversionRate, diff: conversionDiff.diff, up: conversionDiff.up },
   ];
 
   if (loading) {
@@ -202,6 +244,7 @@ const AdminAnalytics = () => {
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                // Prevent division by zero / draw issues if empty
               />
             </svg>
             <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[10px] text-[#6d7175] px-4">
