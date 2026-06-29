@@ -51,7 +51,7 @@ const Checkout = () => {
   const [postalCode, setPostalCode] = useState("");
   const [region, setRegion] = useState("");
   const [phone, setPhone] = useState("");
-  const [country, setCountry] = useState("Canada");
+  const [country, setCountry] = useState("Pakistan");
   const [paymentType, setPaymentType] = useState("credit-card");
   const [cardNumber, setCardNumber] = useState("");
   const [expirationDate, setExpirationDate] = useState("");
@@ -60,21 +60,29 @@ const Checkout = () => {
 
   const [couponInput, setCouponInput] = useState("");
   const [taxRate, setTaxRate] = useState<number>(17); // default 17% for non-food clothing
-  const [shippingFee] = useState<number>(500);
+  const [shippingFee, setShippingFee] = useState<number>(500);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState<number>(0);
 
   useEffect(() => {
-    const fetchTaxRate = async () => {
+    const fetchSettings = async () => {
       try {
-        const res = await customFetch.get("/taxes");
-        if (res.data && res.data.length > 0) {
-          const tax = res.data[0];
-          setTaxRate(parseFloat(tax.nonfood) || 17);
+        const [taxRes, storeRes] = await Promise.all([
+          customFetch.get("/taxes"),
+          customFetch.get("/stores"),
+        ]);
+        if (taxRes.data && taxRes.data.length > 0) {
+          setTaxRate(parseFloat(taxRes.data[0].nonfood) || 17);
+        }
+        if (storeRes.data && storeRes.data.length > 0) {
+          const store = storeRes.data[0];
+          setShippingFee(parseFloat(store.ShippingFee) || 500);
+          setFreeShippingThreshold(parseFloat(store.FreeShippingThreshold) || 0);
         }
       } catch (e) {
-        console.error("Failed to load tax rate, fallback to 17%", e);
+        console.error("Failed to load settings", e);
       }
     };
-    fetchTaxRate();
+    fetchSettings();
   }, []);
 
   const handleApplyCoupon = async (e: React.MouseEvent) => {
@@ -624,7 +632,7 @@ const Checkout = () => {
                 <div className="flex items-center justify-between text-sm">
                   <dt className="text-[#151515]/70">Shipping</dt>
                   <dd className="font-medium text-[#151515]">
-                    PKR {subtotal ? shippingFee.toString() : "0"}
+                    PKR {subtotal ? (freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? "0 (Free!)" : shippingFee.toLocaleString()) : "0"}
                   </dd>
                 </div>
                 <div className="flex items-center justify-between text-sm">
@@ -654,7 +662,7 @@ const Checkout = () => {
                 <div className="flex items-center justify-between border-t border-[#E2E2E2] pt-4 text-base font-bold text-[#151515]">
                   <dt>Total</dt>
                   <dd>
-                    PKR {subtotal ? (subtotal - (appliedCoupon?.discountAmount || 0) + shippingFee + Math.round((subtotal - (appliedCoupon?.discountAmount || 0)) * (taxRate / 100))).toLocaleString() : "0"}
+                    PKR {subtotal ? (subtotal - (appliedCoupon?.discountAmount || 0) + (freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? 0 : shippingFee) + Math.round((subtotal - (appliedCoupon?.discountAmount || 0)) * (taxRate / 100))).toLocaleString() : "0"}
                   </dd>
                 </div>
               </dl>

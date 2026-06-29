@@ -20,6 +20,7 @@ const SingleOrderHistory = () => {
   const navigate = useNavigate();
   const singleOrder = useLoaderData() as Order;
   const [taxRate, setTaxRate] = useState<number>(17);
+  const [shippingFee, setShippingFee] = useState<number>(500);
 
   useEffect(() => {
     if (!user?.id) {
@@ -32,17 +33,23 @@ const SingleOrderHistory = () => {
   }, [user, singleOrder, navigate]);
 
   useEffect(() => {
-    const fetchTax = async () => {
+    const fetchSettings = async () => {
       try {
-        const res = await customFetch.get("/taxes");
-        if (res.data && res.data.length > 0) {
-          setTaxRate(parseFloat(res.data[0].nonfood) || 17);
+        const [taxRes, storeRes] = await Promise.all([
+          customFetch.get("/taxes"),
+          customFetch.get("/stores"),
+        ]);
+        if (taxRes.data && taxRes.data.length > 0) {
+          setTaxRate(parseFloat(taxRes.data[0].nonfood) || 17);
+        }
+        if (storeRes.data && storeRes.data.length > 0) {
+          setShippingFee(parseFloat(storeRes.data[0].ShippingFee) || 500);
         }
       } catch (e) {
-        console.error("Failed to load tax rate, fallback to 17%", e);
+        console.error("Failed to load settings", e);
       }
     };
-    fetchTax();
+    fetchSettings();
   }, []);
 
   return (
@@ -75,7 +82,7 @@ const SingleOrderHistory = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-[#151515]/70">Shipping</span>
-              <span>Rs.500</span>
+              <span>Rs.{shippingFee.toLocaleString()}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-[#151515]/70">GST ({taxRate}%)</span>
@@ -83,7 +90,7 @@ const SingleOrderHistory = () => {
             </div>
             <div className="flex justify-between border-t border-[#E2E2E2] pt-2 font-medium">
               <span>Total</span>
-              <span>Rs.{Math.round(singleOrder.subtotal + 500 + (singleOrder.subtotal * (taxRate / 100))).toLocaleString()}</span>
+              <span>Rs.{Math.round(singleOrder.subtotal + shippingFee + (singleOrder.subtotal * (taxRate / 100))).toLocaleString()}</span>
             </div>
           </div>
         </div>
