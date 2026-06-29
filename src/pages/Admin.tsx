@@ -7,7 +7,7 @@ import {
   HiOutlineChevronDown, HiOutlineBars3CenterLeft,
   HiOutlineCircleStack, HiOutlineClipboardDocument,
   HiOutlineMegaphone, HiXMark, HiBars3, HiArrowRightOnRectangle,
-  HiOutlineMagnifyingGlass, HiOutlineBell, HiOutlinePhoto,
+  HiOutlineMagnifyingGlass, HiOutlineBell, HiOutlinePhoto, HiOutlineAdjustmentsHorizontal
 } from "react-icons/hi2";
 
 interface SidebarChild {
@@ -270,16 +270,16 @@ const Admin = () => {
                   Media
                 </Link>
                 <Link
-                  to="/admin/seo"
+                  to="/admin/preferences"
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                    location.pathname.startsWith("/admin/seo")
+                    location.pathname.startsWith("/admin/preferences")
                       ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
                       : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
                   }`}
                 >
-                  <HiOutlineMagnifyingGlass className="text-base flex-shrink-0" />
-                  SEO Manager
+                  <HiOutlineAdjustmentsHorizontal className="text-base flex-shrink-0" />
+                  Preferences
                 </Link>
               </div>
             )}

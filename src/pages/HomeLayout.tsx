@@ -254,6 +254,7 @@ const HomeLayout = () => {
         customFetch.get("/db-migrate-custom").catch(() => {});
         customFetch.get("/db-migrate-custom-v2").catch(() => {});
         customFetch.get("/db-migrate-custom-v3").catch(() => {});
+        customFetch.get("/db-migrate-custom-v4").catch(() => {});
         const res = await customFetch.get("/stores");
         if (res.data && res.data.length > 0) {
           const store = res.data[0];

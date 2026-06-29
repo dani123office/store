@@ -37,4 +37,5 @@ export { default as AdminMedia } from "./AdminMedia";
 export { default as AdminSEO } from "./AdminSEO";
 export { default as AdminNav } from "./AdminNav";
 export { default as AdminFacebookAds } from "./AdminFacebookAds";
+export { default as AdminPreferences } from "./AdminPreferences";
 

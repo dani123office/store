@@ -341,3 +341,22 @@ Route::delete('/marketing-campaigns/{id}', function ($id) {
     return response()->json(['status' => 'success']);
 });
 
+Route::get('/db-migrate-custom-v4', function () {
+    try {
+        $messages = [];
+        \Illuminate\Support\Facades\Schema::table('stores', function (\Illuminate\Database\Schema\Blueprint $table) use (&$messages) {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'seo_settings')) {
+                $table->text('seo_settings')->nullable();
+                $messages[] = 'seo_settings column added to stores.';
+            }
+        });
+        return response()->json([
+            'status' => 'success',
+            'message' => empty($messages) ? 'v4 migrations already up to date.' : implode(' ', $messages)
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+});
+
+
