@@ -58,7 +58,7 @@ const AdminApps = () => {
           toast.success(`${app.name} installed successfully!`);
           if (id === "5") {
             setTimeout(() => {
-              navigate("/admin/facebook-ads");
+              navigate("/admin/preferences");
             }, 1000);
           }
         } else {
@@ -84,7 +84,7 @@ const AdminApps = () => {
 
   const handleOpenDetails = (app: AppItem) => {
     if (app.id === "5") {
-      navigate("/admin/facebook-ads");
+      navigate("/admin/preferences");
     } else {
       toast(`Opening details for ${app.name}`);
     }

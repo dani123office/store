@@ -283,18 +283,6 @@ const Admin = () => {
                 </Link>
               </div>
             )}
-            <Link
-              to="/admin/facebook-ads"
-              onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 w-full px-3 py-2 mt-1 text-sm rounded-lg transition-colors ${
-                location.pathname.startsWith("/admin/facebook-ads")
-                  ? "bg-[#f1f8fe] text-[#2c6ecb] font-medium"
-                  : "text-[#6d7175] hover:bg-[#f1f1f1] hover:text-[#202223]"
-              }`}
-            >
-              <HiOutlineMegaphone className="text-lg flex-shrink-0" />
-              <span className="flex-1 text-left">Facebook &amp; Instagram</span>
-            </Link>
           </div>
         </div>
 
