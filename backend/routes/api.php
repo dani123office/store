@@ -359,4 +359,123 @@ Route::get('/db-migrate-custom-v4', function () {
     }
 });
 
+Route::get('/db-migrate-custom-v5', function () {
+    try {
+        $messages = [];
+        if (!\Illuminate\Support\Facades\Schema::hasTable('apps')) {
+            \Illuminate\Support\Facades\Schema::create('apps', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('category');
+                $table->text('description');
+                $table->string('developer');
+                $table->string('logo')->nullable();
+                $table->string('link')->nullable();
+                $table->timestamps();
+            });
+
+            // Seed default apps
+            \Illuminate\Support\Facades\DB::table('apps')->insert([
+                [
+                    'name' => 'Zarka Inbox',
+                    'category' => 'Customer Service',
+                    'description' => 'Real-time customer chat and support messages.',
+                    'developer' => 'Zarka Couture',
+                    'logo' => '',
+                    'link' => '',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'name' => 'Judge.me Product Reviews',
+                    'category' => 'Social Proof',
+                    'description' => 'Collect and display product reviews and ratings.',
+                    'developer' => 'Judge.me',
+                    'logo' => '',
+                    'link' => '',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'name' => 'Mailchimp Email Marketing',
+                    'category' => 'Marketing',
+                    'description' => 'Sync customer lists and build automated campaigns.',
+                    'developer' => 'Mailchimp',
+                    'logo' => '',
+                    'link' => '',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'name' => 'ShipRocket Delivery Integration',
+                    'category' => 'Shipping & Fulfillment',
+                    'description' => 'Fulfill orders with reliable local couriers.',
+                    'developer' => 'ShipRocket',
+                    'logo' => '',
+                    'link' => '',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'name' => 'Pixel Conversion Booster',
+                    'category' => 'Analytics',
+                    'description' => 'Advanced Facebook Pixel and analytics tracking.',
+                    'developer' => 'PixelInc',
+                    'logo' => '',
+                    'link' => '/admin/preferences',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+            ]);
+
+            $messages[] = 'apps table created and seeded successfully.';
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => empty($messages) ? 'v5 migrations already up to date.' : implode(' ', $messages)
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+});
+
+// Apps list API CRUD
+Route::get('/apps-list', function () {
+    return response()->json(\Illuminate\Support\Facades\DB::table('apps')->orderBy('id', 'asc')->get());
+});
+
+Route::post('/apps-list', function (\Illuminate\Http\Request $request) {
+    try {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'category' => 'required|string',
+            'description' => 'required|string',
+            'developer' => 'required|string',
+            'link' => 'nullable|string',
+        ]);
+        
+        $id = \Illuminate\Support\Facades\DB::table('apps')->insertGetId([
+            'name' => $validated['name'],
+            'category' => $validated['category'],
+            'description' => $validated['description'],
+            'developer' => $validated['developer'],
+            'logo' => '',
+            'link' => $validated['link'] ?? '',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        
+        $newApp = \Illuminate\Support\Facades\DB::table('apps')->where('id', $id)->first();
+        return response()->json($newApp, 201);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 400);
+    }
+});
+
+Route::delete('/apps-list/{id}', function ($id) {
+    \Illuminate\Support\Facades\DB::table('apps')->where('id', $id)->delete();
+    return response()->json(['status' => 'success']);
+});
+
 
