@@ -66,30 +66,32 @@ const AdminDashboard = () => {
           .slice(0, 5);
         setTopSellingProducts(topSellers);
 
-        // Daily Revenue Trend for Area Chart
-        const dailyRevenue: { [key: string]: number } = {};
-        orders.forEach((o: any) => {
-          const date = new Date(o.orderDate);
-          const label = date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-          const total = (o.subtotal || 0) + (o.subtotal ? 500 : 0) + (o.subtotal || 0) / 5;
-          dailyRevenue[label] = (dailyRevenue[label] || 0) + total;
-        });
+        // Daily Revenue Trend for Area Chart (Last 7 Days calendar)
+        const points = [];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          
+          let dayRevenue = 0;
+          orders.forEach((o: any) => {
+            if (o.orderDate) {
+              const oDate = new Date(o.orderDate);
+              if (
+                oDate.getDate() === d.getDate() &&
+                oDate.getMonth() === d.getMonth() &&
+                oDate.getFullYear() === d.getFullYear()
+              ) {
+                const total = (Number(o.subtotal || 0)) + (o.subtotal ? 500 : 0) + (Number(o.subtotal || 0)) / 5;
+                dayRevenue += total;
+              }
+            }
+          });
 
-        // Ensure we have at least 7 points for a nice chart layout
-        const sortedLabels = Object.keys(dailyRevenue).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-        let points = sortedLabels.map((lbl) => ({
-          label: lbl,
-          value: dailyRevenue[lbl],
-        }));
-
-        if (points.length < 7) {
-          // Fill in mock points for elegant visual charts if data is sparse
-          const mockDates = ["Jun 12", "Jun 13", "Jun 14", "Jun 15", "Jun 16", "Jun 17", "Jun 18"];
-          const baseValue = revenue > 0 ? revenue / 7 : 12000;
-          points = mockDates.map((date, idx) => ({
-            label: date,
-            value: (dailyRevenue[date] || Math.round(baseValue * (0.6 + Math.sin(idx) * 0.4))),
-          }));
+          points.push({
+            label,
+            value: dayRevenue,
+          });
         }
 
         setRevenueTrend(points);
@@ -189,7 +191,7 @@ const AdminDashboard = () => {
                         {p.label}
                       </text>
                       <text x={x} y={y - 8} fontSize={9} textAnchor="middle" fontWeight="bold" fill="#202223" opacity={0.9}>
-                        Rs.{Math.round(p.value / 1000)}k
+                        {p.value >= 1000 ? `Rs.${(p.value / 1000).toFixed(1).replace(".0", "")}k` : `Rs.${p.value}`}
                       </text>
                     </g>
                   );
