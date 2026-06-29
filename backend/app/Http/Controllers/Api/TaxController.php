@@ -13,13 +13,14 @@ class TaxController extends Controller
         return Tax::all();
     }
 
-    public function show(Tax $tax)
+    public function show($id)
     {
-        return $tax;
+        return Tax::findOrFail($id);
     }
 
-    public function update(Request $request, Tax $tax)
+    public function update(Request $request, $id)
     {
+        $tax = Tax::findOrFail($id);
         $tax->update($request->all());
         return $tax;
     }
