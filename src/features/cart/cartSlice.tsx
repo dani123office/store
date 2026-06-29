@@ -11,7 +11,18 @@ type CartState = {
   } | null;
 };
 
-const initialState: CartState = {
+const getCartFromLocalStorage = (): CartState | null => {
+  try {
+    const cart = localStorage.getItem("cart");
+    return cart ? JSON.parse(cart) : null;
+  } catch {
+    return null;
+  }
+};
+
+const savedCart = getCartFromLocalStorage();
+
+const initialState: CartState = savedCart || {
   productsInCart: [],
   subtotal: 0,
   appliedCoupon: null,
@@ -97,6 +108,11 @@ export const cartSlice = createSlice({
             state.appliedCoupon.value
           );
         }
+      }
+      try {
+        localStorage.setItem("cart", JSON.stringify(state));
+      } catch (e) {
+        console.error("Failed to save cart to localStorage", e);
       }
     },
   },
