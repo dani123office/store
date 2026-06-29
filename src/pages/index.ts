@@ -36,4 +36,5 @@ export { default as Wishlist } from "./Wishlist";
 export { default as AdminMedia } from "./AdminMedia";
 export { default as AdminSEO } from "./AdminSEO";
 export { default as AdminNav } from "./AdminNav";
+export { default as AdminFacebookAds } from "./AdminFacebookAds";
 

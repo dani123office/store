@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { HiCheck, HiOutlineSquare3Stack3D, HiOutlineArrowUpRight } from "react-icons/hi2";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 interface AppItem {
   id: string;
@@ -21,6 +22,7 @@ const defaultApps: AppItem[] = [
 
 const AdminApps = () => {
   const [apps, setApps] = useState<AppItem[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const stored = localStorage.getItem("zarka_apps");
@@ -38,6 +40,11 @@ const AdminApps = () => {
         const nextInstalled = !app.installed;
         if (nextInstalled) {
           toast.success(`${app.name} installed successfully!`);
+          if (id === "5") {
+            setTimeout(() => {
+              navigate("/admin/facebook-ads");
+            }, 1000);
+          }
         } else {
           toast.success(`${app.name} uninstalled successfully.`);
         }
@@ -47,6 +54,14 @@ const AdminApps = () => {
     });
     setApps(updated);
     localStorage.setItem("zarka_apps", JSON.stringify(updated));
+  };
+
+  const handleOpenDetails = (app: AppItem) => {
+    if (app.id === "5") {
+      navigate("/admin/facebook-ads");
+    } else {
+      toast(`Opening details for ${app.name}`);
+    }
   };
 
   return (
@@ -87,7 +102,7 @@ const AdminApps = () => {
                 {app.installed ? "Uninstall App" : "Install App"}
               </button>
               <button
-                onClick={() => toast(`Opening details for ${app.name}`)}
+                onClick={() => handleOpenDetails(app)}
                 className="p-2 border border-[#e0e0e0] rounded-lg text-[#6d7175] hover:text-[#202223] hover:bg-[#f1f1f1] transition-colors"
                 title="View App Details"
               >

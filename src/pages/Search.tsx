@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
   ProductGrid,
@@ -6,12 +6,20 @@ import {
   ShowingSearchPagination,
 } from "../components";
 import { Form, useSearchParams } from "react-router-dom";
+import { trackFbEvent } from "../utils/fbPixel";
 
 const Search = () => {
   const [searchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState<number>(
     parseInt(searchParams.get("page") || "1")
   );
+
+  const query = searchParams.get("query");
+  useEffect(() => {
+    if (query) {
+      trackFbEvent("Search", { search_string: query });
+    }
+  }, [query]);
 
   return (
     <div className="max-w-screen-2xl mx-auto px-5">

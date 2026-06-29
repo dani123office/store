@@ -8,7 +8,7 @@ import {
   AdminMenus, AdminNotifications, AdminTax, AdminAddProduct, AdminInventory,
   AdminAnalytics, AdminMarketing, AdminDiscounts,
   AdminApps, AdminThemeEditor, Wishlist,
-  AdminMedia, AdminSEO, AdminNav,
+  AdminMedia, AdminSEO, AdminNav, AdminFacebookAds,
 } from "./pages";
 import { checkoutAction, searchAction } from "./actions/index";
 import { shopCategoryLoader } from "./pages/Shop";
@@ -64,6 +64,7 @@ const router = createBrowserRouter([
       { path: "media", element: <AdminMedia /> },
       { path: "seo", element: <AdminSEO /> },
       { path: "nav", element: <AdminNav /> },
+      { path: "facebook-ads", element: <AdminFacebookAds /> },
     ],
   },
 ]);

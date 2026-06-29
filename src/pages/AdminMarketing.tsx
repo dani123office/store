@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { HiPlus, HiTrash, HiOutlineMegaphone, HiXMark } from "react-icons/hi2";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 interface Campaign {
   id: string;
@@ -84,6 +85,28 @@ const AdminMarketing = () => {
           <HiPlus className="text-lg" />
           Create Campaign
         </button>
+      </div>
+
+      {/* Meta Facebook Integration Banner */}
+      <div className="bg-gradient-to-r from-[#1877f2]/10 to-[#8a3ab9]/10 border border-[#1877f2]/20 rounded-xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="p-2.5 bg-[#1877f2] text-white rounded-lg flex-shrink-0 mt-0.5">
+            <HiOutlineMegaphone className="text-xl" />
+          </div>
+          <div className="space-y-1">
+            <h4 className="text-sm font-bold text-gray-800">Maximize conversions with Meta Facebook Ads</h4>
+            <p className="text-xs text-gray-500 max-w-2xl">
+              Connect your store to Meta Ads Manager to sync your product catalog, run retargeting ads, and configure Facebook Pixel. Track PageViews, AddToCarts, and Purchases automatically.
+            </p>
+          </div>
+        </div>
+        <Link 
+          to="/admin/facebook-ads"
+          className="bg-[#1877f2] hover:bg-[#156cd4] text-white text-xs font-semibold px-4 py-2.5 rounded-lg text-center whitespace-nowrap transition-all hover:scale-[1.01] shadow-sm flex items-center justify-center gap-1.5"
+        >
+          <HiOutlineMegaphone className="text-sm" />
+          Manage Meta Ads
+        </Link>
       </div>
 
       {showForm && (

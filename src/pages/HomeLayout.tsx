@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { ScrollToTop } from "../components";
 import customFetch from "../axios/custom";
+import { trackFbEvent } from "../utils/fbPixel";
 
 interface Slide {
   id: string;
@@ -239,10 +240,11 @@ const HomeLayout = () => {
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
           fbq('init', '${seo.fbPixelId}');
-          fbq('track', 'PageView');
         `;
         document.head.appendChild(script);
       }
+      // Track PageView on route transitions
+      trackFbEvent("PageView");
     }
   }, [location.pathname]);
 

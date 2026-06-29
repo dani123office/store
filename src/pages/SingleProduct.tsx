@@ -6,6 +6,7 @@ import { toggleWishlist } from "../features/wishlist/wishlistSlice";
 import { Dropdown, ProductItem, QuantityInput } from "../components";
 import customFetch from "../axios/custom";
 import toast from "react-hot-toast";
+import { trackFbEvent } from "../utils/fbPixel";
 import { HiHeart, HiOutlineHeart, HiStar, HiCheckCircle } from "react-icons/hi2";
 import WithNumberInputWrapper from "../utils/withNumberInputWrapper";
 import { motion, AnimatePresence } from "framer-motion";
@@ -58,6 +59,15 @@ const SingleProduct = () => {
         setSingleProduct(prod);
         setActiveImage(prod.image);
 
+        trackFbEvent("ViewContent", {
+          content_ids: [prod.id],
+          content_name: prod.title,
+          content_category: prod.category,
+          value: Number(prod.price),
+          currency: "PKR",
+          content_type: "product"
+        });
+
         // Generate deterministically styled mock image gallery
         const mockGallery = [
           prod.image,
@@ -109,6 +119,16 @@ const SingleProduct = () => {
         })
       );
       toast.success("Added to Cart!");
+
+      trackFbEvent("AddToCart", {
+        content_ids: [singleProduct.id],
+        content_name: singleProduct.title,
+        content_category: singleProduct.category,
+        value: Number(singleProduct.price),
+        currency: "PKR",
+        content_type: "product",
+        quantity
+      });
 
       // Trigger flying cart animation
       const startX = e.clientX;

@@ -4,6 +4,7 @@ import { removeProductFromTheCart, removeCoupon } from "../features/cart/cartSli
 import customFetch from "../axios/custom";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { trackFbEvent } from "../utils/fbPixel";
 
 const paymentMethods = [
   { id: "credit-card", title: "Credit Card / Debit Card" },
@@ -34,6 +35,14 @@ const Checkout = () => {
       if (user.email) setEmailAddress(user.email);
       if (user.name) setFirstName(user.name);
       if (user.lastname) setLastName(user.lastname);
+
+      // Track InitiateCheckout event on Facebook Pixel
+      trackFbEvent("InitiateCheckout", {
+        num_items: productsInCart.length,
+        value: subtotal,
+        currency: "PKR",
+        contents: productsInCart.map(p => ({ id: p.id, quantity: p.quantity, price: p.price }))
+      });
     }
   }, [navigate]);
   const [address, setAddress] = useState("");
@@ -160,6 +169,17 @@ const Checkout = () => {
 
       if (response.status === 201 || response.status === 200) {
         toast.success("Payment verified! Order placed successfully.");
+
+        // Track Purchase event on Facebook Pixel
+        trackFbEvent("Purchase", {
+          content_ids: productsInCart.map(p => p.id),
+          value: subtotal,
+          currency: "PKR",
+          num_items: productsInCart.length,
+          content_type: "product",
+          contents: productsInCart.map(p => ({ id: p.id, quantity: p.quantity, price: p.price }))
+        });
+
         // Clear cart items
         productsInCart.forEach((p) => {
           dispatch(removeProductFromTheCart({ id: p.id }));
