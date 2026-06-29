@@ -209,7 +209,7 @@ Route::get('/db-migrate-custom-v3', function () {
                 $messages[] = 'installed_apps column added to stores.';
             }
             if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_pixel_id')) {
-                $table->string('fb_pixel_id', 255)->nullable();
+                $table->text('fb_pixel_id')->nullable();
                 $messages[] = 'fb_pixel_id column added to stores.';
             }
             if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_connected')) {
@@ -221,19 +221,19 @@ Route::get('/db-migrate-custom-v3', function () {
                 $messages[] = 'fb_access_token column added to stores.';
             }
             if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_business_manager')) {
-                $table->string('fb_business_manager', 255)->nullable();
+                $table->text('fb_business_manager')->nullable();
                 $messages[] = 'fb_business_manager column added to stores.';
             }
             if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_ad_account')) {
-                $table->string('fb_ad_account', 255)->nullable();
+                $table->text('fb_ad_account')->nullable();
                 $messages[] = 'fb_ad_account column added to stores.';
             }
             if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_page')) {
-                $table->string('fb_page', 255)->nullable();
+                $table->text('fb_page')->nullable();
                 $messages[] = 'fb_page column added to stores.';
             }
             if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_data_sharing')) {
-                $table->string('fb_data_sharing', 255)->default('Maximum');
+                $table->text('fb_data_sharing')->nullable();
                 $messages[] = 'fb_data_sharing column added to stores.';
             }
         });
