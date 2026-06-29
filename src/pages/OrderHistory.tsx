@@ -22,6 +22,7 @@ const OrderHistory = () => {
   const [user] = useState(JSON.parse(localStorage.getItem("user") || "{}"));
   const orders = useLoaderData() as Order[];
   const navigate = useNavigate();
+  const [taxRate, setTaxRate] = useState<number>(17);
 
   useEffect(() => {
     if (!user?.id) {
@@ -29,6 +30,20 @@ const OrderHistory = () => {
       navigate("/login");
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    const fetchTax = async () => {
+      try {
+        const res = await customFetch.get("/taxes");
+        if (res.data && res.data.length > 0) {
+          setTaxRate(parseFloat(res.data[0].nonfood) || 17);
+        }
+      } catch (e) {
+        console.error("Failed to load tax rate, fallback to 17%", e);
+      }
+    };
+    fetchTax();
+  }, []);
 
   return (
     <div className="max-w-screen-2xl mx-auto pt-20 px-5">
@@ -47,11 +62,11 @@ const OrderHistory = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order) => order?.user && order.user.id === user.id && (
+            {orders.map((order) => (
               <tr key={order.id} className="hover:bg-[#f8f8f8]">
                 <td className="py-3 px-4 border-b border-[#E2E2E2] text-sm">#{order.id}</td>
                 <td className="py-3 px-4 border-b border-[#E2E2E2] text-sm text-[#151515]/70">{formatDate(order.orderDate)}</td>
-                <td className="py-3 px-4 border-b border-[#E2E2E2] text-sm">Rs.{(order.subtotal + 500 + (order.subtotal / 5)).toLocaleString()}</td>
+                <td className="py-3 px-4 border-b border-[#E2E2E2] text-sm">Rs.{Math.round(order.subtotal + 500 + (order.subtotal * (taxRate / 100))).toLocaleString()}</td>
                 <td className="py-3 px-4 border-b border-[#E2E2E2]">
                   <span className="text-xs tracking-wider uppercase bg-[#151515]/10 px-2 py-1">{order.orderStatus}</span>
                 </td>

@@ -59,6 +59,23 @@ const Checkout = () => {
   const [nameOnCard, setNameOnCard] = useState("");
 
   const [couponInput, setCouponInput] = useState("");
+  const [taxRate, setTaxRate] = useState<number>(17); // default 17% for non-food clothing
+  const [shippingFee] = useState<number>(500);
+
+  useEffect(() => {
+    const fetchTaxRate = async () => {
+      try {
+        const res = await customFetch.get("/taxes");
+        if (res.data && res.data.length > 0) {
+          const tax = res.data[0];
+          setTaxRate(parseFloat(tax.nonfood) || 17);
+        }
+      } catch (e) {
+        console.error("Failed to load tax rate, fallback to 17%", e);
+      }
+    };
+    fetchTaxRate();
+  }, []);
 
   const handleApplyCoupon = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -101,11 +118,39 @@ const Checkout = () => {
         toast.error("Please fill in all shipping fields");
         return;
       }
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailAddress)) {
+        toast.error("Please enter a valid email address");
+        return;
+      }
+      // Validate phone length
+      const cleanPhone = phone.replace(/[^0-9]/g, "");
+      if (cleanPhone.length < 10) {
+        toast.error("Please enter a valid phone number (at least 10 digits)");
+        return;
+      }
       setStep(2);
     } else if (step === 2) {
       if (paymentType === "credit-card") {
         if (!cardNumber || !expirationDate || !cvc || !nameOnCard) {
           toast.error("Please fill in your card details");
+          return;
+        }
+        // Validate card number length
+        const cleanCard = cardNumber.replace(/\s+/g, "");
+        if (cleanCard.length < 16 || isNaN(Number(cleanCard))) {
+          toast.error("Please enter a valid 16-digit card number");
+          return;
+        }
+        // Validate expiration format
+        if (!/^\d{2}\/\d{2}$/.test(expirationDate)) {
+          toast.error("Please enter expiration date in MM/YY format");
+          return;
+        }
+        // Validate CVC
+        if (cvc.length < 3 || cvc.length > 4 || isNaN(Number(cvc))) {
+          toast.error("Please enter a valid 3 or 4-digit CVC/CVV");
           return;
         }
       }
@@ -163,7 +208,7 @@ const Checkout = () => {
         response = await customFetch.post("/orders", {
           ...checkoutData,
           orderStatus: "Processing",
-          orderDate: new Date().toLocaleDateString(),
+          orderDate: new Date().toISOString(),
         });
       }
 
@@ -579,13 +624,13 @@ const Checkout = () => {
                 <div className="flex items-center justify-between text-sm">
                   <dt className="text-[#151515]/70">Shipping</dt>
                   <dd className="font-medium text-[#151515]">
-                    PKR {subtotal ? "500" : "0"}
+                    PKR {subtotal ? shippingFee.toString() : "0"}
                   </dd>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <dt className="text-[#151515]/70">GST (20%)</dt>
+                  <dt className="text-[#151515]/70">GST ({taxRate}%)</dt>
                   <dd className="font-medium text-[#151515]">
-                    PKR {subtotal ? Math.round(subtotal / 5).toLocaleString() : "0"}
+                    PKR {subtotal ? Math.round((subtotal - (appliedCoupon?.discountAmount || 0)) * (taxRate / 100)).toLocaleString() : "0"}
                   </dd>
                 </div>
 
@@ -609,7 +654,7 @@ const Checkout = () => {
                 <div className="flex items-center justify-between border-t border-[#E2E2E2] pt-4 text-base font-bold text-[#151515]">
                   <dt>Total</dt>
                   <dd>
-                    PKR {subtotal ? (subtotal - (appliedCoupon?.discountAmount || 0) + 500 + Math.round(subtotal / 5)).toLocaleString() : "0"}
+                    PKR {subtotal ? (subtotal - (appliedCoupon?.discountAmount || 0) + shippingFee + Math.round((subtotal - (appliedCoupon?.discountAmount || 0)) * (taxRate / 100))).toLocaleString() : "0"}
                   </dd>
                 </div>
               </dl>

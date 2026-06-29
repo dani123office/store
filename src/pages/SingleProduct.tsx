@@ -49,6 +49,7 @@ const SingleProduct = () => {
   
   const { wishlistItems } = useAppSelector((state) => state.wishlist);
   const isWishlisted = singleProduct ? wishlistItems.some((item) => item.id === singleProduct.id) : false;
+  const isOutOfStock = singleProduct ? Number(singleProduct.stock) <= 0 : false;
 
   // Fetch product & reviews
   useEffect(() => {
@@ -68,14 +69,35 @@ const SingleProduct = () => {
           content_type: "product"
         });
 
-        // Generate deterministically styled mock image gallery
-        const mockGallery = [
-          prod.image,
-          "luxury fashion 7 1.png",
-          "luxury fashion 7 2.png",
-          "banner1.jpg",
-        ];
-        setAdditionalImages(mockGallery);
+        // Check for real database images
+        try {
+          const imgRes = await customFetch.get("/product-images");
+          const realImg = imgRes.data.find((img: any) => String(img.pro_id) === String(prod.id));
+          if (realImg) {
+            const gallery = [
+              prod.image,
+              realImg.pro_img2,
+              realImg.pro_img3,
+              realImg.pro_img4,
+              realImg.pro_img5
+            ].filter(Boolean);
+            setAdditionalImages(gallery);
+          } else {
+            setAdditionalImages([
+              prod.image,
+              "luxury fashion 7 1.png",
+              "luxury fashion 7 2.png",
+              "banner1.jpg"
+            ]);
+          }
+        } catch {
+          setAdditionalImages([
+            prod.image,
+            "luxury fashion 7 1.png",
+            "luxury fashion 7 2.png",
+            "banner1.jpg"
+          ]);
+        }
       } catch (e) {
         console.error(e);
       }
@@ -104,6 +126,10 @@ const SingleProduct = () => {
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (singleProduct) {
+      if (Number(singleProduct.stock) <= 0) {
+        toast.error("This product is currently out of stock.");
+        return;
+      }
       dispatch(
         addProductToTheCart({
           id: singleProduct.id + size + color,
@@ -372,9 +398,14 @@ const SingleProduct = () => {
           <div className="pt-2">
             <button
               onClick={handleAddToCart}
-              className="w-full bg-[#151515] text-white text-xs font-bold tracking-[0.2em] uppercase py-4 hover:bg-[#333] transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-[#151515]"
+              disabled={isOutOfStock}
+              className={`w-full text-xs font-bold tracking-[0.2em] uppercase py-4 transition-colors focus:outline-none ${
+                isOutOfStock
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-[#151515] text-white hover:bg-[#333] focus:ring-2 focus:ring-offset-2 focus:ring-[#151515]"
+              }`}
             >
-              Add to Cart
+              {isOutOfStock ? "Out of Stock" : "Add to Cart"}
             </button>
           </div>
 

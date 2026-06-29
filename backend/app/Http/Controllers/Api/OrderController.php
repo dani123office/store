@@ -24,6 +24,8 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
+        $productsRaw = $request->input('products', []);
+        
         if (isset($input['data']) && is_array($input['data'])) {
             $input['data'] = json_encode($input['data']);
         }
@@ -34,7 +36,26 @@ class OrderController extends Controller
             $input['user_id'] = $input['user']['id'] ?? null;
         }
         unset($input['user']);
+        
         $order = Order::create($input);
+        
+        // Decr product stock based on cart items
+        $products = is_string($productsRaw) ? json_decode($productsRaw, true) : $productsRaw;
+        if (is_array($products)) {
+            foreach ($products as $p) {
+                if (isset($p['id'])) {
+                    preg_match('/^\d+/', $p['id'], $matches);
+                    $realProductId = $matches[0] ?? null;
+                    if ($realProductId) {
+                        $qty = intval($p['quantity'] ?? 1);
+                        \Illuminate\Support\Facades\DB::table('products')
+                            ->where('id', $realProductId)
+                            ->decrement('stock', $qty);
+                    }
+                }
+            }
+        }
+
         if ($input['user_id'] ?? null) {
             $order->load('user');
         }

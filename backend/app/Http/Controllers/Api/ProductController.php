@@ -15,7 +15,14 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $product = Product::create($request->except('collection_ids'));
+        $input = $request->except('collection_ids');
+        if (isset($input['category_id'])) {
+            $cat = \Illuminate\Support\Facades\DB::table('categories')->where('cat_id', $input['category_id'])->first();
+            if ($cat) {
+                $input['category'] = $cat->cat_title;
+            }
+        }
+        $product = Product::create($input);
         if ($request->has('collection_ids')) {
             $product->collections()->sync($request->input('collection_ids'));
         }
@@ -29,7 +36,14 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        $product->update($request->except('collection_ids'));
+        $input = $request->except('collection_ids');
+        if (isset($input['category_id'])) {
+            $cat = \Illuminate\Support\Facades\DB::table('categories')->where('cat_id', $input['category_id'])->first();
+            if ($cat) {
+                $input['category'] = $cat->cat_title;
+            }
+        }
+        $product->update($input);
         if ($request->has('collection_ids')) {
             $product->collections()->sync($request->input('collection_ids'));
         } else {

@@ -19,6 +19,7 @@ const SingleOrderHistory = () => {
   const [user] = useState(JSON.parse(localStorage.getItem("user") || "{}"));
   const navigate = useNavigate();
   const singleOrder = useLoaderData() as Order;
+  const [taxRate, setTaxRate] = useState<number>(17);
 
   useEffect(() => {
     if (!user?.id) {
@@ -29,6 +30,20 @@ const SingleOrderHistory = () => {
       navigate("/order-history");
     }
   }, [user, singleOrder, navigate]);
+
+  useEffect(() => {
+    const fetchTax = async () => {
+      try {
+        const res = await customFetch.get("/taxes");
+        if (res.data && res.data.length > 0) {
+          setTaxRate(parseFloat(res.data[0].nonfood) || 17);
+        }
+      } catch (e) {
+        console.error("Failed to load tax rate, fallback to 17%", e);
+      }
+    };
+    fetchTax();
+  }, []);
 
   return (
     <div className="max-w-screen-2xl mx-auto pt-20 px-5">
@@ -63,12 +78,12 @@ const SingleOrderHistory = () => {
               <span>Rs.500</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#151515]/70">Tax</span>
-              <span>Rs.{(singleOrder.subtotal / 5).toLocaleString()}</span>
+              <span className="text-[#151515]/70">GST ({taxRate}%)</span>
+              <span>Rs.{Math.round(singleOrder.subtotal * (taxRate / 100)).toLocaleString()}</span>
             </div>
             <div className="flex justify-between border-t border-[#E2E2E2] pt-2 font-medium">
               <span>Total</span>
-              <span>Rs.{(singleOrder.subtotal + 500 + singleOrder.subtotal / 5).toLocaleString()}</span>
+              <span>Rs.{Math.round(singleOrder.subtotal + 500 + (singleOrder.subtotal * (taxRate / 100))).toLocaleString()}</span>
             </div>
           </div>
         </div>
