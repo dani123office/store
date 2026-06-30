@@ -60,7 +60,7 @@ const mockPixels = [
   { id: "987654321098765", name: "Instagram Shop Pixel" }
 ];
 
-const defaultCampaigns: AdCampaign[] = [];
+
 
 const AdminFacebookAds = () => {
   const [activeTab, setActiveTab] = useState<"dashboard" | "campaigns" | "debugger">("dashboard");
@@ -153,13 +153,19 @@ const AdminFacebookAds = () => {
     };
     fetchStoreSettings();
 
-    // Load campaigns from localStorage
+    // Load campaigns from localStorage (only keep real ones)
     const storedCamps = localStorage.getItem("meta_campaigns");
     if (storedCamps) {
-      setCampaigns(JSON.parse(storedCamps));
+      try {
+        const parsed = JSON.parse(storedCamps);
+        const realOnly = Array.isArray(parsed) ? parsed.filter((c: any) => c.isReal) : [];
+        setCampaigns(realOnly);
+        localStorage.setItem("meta_campaigns", JSON.stringify(realOnly));
+      } catch (err) {
+        setCampaigns([]);
+      }
     } else {
-      setCampaigns(defaultCampaigns);
-      localStorage.setItem("meta_campaigns", JSON.stringify(defaultCampaigns));
+      setCampaigns([]);
     }
 
     // Load products
