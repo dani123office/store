@@ -60,42 +60,7 @@ const mockPixels = [
   { id: "987654321098765", name: "Instagram Shop Pixel" }
 ];
 
-const defaultCampaigns: AdCampaign[] = [
-  {
-    id: "camp_1",
-    name: "RTW Summer Collection Sales",
-    objective: "Conversions (Sales)",
-    status: "Active",
-    budget: 5000,
-    budgetType: "Daily",
-    spend: 45000,
-    reach: 124000,
-    clicks: 3480,
-    purchases: 86,
-    roas: 4.2,
-    productName: "Summer Luxury Pret",
-    productImage: "luxury fashion 7 1.png",
-    productPrice: 12500,
-    targetInterests: ["Fashion design", "Luxury goods", "Shopping"]
-  },
-  {
-    id: "camp_2",
-    name: "Bridals Couture Awareness Campaign",
-    objective: "Traffic",
-    status: "Active",
-    budget: 15000,
-    budgetType: "Lifetime",
-    spend: 12000,
-    reach: 85200,
-    clicks: 4210,
-    purchases: 12,
-    roas: 1.8,
-    productName: "Bridals & Formals",
-    productImage: "banner1.jpg",
-    productPrice: 185000,
-    targetInterests: ["Weddings", "Bridal wear", "Pret-a-porter"]
-  }
-];
+const defaultCampaigns: AdCampaign[] = [];
 
 const AdminFacebookAds = () => {
   const [activeTab, setActiveTab] = useState<"dashboard" | "campaigns" | "debugger">("dashboard");
@@ -125,6 +90,15 @@ const AdminFacebookAds = () => {
 
   // Campaigns & Store Products
   const [campaigns, setCampaigns] = useState<AdCampaign[]>([]);
+  const totalSpend = campaigns.reduce((sum, c) => sum + (c.spend || 0), 0);
+  const totalReach = campaigns.reduce((sum, c) => sum + (c.reach || 0), 0);
+  const totalClicks = campaigns.reduce((sum, c) => sum + (c.clicks || 0), 0);
+  const totalPurchases = campaigns.reduce((sum, c) => sum + (c.purchases || 0), 0);
+  const avgCtr = totalReach > 0 ? ((totalClicks / totalReach) * 100) : 0;
+  const campaignsWithRoas = campaigns.filter(c => (c.roas || 0) > 0);
+  const avgRoas = campaignsWithRoas.length > 0 
+    ? (campaignsWithRoas.reduce((sum, c) => sum + c.roas, 0) / campaignsWithRoas.length) 
+    : 0;
   const [products, setProducts] = useState<any[]>([]);
   const [showCreateAdForm, setShowCreateAdForm] = useState(false);
   const [isPublishingAd, setIsPublishingAd] = useState(false);
@@ -1061,41 +1035,73 @@ const AdminFacebookAds = () => {
       {/* TAB 2: CAMPAIGN MANAGER */}
       {activeTab === "campaigns" && (
         <div className="space-y-6">
-          {/* Dashboard Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-              <p className="text-[10px] uppercase font-bold text-gray-400">Total Spend</p>
-              <h4 className="text-lg font-bold text-gray-800 mt-1">Rs.57,000</h4>
-              <p className="text-[10px] text-green-600 mt-1 flex items-center gap-0.5">
-                <span>+12.4% vs last week</span>
-              </p>
+          {!connected ? (
+            <div className="bg-white border border-gray-200 rounded-xl p-8 text-center shadow-sm space-y-4">
+              <div className="w-16 h-16 bg-blue-50 text-[#1877f2] rounded-full flex items-center justify-center mx-auto">
+                <FaFacebook className="text-3xl" />
+              </div>
+              <div className="max-w-md mx-auto space-y-2">
+                <h3 className="text-base font-bold text-gray-800">Meta Account Not Connected</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  To view real campaign statistics, conversions, link clicks, spend, and average ROAS, please connect your Meta Ads Account first.
+                </p>
+              </div>
+              <div>
+                <button
+                  onClick={() => {
+                    setShowConnectModal(true);
+                    setModalStep(1);
+                  }}
+                  className="bg-[#1877f2] hover:bg-[#166fe5] text-white text-xs font-semibold px-6 py-2.5 rounded-lg transition-colors inline-flex items-center gap-2 shadow-sm"
+                >
+                  <HiOutlineLink className="text-base" />
+                  Connect Meta Account
+                </button>
+              </div>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-              <p className="text-[10px] uppercase font-bold text-gray-400">Reach</p>
-              <h4 className="text-lg font-bold text-gray-800 mt-1">209.2K</h4>
-              <p className="text-[10px] text-green-600 mt-1">People targeted</p>
-            </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-              <p className="text-[10px] uppercase font-bold text-gray-400">Link Clicks</p>
-              <h4 className="text-lg font-bold text-gray-800 mt-1">7,690</h4>
-              <p className="text-[10px] text-gray-500 mt-1">Average CPC: Rs.7.4</p>
-            </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-              <p className="text-[10px] uppercase font-bold text-gray-400">CTR (Link)</p>
-              <h4 className="text-lg font-bold text-gray-800 mt-1">3.68%</h4>
-              <p className="text-[10px] text-green-600 mt-1">Excellent performance</p>
-            </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-              <p className="text-[10px] uppercase font-bold text-gray-400">Purchases</p>
-              <h4 className="text-lg font-bold text-green-700 mt-1">98</h4>
-              <p className="text-[10px] text-gray-500 mt-1">Cost/purchase: Rs.580</p>
-            </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-              <p className="text-[10px] uppercase font-bold text-gray-400">Account ROAS</p>
-              <h4 className="text-lg font-bold text-blue-700 mt-1">3.72x</h4>
-              <p className="text-[10px] text-green-600 mt-1">Meta Ads standard</p>
-            </div>
-          </div>
+          ) : (
+            <>
+              {/* Dashboard Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <p className="text-[10px] uppercase font-bold text-gray-400">Total Spend</p>
+                    <h4 className="text-lg font-bold text-gray-800 mt-1">
+                      {isLiveMode ? `$${totalSpend.toFixed(2)}` : `Rs.${totalSpend.toLocaleString()}`}
+                    </h4>
+                    <p className="text-[10px] text-gray-500 mt-1">Campaign ad budget</p>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <p className="text-[10px] uppercase font-bold text-gray-400">Reach</p>
+                    <h4 className="text-lg font-bold text-gray-800 mt-1">
+                      {totalReach >= 1000 ? `${(totalReach / 1000).toFixed(1)}K` : totalReach}
+                    </h4>
+                    <p className="text-[10px] text-green-600 mt-1">People targeted</p>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <p className="text-[10px] uppercase font-bold text-gray-400">Link Clicks</p>
+                    <h4 className="text-lg font-bold text-gray-800 mt-1">{totalClicks.toLocaleString()}</h4>
+                    <p className="text-[10px] text-gray-500 mt-1">
+                      Average CPC: {totalClicks > 0 ? (isLiveMode ? `$${(totalSpend / totalClicks).toFixed(2)}` : `Rs.${Math.round(totalSpend / totalClicks).toLocaleString()}`) : "Rs.0"}
+                    </p>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <p className="text-[10px] uppercase font-bold text-gray-400">CTR (Link)</p>
+                    <h4 className="text-lg font-bold text-gray-800 mt-1">{avgCtr.toFixed(2)}%</h4>
+                    <p className="text-[10px] text-green-600 mt-1">Click rate performance</p>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <p className="text-[10px] uppercase font-bold text-gray-400">Purchases</p>
+                    <h4 className="text-lg font-bold text-green-700 mt-1">{totalPurchases.toLocaleString()}</h4>
+                    <p className="text-[10px] text-gray-500 mt-1">
+                      Cost/purchase: {totalPurchases > 0 ? (isLiveMode ? `$${(totalSpend / totalPurchases).toFixed(2)}` : `Rs.${Math.round(totalSpend / totalPurchases).toLocaleString()}`) : "Rs.0"}
+                    </p>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <p className="text-[10px] uppercase font-bold text-gray-400">Account ROAS</p>
+                    <h4 className="text-lg font-bold text-blue-700 mt-1">{avgRoas > 0 ? `${avgRoas.toFixed(2)}x` : "-"}</h4>
+                    <p className="text-[10px] text-green-600 mt-1">Meta Ads standard</p>
+                  </div>
+                </div>
 
           {/* Action Header */}
           <div className="flex items-center justify-between">
@@ -1528,8 +1534,10 @@ const AdminFacebookAds = () => {
               </table>
             </div>
           </div>
-        </div>
+        </>
       )}
+    </div>
+  )}
 
       {/* TAB 3: PIXEL EVENT DEBUGGER */}
       {activeTab === "debugger" && (
