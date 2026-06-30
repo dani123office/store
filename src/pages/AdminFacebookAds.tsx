@@ -111,12 +111,11 @@ const AdminFacebookAds = () => {
           const store = res.data[0];
           setStoreId(store.id || "1");
           
-          const isMetaConnected = store.fb_connected === 1 || store.fb_connected === true || localStorage.getItem("meta_connected") === "true";
-          setConnected(isMetaConnected);
-          
           const token = store.fb_access_token || "";
+          const isMetaConnected = (store.fb_connected === 1 || store.fb_connected === true || localStorage.getItem("meta_connected") === "true") && !!token;
+          setConnected(isMetaConnected);
           setAccessToken(token);
-          setIsLiveMode(!!token);
+          setIsLiveMode(true);
           
           setSelectedBM(store.fb_business_manager || "");
           setSelectedAdAccount(store.fb_ad_account || "");
