@@ -39,6 +39,7 @@ const sidebarLinks: SidebarItem[] = [
   { label: "Customers", icon: HiOutlineUsers, path: "/admin/customers" },
   { label: "Analytics", icon: HiOutlineSquares2X2, path: "/admin/analytics" },
   { label: "Marketing", icon: HiOutlineMegaphone, path: "/admin/marketing" },
+  { label: "Facebook Ads", icon: HiOutlineGlobeAlt, path: "/admin/facebook-ads" },
   { label: "Discounts", icon: HiOutlineTag, path: "/admin/discounts" },
   { label: "Apps", icon: HiOutlineSquares2X2, path: "/admin/apps" },
 ];

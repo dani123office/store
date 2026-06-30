@@ -55,7 +55,18 @@ const AdminApps = () => {
         ...app,
         installed: installedIds.includes(String(app.id))
       }));
-      setApps(mappedApps);
+
+      const fbApp: AppItem = {
+        id: "fb_sales_channel",
+        name: "Facebook & Instagram Sales Channel",
+        category: "Marketing",
+        description: "Connect Facebook Ads Manager, set up your conversion pixel, and publish catalog ads.",
+        installed: installedIds.includes("fb_sales_channel"),
+        developer: "Meta & Zarka",
+        link: "/admin/facebook-ads"
+      };
+
+      setApps([fbApp, ...mappedApps]);
     } catch (e) {
       console.error("Failed to load Apps Directory data", e);
       toast.error("Failed to load Apps Directory");
@@ -84,6 +95,10 @@ const AdminApps = () => {
       if (stringId === "5" || targetApp?.name === "Pixel Conversion Booster") {
         setTimeout(() => {
           navigate("/admin/preferences");
+        }, 1000);
+      } else if (stringId === "fb_sales_channel" || targetApp?.name === "Facebook & Instagram Sales Channel") {
+        setTimeout(() => {
+          navigate("/admin/facebook-ads");
         }, 1000);
       }
     }
