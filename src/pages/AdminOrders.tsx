@@ -12,7 +12,6 @@ const AdminOrders = () => {
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [shippingFee, setShippingFee] = useState<number>(500);
-  const [taxRate, setTaxRate] = useState<number>(17);
 
   // Fulfillment inputs
   const [carrierInput, setCarrierInput] = useState("");
@@ -31,13 +30,7 @@ const AdminOrders = () => {
     fetchOrders();
     const fetchSettings = async () => {
       try {
-        const [taxRes, storeRes] = await Promise.all([
-          customFetch.get("/taxes"),
-          customFetch.get("/stores"),
-        ]);
-        if (taxRes.data && taxRes.data.length > 0) {
-          setTaxRate(parseFloat(taxRes.data[0].nonfood) || 17);
-        }
+        const storeRes = await customFetch.get("/stores");
         if (storeRes.data && storeRes.data.length > 0) {
           setShippingFee(parseFloat(storeRes.data[0].ShippingFee) || 500);
         }
@@ -145,7 +138,7 @@ const AdminOrders = () => {
                   {order.data?.email || order.user?.email || "Guest"}
                 </td>
                 <td className="py-4 px-5 text-right font-semibold text-[#202223]">
-                  Rs.{Math.round(order.subtotal + shippingFee + order.subtotal * (taxRate / 100)).toLocaleString()}
+                  Rs.{Math.round(order.subtotal + shippingFee).toLocaleString()}
                 </td>
                 <td className="py-4 px-5">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -377,13 +370,9 @@ const AdminOrders = () => {
                     <span>Shipping</span>
                     <span>Rs.{shippingFee.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-[#202223]">
-                    <span>Tax (GST {taxRate}%)</span>
-                    <span>Rs.{Math.round(selectedOrder.subtotal * (taxRate / 100)).toLocaleString()}</span>
-                  </div>
                   <div className="flex justify-between text-base font-bold text-[#202223] pt-2 border-t border-[#f0f0f0]">
                     <span>Total</span>
-                    <span>Rs.{Math.round(selectedOrder.subtotal + shippingFee + selectedOrder.subtotal * (taxRate / 100)).toLocaleString()}</span>
+                    <span>Rs.{Math.round(selectedOrder.subtotal + shippingFee).toLocaleString()}</span>
                   </div>
                 </div>
               </div>

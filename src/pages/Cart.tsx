@@ -21,22 +21,14 @@ const Cart = () => {
   const [couponInput, setCouponInput] = useState("");
   const [shippingFee, setShippingFee] = useState<number>(500);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState<number>(0);
-  const [taxRate, setTaxRate] = useState<number>(17);
-
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const [storeRes, taxRes] = await Promise.all([
-          customFetch.get("/stores"),
-          customFetch.get("/taxes"),
-        ]);
+        const storeRes = await customFetch.get("/stores");
         if (storeRes.data && storeRes.data.length > 0) {
           const store = storeRes.data[0];
           setShippingFee(parseFloat(store.ShippingFee) || 500);
           setFreeShippingThreshold(parseFloat(store.FreeShippingThreshold) || 0);
-        }
-        if (taxRes.data && taxRes.data.length > 0) {
-          setTaxRate(parseFloat(taxRes.data[0].nonfood) || 17);
         }
       } catch (e) {
         console.error("Failed to fetch store settings", e);
@@ -225,26 +217,6 @@ const Cart = () => {
                   Rs.{subtotal === 0 ? 0 : (freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? "0 (Free!)" : shippingFee.toLocaleString())}
                 </dd>
               </div>
-              <div className="flex items-center justify-between border-t border-[#E2E2E2] pt-4">
-                <dt className="flex text-sm text-[#151515]/60">
-                  <span>Tax estimate</span>
-                  <a
-                    href="#"
-                    className="ml-2 flex-shrink-0 text-[#151515]/40 hover:text-[#151515]"
-                  >
-                    <span className="sr-only">
-                      Learn more about how tax is calculated
-                    </span>
-                    <QuestionMarkCircleIcon
-                      className="h-5 w-5"
-                      aria-hidden="true"
-                    />
-                  </a>
-                </dt>
-                <dd className="text-sm font-medium text-[#151515]">
-                  Rs.{Math.round(subtotal * (taxRate / 100)).toLocaleString()}
-                </dd>
-              </div>
 
               {appliedCoupon && (
                 <div className="flex items-center justify-between border-t border-dashed border-[#E2E2E2] pt-4 text-green-600 font-medium text-sm">
@@ -268,7 +240,7 @@ const Cart = () => {
                   Order total
                 </dt>
                 <dd className="text-base font-medium text-[#151515]">
-                  Rs.{subtotal === 0 ? 0 : (subtotal - (appliedCoupon?.discountAmount || 0) + Math.round(subtotal * (taxRate / 100)) + (freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? 0 : shippingFee)).toLocaleString()}
+                  Rs.{subtotal === 0 ? 0 : (subtotal - (appliedCoupon?.discountAmount || 0) + (freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? 0 : shippingFee)).toLocaleString()}
                 </dd>
               </div>
             </dl>

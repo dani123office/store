@@ -22,7 +22,6 @@ const OrderHistory = () => {
   const [user] = useState(JSON.parse(localStorage.getItem("user") || "{}"));
   const orders = useLoaderData() as Order[];
   const navigate = useNavigate();
-  const [taxRate, setTaxRate] = useState<number>(17);
   const [shippingFee, setShippingFee] = useState<number>(500);
 
   useEffect(() => {
@@ -35,13 +34,7 @@ const OrderHistory = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const [taxRes, storeRes] = await Promise.all([
-          customFetch.get("/taxes"),
-          customFetch.get("/stores"),
-        ]);
-        if (taxRes.data && taxRes.data.length > 0) {
-          setTaxRate(parseFloat(taxRes.data[0].nonfood) || 17);
-        }
+        const storeRes = await customFetch.get("/stores");
         if (storeRes.data && storeRes.data.length > 0) {
           setShippingFee(parseFloat(storeRes.data[0].ShippingFee) || 500);
         }
@@ -73,7 +66,7 @@ const OrderHistory = () => {
               <tr key={order.id} className="hover:bg-[#f8f8f8]">
                 <td className="py-3 px-4 border-b border-[#E2E2E2] text-sm">#{order.id}</td>
                 <td className="py-3 px-4 border-b border-[#E2E2E2] text-sm text-[#151515]/70">{formatDate(order.orderDate)}</td>
-                <td className="py-3 px-4 border-b border-[#E2E2E2] text-sm">Rs.{Math.round(order.subtotal + shippingFee + (order.subtotal * (taxRate / 100))).toLocaleString()}</td>
+                <td className="py-3 px-4 border-b border-[#E2E2E2] text-sm">Rs.{Math.round(order.subtotal + shippingFee).toLocaleString()}</td>
                 <td className="py-3 px-4 border-b border-[#E2E2E2]">
                   <span className="text-xs tracking-wider uppercase bg-[#151515]/10 px-2 py-1">{order.orderStatus}</span>
                 </td>

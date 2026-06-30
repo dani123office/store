@@ -11,29 +11,25 @@ const AdminDashboard = () => {
   const [topSellingProducts, setTopSellingProducts] = useState<any[]>([]);
   const [revenueTrend, setRevenueTrend] = useState<any[]>([]);
   const [storeShippingFee, setStoreShippingFee] = useState<number>(500);
-  const [storeTaxRate, setStoreTaxRate] = useState<number>(17);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [productsRes, ordersRes, usersRes, taxRes, storeRes] = await Promise.all([
+        const [productsRes, ordersRes, usersRes, storeRes] = await Promise.all([
           customFetch.get("/products"),
           customFetch.get("/orders"),
           customFetch.get("/users"),
-          customFetch.get("/taxes"),
           customFetch.get("/stores"),
         ]);
         
         const products = productsRes.data;
         const orders = ordersRes.data;
         const users = usersRes.data;
-        const taxRateVal = (taxRes.data && taxRes.data.length > 0) ? (parseFloat(taxRes.data[0].nonfood) || 17) : 17;
         const shippingVal = (storeRes.data && storeRes.data.length > 0) ? (parseFloat(storeRes.data[0].ShippingFee) || 500) : 500;
         setStoreShippingFee(shippingVal);
-        setStoreTaxRate(taxRateVal);
 
         // Calculate Revenue
-        const revenue = orders.reduce((sum: number, o: any) => sum + (o.subtotal || 0) + (o.subtotal ? shippingVal : 0) + (o.subtotal || 0) * (taxRateVal / 100), 0);
+        const revenue = orders.reduce((sum: number, o: any) => sum + (o.subtotal || 0) + (o.subtotal ? shippingVal : 0), 0);
 
         setStats({
           products: products.length,
@@ -90,7 +86,7 @@ const AdminDashboard = () => {
                 oDate.getMonth() === d.getMonth() &&
                 oDate.getFullYear() === d.getFullYear()
               ) {
-                const total = (Number(o.subtotal || 0)) + (o.subtotal ? shippingVal : 0) + (Number(o.subtotal || 0)) * (taxRateVal / 100);
+                const total = (Number(o.subtotal || 0)) + (o.subtotal ? shippingVal : 0);
                 dayRevenue += total;
               }
             }
@@ -282,7 +278,7 @@ const AdminDashboard = () => {
                       <td className="py-3 px-5 text-[#202223] truncate max-w-[150px]">
                         {order.data?.email || order.user?.email || "Guest"}
                       </td>
-                      <td className="py-3 px-5 text-right font-medium">Rs.{Math.round(order.subtotal + storeShippingFee + order.subtotal * (storeTaxRate / 100)).toLocaleString()}</td>
+                      <td className="py-3 px-5 text-right font-medium">Rs.{Math.round(order.subtotal + storeShippingFee).toLocaleString()}</td>
                       <td className="py-3 px-5">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           order.orderStatus === "Processing" ? "bg-[#fff5e6] text-[#b8860b]" :

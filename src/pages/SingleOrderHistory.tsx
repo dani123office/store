@@ -19,7 +19,6 @@ const SingleOrderHistory = () => {
   const [user] = useState(JSON.parse(localStorage.getItem("user") || "{}"));
   const navigate = useNavigate();
   const singleOrder = useLoaderData() as Order;
-  const [taxRate, setTaxRate] = useState<number>(17);
   const [shippingFee, setShippingFee] = useState<number>(500);
 
   useEffect(() => {
@@ -35,13 +34,7 @@ const SingleOrderHistory = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const [taxRes, storeRes] = await Promise.all([
-          customFetch.get("/taxes"),
-          customFetch.get("/stores"),
-        ]);
-        if (taxRes.data && taxRes.data.length > 0) {
-          setTaxRate(parseFloat(taxRes.data[0].nonfood) || 17);
-        }
+        const storeRes = await customFetch.get("/stores");
         if (storeRes.data && storeRes.data.length > 0) {
           setShippingFee(parseFloat(storeRes.data[0].ShippingFee) || 500);
         }
@@ -84,13 +77,9 @@ const SingleOrderHistory = () => {
               <span className="text-[#151515]/70">Shipping</span>
               <span>Rs.{shippingFee.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-[#151515]/70">GST ({taxRate}%)</span>
-              <span>Rs.{Math.round(singleOrder.subtotal * (taxRate / 100)).toLocaleString()}</span>
-            </div>
             <div className="flex justify-between border-t border-[#E2E2E2] pt-2 font-medium">
               <span>Total</span>
-              <span>Rs.{Math.round(singleOrder.subtotal + shippingFee + (singleOrder.subtotal * (taxRate / 100))).toLocaleString()}</span>
+              <span>Rs.{Math.round(singleOrder.subtotal + shippingFee).toLocaleString()}</span>
             </div>
           </div>
         </div>

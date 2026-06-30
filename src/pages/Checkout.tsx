@@ -59,20 +59,13 @@ const Checkout = () => {
   const [nameOnCard, setNameOnCard] = useState("");
 
   const [couponInput, setCouponInput] = useState("");
-  const [taxRate, setTaxRate] = useState<number>(17); // default 17% for non-food clothing
   const [shippingFee, setShippingFee] = useState<number>(500);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState<number>(0);
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const [taxRes, storeRes] = await Promise.all([
-          customFetch.get("/taxes"),
-          customFetch.get("/stores"),
-        ]);
-        if (taxRes.data && taxRes.data.length > 0) {
-          setTaxRate(parseFloat(taxRes.data[0].nonfood) || 17);
-        }
+        const storeRes = await customFetch.get("/stores");
         if (storeRes.data && storeRes.data.length > 0) {
           const store = storeRes.data[0];
           setShippingFee(parseFloat(store.ShippingFee) || 500);
@@ -635,13 +628,6 @@ const Checkout = () => {
                     PKR {subtotal ? (freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? "0 (Free!)" : shippingFee.toLocaleString()) : "0"}
                   </dd>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <dt className="text-[#151515]/70">GST ({taxRate}%)</dt>
-                  <dd className="font-medium text-[#151515]">
-                    PKR {subtotal ? Math.round((subtotal - (appliedCoupon?.discountAmount || 0)) * (taxRate / 100)).toLocaleString() : "0"}
-                  </dd>
-                </div>
-
                 {appliedCoupon && (
                   <div className="flex items-center justify-between border-t border-dashed border-[#E2E2E2] pt-4 text-green-600 font-semibold text-sm">
                     <dt className="flex items-center gap-1">
@@ -662,7 +648,7 @@ const Checkout = () => {
                 <div className="flex items-center justify-between border-t border-[#E2E2E2] pt-4 text-base font-bold text-[#151515]">
                   <dt>Total</dt>
                   <dd>
-                    PKR {subtotal ? (subtotal - (appliedCoupon?.discountAmount || 0) + (freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? 0 : shippingFee) + Math.round((subtotal - (appliedCoupon?.discountAmount || 0)) * (taxRate / 100))).toLocaleString() : "0"}
+                    PKR {subtotal ? (subtotal - (appliedCoupon?.discountAmount || 0) + (freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? 0 : shippingFee)).toLocaleString() : "0"}
                   </dd>
                 </div>
               </dl>
