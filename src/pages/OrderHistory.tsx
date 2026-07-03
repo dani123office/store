@@ -47,33 +47,31 @@ const OrderHistory = () => {
 
   return (
     <div className="max-w-screen-2xl mx-auto pt-20 px-5">
-      <h1 className="text-2xl md:text-3xl font-light tracking-[0.15em] uppercase mb-10">
-        Order History
-      </h1>
+      <h1 className="text-heading-section text-ink mb-10">Order History</h1>
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-[#E2E2E2]">
+        <table className="min-w-full bg-canvas border border-hairline">
           <thead>
-            <tr className="bg-[#f8f8f8]">
-              <th className="py-3 px-4 border-b border-[#E2E2E2] text-left text-xs tracking-wider uppercase text-[#151515]/60">Order ID</th>
-              <th className="py-3 px-4 border-b border-[#E2E2E2] text-left text-xs tracking-wider uppercase text-[#151515]/60">Date</th>
-              <th className="py-3 px-4 border-b border-[#E2E2E2] text-left text-xs tracking-wider uppercase text-[#151515]/60">Total</th>
-              <th className="py-3 px-4 border-b border-[#E2E2E2] text-left text-xs tracking-wider uppercase text-[#151515]/60">Status</th>
-              <th className="py-3 px-4 border-b border-[#E2E2E2] text-left text-xs tracking-wider uppercase text-[#151515]/60">Actions</th>
+            <tr className="bg-canvas-cream">
+              <th className="py-3 px-4 border-b border-hairline text-left text-caption uppercase tracking-tracked text-shade-50">Order ID</th>
+              <th className="py-3 px-4 border-b border-hairline text-left text-caption uppercase tracking-tracked text-shade-50">Date</th>
+              <th className="py-3 px-4 border-b border-hairline text-left text-caption uppercase tracking-tracked text-shade-50">Total</th>
+              <th className="py-3 px-4 border-b border-hairline text-left text-caption uppercase tracking-tracked text-shade-50">Status</th>
+              <th className="py-3 px-4 border-b border-hairline text-left text-caption uppercase tracking-tracked text-shade-50">Actions</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-[#f8f8f8]">
-                <td className="py-3 px-4 border-b border-[#E2E2E2] text-sm">#{order.id}</td>
-                <td className="py-3 px-4 border-b border-[#E2E2E2] text-sm text-[#151515]/70">{formatDate(order.orderDate)}</td>
-                <td className="py-3 px-4 border-b border-[#E2E2E2] text-sm">Rs.{Math.round(order.subtotal + shippingFee).toLocaleString()}</td>
-                <td className="py-3 px-4 border-b border-[#E2E2E2]">
-                  <span className="text-xs tracking-wider uppercase bg-[#151515]/10 px-2 py-1">{order.orderStatus}</span>
+              <tr key={order.id} className="hover:bg-canvas-cream">
+                <td className="py-3 px-4 border-b border-hairline text-body-md">#{order.id}</td>
+                <td className="py-3 px-4 border-b border-hairline text-body-md text-shade-50">{formatDate(order.orderDate)}</td>
+                <td className="py-3 px-4 border-b border-hairline text-body-md">Rs.{Math.round(order.subtotal + shippingFee).toLocaleString()}</td>
+                <td className="py-3 px-4 border-b border-hairline">
+                  <span className="text-caption uppercase tracking-tracked bg-shade-20 px-2 py-1 rounded-pill text-ink">{order.orderStatus}</span>
                 </td>
-                <td className="py-3 px-4 border-b border-[#E2E2E2]">
+                <td className="py-3 px-4 border-b border-hairline">
                   <Link
                     to={`/order-history/${order.id}`}
-                    className="text-xs tracking-wider uppercase underline underline-offset-2 hover:opacity-60"
+                    className="text-caption uppercase tracking-tracked underline underline-offset-2 hover:opacity-60"
                   >
                     View Details
                   </Link>

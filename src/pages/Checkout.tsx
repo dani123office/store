@@ -17,11 +17,9 @@ const Checkout = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  // Multi-step state
-  const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Review
+  const [step, setStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Form states
   const [emailAddress, setEmailAddress] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -36,7 +34,6 @@ const Checkout = () => {
       if (user.name) setFirstName(user.name);
       if (user.lastname) setLastName(user.lastname);
 
-      // Track InitiateCheckout event on Facebook Pixel
       trackFbEvent("InitiateCheckout", {
         num_items: productsInCart.length,
         value: subtotal,
@@ -45,6 +42,7 @@ const Checkout = () => {
       });
     }
   }, [navigate]);
+
   const [address, setAddress] = useState("");
   const [apartment, setApartment] = useState("");
   const [city, setCity] = useState("");
@@ -111,7 +109,6 @@ const Checkout = () => {
     toast.success("Coupon removed");
   };
 
-  // Step Navigations with Validation
   const nextStep = (e: React.MouseEvent) => {
     e.preventDefault();
     if (step === 1) {
@@ -119,13 +116,11 @@ const Checkout = () => {
         toast.error("Please fill in all shipping fields");
         return;
       }
-      // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(emailAddress)) {
         toast.error("Please enter a valid email address");
         return;
       }
-      // Validate phone length
       const cleanPhone = phone.replace(/[^0-9]/g, "");
       if (cleanPhone.length < 10) {
         toast.error("Please enter a valid phone number (at least 10 digits)");
@@ -138,18 +133,15 @@ const Checkout = () => {
           toast.error("Please fill in your card details");
           return;
         }
-        // Validate card number length
         const cleanCard = cardNumber.replace(/\s+/g, "");
         if (cleanCard.length < 16 || isNaN(Number(cleanCard))) {
           toast.error("Please enter a valid 16-digit card number");
           return;
         }
-        // Validate expiration format
         if (!/^\d{2}\/\d{2}$/.test(expirationDate)) {
           toast.error("Please enter expiration date in MM/YY format");
           return;
         }
-        // Validate CVC
         if (cvc.length < 3 || cvc.length > 4 || isNaN(Number(cvc))) {
           toast.error("Please enter a valid 3 or 4-digit CVC/CVV");
           return;
@@ -190,7 +182,6 @@ const Checkout = () => {
     };
 
     try {
-      // Simulate real Payment Gateway authorization delay
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       let response;
@@ -216,7 +207,6 @@ const Checkout = () => {
       if (response.status === 201 || response.status === 200) {
         toast.success("Payment verified! Order placed successfully.");
 
-        // Track Purchase event on Facebook Pixel
         trackFbEvent("Purchase", {
           content_ids: productsInCart.map(p => p.id),
           value: subtotal,
@@ -226,7 +216,6 @@ const Checkout = () => {
           contents: productsInCart.map(p => ({ id: p.id, quantity: p.quantity, price: p.price }))
         });
 
-        // Clear cart items
         productsInCart.forEach((p) => {
           dispatch(removeProductFromTheCart({ id: p.id }));
         });
@@ -245,149 +234,148 @@ const Checkout = () => {
   return (
     <div className="mx-auto max-w-screen-2xl">
       <div className="pb-24 pt-16 px-5">
-        <h2 className="text-2xl md:text-3xl font-light tracking-[0.15em] uppercase mb-10 text-center font-serif">
+        <h2 className="text-heading-section text-ink mb-10 text-center">
           Checkout
         </h2>
 
         {/* Step Progress Indicator */}
         <div className="max-w-xl mx-auto mb-16 px-4">
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-widest text-[#151515]/40 relative">
-            <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-gray-200 -translate-y-1/2 z-0" />
+          <div className="flex items-center justify-between text-caption uppercase tracking-tracked text-shade-40 relative">
+            <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-shade-20 -translate-y-1/2 z-0" />
             <div
-              className="absolute top-1/2 left-0 h-[2px] bg-[#151515] -translate-y-1/2 z-0 transition-all duration-300"
+              className="absolute top-1/2 left-0 h-[2px] bg-ink -translate-y-1/2 z-0 transition-all duration-300"
               style={{ width: step === 1 ? "0%" : step === 2 ? "50%" : "100%" }}
             />
 
             <div className="flex flex-col items-center gap-2 relative z-10">
               <span className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
-                step >= 1 ? "bg-[#151515] border-[#151515] text-white" : "bg-white border-gray-300 text-gray-400"
+                step >= 1 ? "bg-ink border-ink text-on-primary" : "bg-canvas border-shade-30 text-shade-40"
               }`}>
-                {step > 1 ? "✓" : "1"}
+                {step > 1 ? "\u2713" : "1"}
               </span>
-              <span className={step >= 1 ? "text-[#151515] font-bold" : ""}>Shipping</span>
+              <span className={step >= 1 ? "text-ink font-bold" : ""}>Shipping</span>
             </div>
 
             <div className="flex flex-col items-center gap-2 relative z-10">
               <span className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
-                step >= 2 ? "bg-[#151515] border-[#151515] text-white" : "bg-white border-gray-300 text-gray-400"
+                step >= 2 ? "bg-ink border-ink text-on-primary" : "bg-canvas border-shade-30 text-shade-40"
               }`}>
-                {step > 2 ? "✓" : "2"}
+                {step > 2 ? "\u2713" : "2"}
               </span>
-              <span className={step >= 2 ? "text-[#151515] font-bold" : ""}>Payment</span>
+              <span className={step >= 2 ? "text-ink font-bold" : ""}>Payment</span>
             </div>
 
             <div className="flex flex-col items-center gap-2 relative z-10">
               <span className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
-                step === 3 ? "bg-[#151515] border-[#151515] text-white" : "bg-white border-gray-300 text-gray-400"
+                step === 3 ? "bg-ink border-ink text-on-primary" : "bg-canvas border-shade-30 text-shade-40"
               }`}>
                 3
               </span>
-              <span className={step === 3 ? "text-[#151515] font-bold" : ""}>Review</span>
+              <span className={step === 3 ? "text-ink font-bold" : ""}>Review</span>
             </div>
           </div>
         </div>
 
         <div className="lg:grid lg:grid-cols-12 lg:gap-x-12 xl:gap-x-16">
-          {/* Form Side */}
           <div className="lg:col-span-7">
             {step === 1 && (
               <div className="space-y-6 animate-fade">
-                <h3 className="text-sm tracking-wider uppercase font-semibold text-[#151515] border-b border-[#e2e2e2] pb-3">
+                <h3 className="text-caption uppercase tracking-tracked font-semibold text-ink border-b border-hairline pb-3">
                   1. Shipping Information
                 </h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs tracking-wider uppercase text-[#151515]/70 mb-1">Email Address</label>
+                    <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Email Address</label>
                     <input
                       type="email"
                       value={emailAddress}
                       onChange={(e) => setEmailAddress(e.target.value)}
-                      className="block w-full py-2.5 px-3 border border-[#E2E2E2] outline-none focus:border-[#151515] text-sm"
+                      className="block w-full py-2.5 px-3 border border-hairline outline-none focus:border-ink text-body-md"
                       placeholder="e.g. name@domain.com"
                       required
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs tracking-wider uppercase text-[#151515]/70 mb-1">First Name</label>
+                      <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">First Name</label>
                       <input
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        className="block w-full py-2.5 px-3 border border-[#E2E2E2] outline-none focus:border-[#151515] text-sm"
+                        className="block w-full py-2.5 px-3 border border-hairline outline-none focus:border-ink text-body-md"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-xs tracking-wider uppercase text-[#151515]/70 mb-1">Last Name</label>
+                      <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Last Name</label>
                       <input
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        className="block w-full py-2.5 px-3 border border-[#E2E2E2] outline-none focus:border-[#151515] text-sm"
+                        className="block w-full py-2.5 px-3 border border-hairline outline-none focus:border-ink text-body-md"
                         required
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs tracking-wider uppercase text-[#151515]/70 mb-1">Address</label>
+                    <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Address</label>
                     <input
                       type="text"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
-                      className="block w-full py-2.5 px-3 border border-[#E2E2E2] outline-none focus:border-[#151515] text-sm"
+                      className="block w-full py-2.5 px-3 border border-hairline outline-none focus:border-ink text-body-md"
                       placeholder="Street name and number"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-xs tracking-wider uppercase text-[#151515]/70 mb-1">Apartment, suite, etc.</label>
+                    <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Apartment, suite, etc.</label>
                     <input
                       type="text"
                       value={apartment}
                       onChange={(e) => setApartment(e.target.value)}
-                      className="block w-full py-2.5 px-3 border border-[#E2E2E2] outline-none focus:border-[#151515] text-sm"
+                      className="block w-full py-2.5 px-3 border border-hairline outline-none focus:border-ink text-body-md"
                       placeholder="Suite, unit, floor (optional)"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs tracking-wider uppercase text-[#151515]/70 mb-1">City</label>
+                      <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">City</label>
                       <input
                         type="text"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
-                        className="block w-full py-2.5 px-3 border border-[#E2E2E2] outline-none focus:border-[#151515] text-sm"
+                        className="block w-full py-2.5 px-3 border border-hairline outline-none focus:border-ink text-body-md"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-xs tracking-wider uppercase text-[#151515]/70 mb-1">Postal Code</label>
+                      <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Postal Code</label>
                       <input
                         type="text"
                         value={postalCode}
                         onChange={(e) => setPostalCode(e.target.value)}
-                        className="block w-full py-2.5 px-3 border border-[#E2E2E2] outline-none focus:border-[#151515] text-sm"
+                        className="block w-full py-2.5 px-3 border border-hairline outline-none focus:border-ink text-body-md"
                         required
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs tracking-wider uppercase text-[#151515]/70 mb-1">State / Province</label>
+                      <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">State / Province</label>
                       <input
                         type="text"
                         value={region}
                         onChange={(e) => setRegion(e.target.value)}
-                        className="block w-full py-2.5 px-3 border border-[#E2E2E2] outline-none focus:border-[#151515] text-sm"
+                        className="block w-full py-2.5 px-3 border border-hairline outline-none focus:border-ink text-body-md"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs tracking-wider uppercase text-[#151515]/70 mb-1">Country</label>
+                      <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Country</label>
                       <select
                         value={country}
                         onChange={(e) => setCountry(e.target.value)}
-                        className="block w-full py-2.5 px-3 border border-[#E2E2E2] outline-none bg-white focus:border-[#151515] text-sm"
+                        className="block w-full py-2.5 px-3 border border-hairline outline-none bg-canvas focus:border-ink text-body-md"
                       >
                         <option>Pakistan</option>
                         <option>United States</option>
@@ -397,12 +385,12 @@ const Checkout = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs tracking-wider uppercase text-[#151515]/70 mb-1">Phone</label>
+                    <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Phone</label>
                     <input
                       type="text"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="block w-full py-2.5 px-3 border border-[#E2E2E2] outline-none focus:border-[#151515] text-sm"
+                      className="block w-full py-2.5 px-3 border border-hairline outline-none focus:border-ink text-body-md"
                       required
                     />
                   </div>
@@ -410,7 +398,7 @@ const Checkout = () => {
                 <div className="pt-6">
                   <button
                     onClick={nextStep}
-                    className="w-full bg-[#151515] text-white text-xs font-semibold tracking-widest uppercase py-4 hover:bg-[#333] transition-colors"
+                    className="w-full bg-ink text-on-primary text-button-label uppercase tracking-tracked py-4 rounded-pill hover:bg-shade-60 transition-colors"
                   >
                     Continue to Payment
                   </button>
@@ -420,15 +408,15 @@ const Checkout = () => {
 
             {step === 2 && (
               <div className="space-y-6 animate-fade">
-                <h3 className="text-sm tracking-wider uppercase font-semibold text-[#151515] border-b border-[#e2e2e2] pb-3">
+                <h3 className="text-caption uppercase tracking-tracked font-semibold text-ink border-b border-hairline pb-3">
                   2. Choose Payment Method
                 </h3>
                 <div className="space-y-4">
                   {paymentMethods.map((pm) => (
                     <label
                       key={pm.id}
-                      className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
-                        paymentType === pm.id ? "border-[#151515] bg-gray-50/50" : "border-[#e0e0e0]"
+                      className={`flex items-center justify-between p-4 border rounded-md cursor-pointer hover:bg-canvas-cream transition-colors ${
+                        paymentType === pm.id ? "border-ink bg-canvas-cream" : "border-hairline"
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -437,62 +425,62 @@ const Checkout = () => {
                           name="paymentType"
                           checked={paymentType === pm.id}
                           onChange={() => setPaymentType(pm.id)}
-                          className="w-4 h-4 text-[#151515] focus:ring-[#151515]"
+                          className="w-4 h-4 text-ink focus:ring-ink"
                         />
-                        <span className="text-sm font-medium text-[#151515]">{pm.title}</span>
+                        <span className="text-body-md font-medium text-ink">{pm.title}</span>
                       </div>
                       {pm.id === "credit-card" && (
-                        <div className="flex gap-1 text-[9px] font-bold text-gray-400">
-                          <span className="border px-1.5 py-0.5 rounded">VISA</span>
-                          <span className="border px-1.5 py-0.5 rounded">MC</span>
+                        <div className="flex gap-1 text-caption font-bold text-shade-40">
+                          <span className="border px-1.5 py-0.5 rounded-sm">VISA</span>
+                          <span className="border px-1.5 py-0.5 rounded-sm">MC</span>
                         </div>
                       )}
                     </label>
                   ))}
 
                   {paymentType === "credit-card" && (
-                    <div className="bg-gray-50 border border-[#e8e8e8] p-5 rounded-lg space-y-4 animate-fade">
-                      <div className="text-xs font-bold uppercase tracking-widest text-[#151515]/40 mb-2">
+                    <div className="bg-canvas-cream border border-hairline p-5 rounded-md space-y-4 animate-fade">
+                      <div className="text-caption uppercase tracking-tracked text-shade-50 mb-2">
                         SECURE CARD DETAILS (SANDBOX)
                       </div>
                       <div>
-                        <label className="block text-[10px] uppercase tracking-wider text-[#151515]/70 mb-1">Name on Card</label>
+                        <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Name on Card</label>
                         <input
                           type="text"
                           value={nameOnCard}
                           onChange={(e) => setNameOnCard(e.target.value)}
-                          className="block w-full py-2 px-3 border border-[#E2E2E2] bg-white outline-none focus:border-[#151515] text-sm"
+                          className="block w-full py-2 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
                           placeholder="John Doe"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] uppercase tracking-wider text-[#151515]/70 mb-1">Card Number</label>
+                        <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Card Number</label>
                         <input
                           type="text"
                           value={cardNumber}
                           onChange={(e) => setCardNumber(e.target.value)}
-                          className="block w-full py-2 px-3 border border-[#E2E2E2] bg-white outline-none focus:border-[#151515] text-sm"
+                          className="block w-full py-2 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
                           placeholder="4111 2222 3333 4444"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[10px] uppercase tracking-wider text-[#151515]/70 mb-1">Expiration Date</label>
+                          <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Expiration Date</label>
                           <input
                             type="text"
                             value={expirationDate}
                             onChange={(e) => setExpirationDate(e.target.value)}
-                            className="block w-full py-2 px-3 border border-[#E2E2E2] bg-white outline-none focus:border-[#151515] text-sm"
+                            className="block w-full py-2 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
                             placeholder="MM/YY"
                           />
                         </div>
                         <div>
-                          <label className="block text-[10px] uppercase tracking-wider text-[#151515]/70 mb-1">CVC / CVV</label>
+                          <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">CVC / CVV</label>
                           <input
                             type="text"
                             value={cvc}
                             onChange={(e) => setCvc(e.target.value)}
-                            className="block w-full py-2 px-3 border border-[#E2E2E2] bg-white outline-none focus:border-[#151515] text-sm"
+                            className="block w-full py-2 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
                             placeholder="123"
                           />
                         </div>
@@ -501,7 +489,7 @@ const Checkout = () => {
                   )}
 
                   {paymentType === "razorpay" && (
-                    <div className="bg-[#eff6ff] border border-[#bfdbfe] p-4 rounded-lg text-xs text-[#1e40af] tracking-wide leading-relaxed animate-fade">
+                    <div className="bg-blue-50 border border-blue-200 p-4 rounded-md text-caption text-blue-800 tracking-wide leading-relaxed animate-fade">
                       <strong>Razorpay Sandbox Mode:</strong> Clicking final confirm will overlay a simulated UPI/QR payment request interface and verify transaction details instantly.
                     </div>
                   )}
@@ -510,13 +498,13 @@ const Checkout = () => {
                 <div className="flex gap-4 pt-6">
                   <button
                     onClick={prevStep}
-                    className="w-1/3 border border-[#151515] text-[#151515] text-xs font-semibold tracking-widest uppercase py-4 hover:bg-gray-50 transition-colors"
+                    className="w-1/3 border border-ink text-ink text-button-label uppercase tracking-tracked py-4 rounded-pill hover:bg-canvas-cream transition-colors"
                   >
                     Back
                   </button>
                   <button
                     onClick={nextStep}
-                    className="w-2/3 bg-[#151515] text-white text-xs font-semibold tracking-widest uppercase py-4 hover:bg-[#333] transition-colors"
+                    className="w-2/3 bg-ink text-on-primary text-button-label uppercase tracking-tracked py-4 rounded-pill hover:bg-shade-60 transition-colors"
                   >
                     Review Order
                   </button>
@@ -526,21 +514,21 @@ const Checkout = () => {
 
             {step === 3 && (
               <div className="space-y-6 animate-fade">
-                <h3 className="text-sm tracking-wider uppercase font-semibold text-[#151515] border-b border-[#e2e2e2] pb-3">
+                <h3 className="text-caption uppercase tracking-tracked font-semibold text-ink border-b border-hairline pb-3">
                   3. Review &amp; Place Order
                 </h3>
                 
-                <div className="bg-gray-50 border border-[#e2e2e2] p-5 rounded-lg text-sm space-y-4 text-[#151515]/90">
+                <div className="bg-canvas-cream border border-hairline p-5 rounded-md text-body-md space-y-4 text-ink/90">
                   <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#151515]/50 mb-1">Shipping Target</h4>
+                    <h4 className="text-caption uppercase tracking-tracked text-shade-50 mb-1">Shipping Target</h4>
                     <p>{firstName} {lastName}</p>
                     <p>{address}, {apartment}</p>
                     <p>{city}, {region} {postalCode}</p>
                     <p>{country} | Tel: {phone}</p>
                   </div>
                   
-                  <div className="border-t border-[#e8e8e8] pt-3">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#151515]/50 mb-1">Payment Method</h4>
+                  <div className="border-t border-hairline pt-3">
+                    <h4 className="text-caption uppercase tracking-tracked text-shade-50 mb-1">Payment Method</h4>
                     <p className="capitalize">{paymentType.replace("-", " ")}</p>
                   </div>
                 </div>
@@ -549,14 +537,14 @@ const Checkout = () => {
                   <button
                     onClick={prevStep}
                     disabled={isProcessing}
-                    className="w-1/3 border border-[#151515] text-[#151515] text-xs font-semibold tracking-widest uppercase py-4 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                    className="w-1/3 border border-ink text-ink text-button-label uppercase tracking-tracked py-4 rounded-pill hover:bg-canvas-cream transition-colors disabled:opacity-50"
                   >
                     Back
                   </button>
                   <button
                     onClick={handleOrderSubmission}
                     disabled={isProcessing}
-                    className="w-2/3 bg-green-600 text-white text-xs font-bold tracking-widest uppercase py-4 hover:bg-green-700 transition-colors disabled:opacity-75 flex items-center justify-center gap-2"
+                    className="w-2/3 bg-success-green text-on-primary text-button-label uppercase tracking-tracked py-4 rounded-pill hover:bg-green-700 transition-colors disabled:opacity-75 flex items-center justify-center gap-2"
                   >
                     {isProcessing ? (
                       <>
@@ -572,41 +560,40 @@ const Checkout = () => {
             )}
           </div>
 
-          {/* Summary Side */}
           <div className="lg:col-span-5 mt-10 lg:mt-0">
-            <h2 className="text-sm tracking-wider uppercase font-medium text-[#151515] mb-4">
+            <h2 className="text-caption uppercase tracking-tracked font-medium text-ink mb-4">
               Order summary
             </h2>
 
-            <div className="border border-[#E2E2E2] bg-white shadow-sm">
-              <ul role="list" className="divide-y divide-[#E2E2E2] max-h-[350px] overflow-y-auto">
+            <div className="border border-hairline bg-canvas rounded-md">
+              <ul role="list" className="divide-y divide-hairline max-h-[350px] overflow-y-auto">
                 {productsInCart.map((product) => (
                   <li key={product?.id} className="flex px-4 py-6 sm:px-6">
                     <div className="flex-shrink-0">
                       <img
                         src={`/assets/${product?.image}`}
                         alt={product?.title}
-                        className="w-16 h-20 object-cover rounded border border-[#e0e0e0]"
+                        className="w-16 h-20 object-cover rounded-sm border border-hairline"
                       />
                     </div>
 
                     <div className="ml-6 flex flex-1 flex-col">
                       <div className="flex">
                         <div className="min-w-0 flex-1">
-                          <h4 className="text-sm font-medium text-[#151515] font-serif tracking-wide">
+                          <h4 className="text-body-md font-medium text-ink">
                             {product?.title}
                           </h4>
-                          <p className="mt-1 text-xs text-[#151515]/60 uppercase tracking-widest">
+                          <p className="mt-1 text-caption text-shade-50 uppercase tracking-tracked-wide">
                             Color: {product?.color} | Size: {product?.size}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex flex-1 items-end justify-between pt-2">
-                        <p className="text-sm font-semibold text-[#151515] tracking-wider">
+                        <p className="text-price-current text-ink">
                           PKR {product?.price.toLocaleString()}
                         </p>
-                        <p className="text-xs text-[#151515]/70">
+                        <p className="text-caption text-shade-50">
                           Qty: {product?.quantity}
                         </p>
                       </div>
@@ -615,26 +602,26 @@ const Checkout = () => {
                 ))}
               </ul>
 
-              <dl className="space-y-4 border-t border-[#E2E2E2] px-4 py-6 sm:px-6">
-                <div className="flex items-center justify-between text-sm">
-                  <dt className="text-[#151515]/70">Subtotal</dt>
-                  <dd className="font-medium text-[#151515]">
+              <dl className="space-y-4 border-t border-hairline px-4 py-6 sm:px-6">
+                <div className="flex items-center justify-between text-body-md">
+                  <dt className="text-shade-50">Subtotal</dt>
+                  <dd className="font-medium text-ink">
                     PKR {subtotal.toLocaleString()}
                   </dd>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <dt className="text-[#151515]/70">Shipping</dt>
-                  <dd className="font-medium text-[#151515]">
+                <div className="flex items-center justify-between text-body-md">
+                  <dt className="text-shade-50">Shipping</dt>
+                  <dd className="font-medium text-ink">
                     PKR {subtotal ? (freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? "0 (Free!)" : shippingFee.toLocaleString()) : "0"}
                   </dd>
                 </div>
                 {appliedCoupon && (
-                  <div className="flex items-center justify-between border-t border-dashed border-[#E2E2E2] pt-4 text-green-600 font-semibold text-sm">
+                  <div className="flex items-center justify-between border-t border-dashed border-hairline pt-4 text-success-green font-semibold text-body-md">
                     <dt className="flex items-center gap-1">
                       <span>Discount ({appliedCoupon.code})</span>
                       <button
                         onClick={handleRemoveCoupon}
-                        className="text-red-500 hover:text-red-700 text-[10px] uppercase font-bold"
+                        className="text-primary hover:text-primary-dark text-caption uppercase font-bold"
                       >
                         (x)
                       </button>
@@ -645,7 +632,7 @@ const Checkout = () => {
                   </div>
                 )}
 
-                <div className="flex items-center justify-between border-t border-[#E2E2E2] pt-4 text-base font-bold text-[#151515]">
+                <div className="flex items-center justify-between border-t border-hairline pt-4 text-price-current font-bold text-ink">
                   <dt>Total</dt>
                   <dd>
                     PKR {subtotal ? (subtotal - (appliedCoupon?.discountAmount || 0) + (freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? 0 : shippingFee)).toLocaleString() : "0"}
@@ -653,10 +640,9 @@ const Checkout = () => {
                 </div>
               </dl>
 
-              {/* Promo input field inside Checkout order summary card */}
               {productsInCart.length > 0 && (
-                <div className="px-4 py-4 border-t border-[#E2E2E2] sm:px-6 bg-[#fafafa]">
-                  <label className="block text-[10px] font-semibold uppercase tracking-widest text-[#151515]/60 mb-2">
+                <div className="px-4 py-4 border-t border-hairline sm:px-6 bg-canvas-cream rounded-b-md">
+                  <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-2">
                     Enter Promo Code
                   </label>
                   <div className="flex gap-2">
@@ -665,11 +651,11 @@ const Checkout = () => {
                       placeholder="e.g. WELCOME10"
                       value={couponInput}
                       onChange={(e) => setCouponInput(e.target.value)}
-                      className="flex-1 bg-white border border-[#E2E2E2] px-3 py-2 text-xs outline-none focus:border-[#151515]"
+                      className="flex-1 bg-canvas border border-hairline px-3 py-2 text-caption outline-none focus:border-ink rounded-pill"
                     />
                     <button
                       onClick={handleApplyCoupon}
-                      className="bg-[#151515] text-white text-[10px] font-bold tracking-widest uppercase px-5 py-2 hover:bg-[#333] transition-colors"
+                      className="bg-ink text-on-primary text-button-label uppercase tracking-tracked px-5 py-2 rounded-pill hover:bg-shade-60 transition-colors"
                     >
                       Apply
                     </button>

@@ -13,7 +13,7 @@ const defaultNavItems = [
   { label: "Ready To Wear", path: "/shop/ready-to-wear" },
   { label: "Bridals", path: "/shop/bridals" },
   { label: "Jewellery", path: "/shop/jewellery" },
-  { label: "Special Prices", path: "/shop/special-prices" },
+  { label: "SALE", path: "/shop/special-prices" },
 ];
 
 const SidebarMenu = ({
@@ -69,7 +69,7 @@ const SidebarMenu = ({
       {(isSidebarOpen || isAnimating) && (
         <>
           <div
-            className={`fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity duration-300 ${
+            className={`fixed inset-0 z-40 bg-ink/40 backdrop-blur-xs transition-opacity duration-300 ${
               isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
             onClick={() => setIsSidebarOpen(false)}
@@ -77,28 +77,29 @@ const SidebarMenu = ({
           <div
             className={
               isSidebarOpen
-                ? "fixed top-0 left-0 w-72 z-50 h-full transition-transform duration-300 ease-in-out bg-white shadow-2xl transform translate-x-0"
-                : "fixed top-0 left-0 w-72 z-50 h-full transition-transform duration-300 ease-in-out bg-white shadow-2xl transform -translate-x-full"
+                ? "fixed top-0 left-0 w-72 z-50 h-full transition-transform duration-300 ease-in-out bg-canvas shadow-2xl transform translate-x-0"
+                : "fixed top-0 left-0 w-72 z-50 h-full transition-transform duration-300 ease-in-out bg-canvas shadow-2xl transform -translate-x-full"
             }
           >
           <div className="flex justify-end mr-2 mt-2">
             <HiXMark
-              className="text-2xl cursor-pointer"
+              className="text-2xl cursor-pointer text-ink"
               onClick={() => setIsSidebarOpen(false)}
             />
           </div>
           <div className="flex justify-center mt-4 mb-8">
             <Link
               to="/"
-              className="text-xl font-light tracking-[0.2em] uppercase font-serif"
+              className="text-2xl font-extrabold tracking-tighter text-primary"
+              style={{ letterSpacing: "-1px" }}
             >
-              ZARKA COUTURE
+              KHAADI
             </Link>
           </div>
           <div className="flex flex-col items-center gap-1">
             <Link
               to="/"
-              className="py-3 border-y border-[#E2E2E2] w-full block flex justify-center text-sm tracking-wider uppercase"
+              className="py-3 border-y border-hairline w-full block flex justify-center text-body-md uppercase tracking-tracked text-ink"
               onClick={() => setIsSidebarOpen(false)}
             >
               Home
@@ -107,7 +108,7 @@ const SidebarMenu = ({
               <Link
                 key={item.label}
                 to={item.path}
-                className="py-3 border-b border-[#E2E2E2] w-full block flex justify-center text-sm tracking-wider uppercase font-medium text-[#151515] hover:bg-gray-50 transition-colors"
+                className="py-3 border-b border-hairline w-full block flex justify-center text-body-md uppercase tracking-tracked font-medium text-ink hover:bg-canvas-cream transition-colors"
                 onClick={() => setIsSidebarOpen(false)}
               >
                 {item.label}
@@ -115,7 +116,7 @@ const SidebarMenu = ({
             ))}
             <Link
               to="/search"
-              className="py-3 border-b border-[#E2E2E2] w-full block flex justify-center text-sm tracking-wider uppercase"
+              className="py-3 border-b border-hairline w-full block flex justify-center text-body-md uppercase tracking-tracked text-ink"
               onClick={() => setIsSidebarOpen(false)}
             >
               Search
@@ -123,7 +124,7 @@ const SidebarMenu = ({
             {loginStatus ? (
               <button
                 onClick={logout}
-                className="py-3 border-b border-[#E2E2E2] w-full block flex justify-center text-sm tracking-wider uppercase"
+                className="py-3 border-b border-hairline w-full block flex justify-center text-body-md uppercase tracking-tracked text-ink"
               >
                 Logout
               </button>
@@ -131,14 +132,14 @@ const SidebarMenu = ({
               <>
                 <Link
                   to="/login"
-                  className="py-3 border-b border-[#E2E2E2] w-full block flex justify-center text-sm tracking-wider uppercase"
+                  className="py-3 border-b border-hairline w-full block flex justify-center text-body-md uppercase tracking-tracked text-ink"
                   onClick={() => setIsSidebarOpen(false)}
                 >
                   Sign in
                 </Link>
                 <Link
                   to="/register"
-                  className="py-3 border-b border-[#E2E2E2] w-full block flex justify-center text-sm tracking-wider uppercase"
+                  className="py-3 border-b border-hairline w-full block flex justify-center text-body-md uppercase tracking-tracked text-ink"
                   onClick={() => setIsSidebarOpen(false)}
                 >
                   Sign up
@@ -147,7 +148,7 @@ const SidebarMenu = ({
             )}
             <Link
               to="/cart"
-              className="py-3 border-b border-[#E2E2E2] w-full block flex justify-center text-sm tracking-wider uppercase"
+              className="py-3 border-b border-hairline w-full block flex justify-center text-body-md uppercase tracking-tracked text-ink"
               onClick={() => setIsSidebarOpen(false)}
             >
               Cart

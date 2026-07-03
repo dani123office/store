@@ -301,11 +301,7 @@ const HomeLayout = () => {
       <ScrollToTop />
       {settings.announcement.enabled && (
         <div
-          className="announcement-bar transition-all duration-300"
-          style={{
-            backgroundColor: settings.announcement.bg_color,
-            color: settings.announcement.text_color,
-          }}
+          className="announcement-bar transition-all duration-300 bg-accent-pink-bar text-ink"
         >
           {settings.announcement.text}
         </div>

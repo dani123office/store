@@ -6,13 +6,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button = ({ mode, text, ...props }: ButtonProps) => {
-  const baseClasses = "text-center text-sm tracking-[0.15em] uppercase font-medium leading-[72px] w-full h-12 flex items-center justify-center transition-all";
-
   if (mode === "white") {
     return (
       <button
         {...props}
-        className={`${baseClasses} bg-white text-[#151515] border border-[#151515]/30 hover:bg-[#151515] hover:text-white`}
+        className="text-center text-button-label uppercase tracking-tracked w-full h-12 flex items-center justify-center transition-all rounded-pill bg-canvas text-ink border border-ink hover:bg-ink hover:text-on-primary px-8"
       >
         {text}
       </button>
@@ -23,7 +21,7 @@ const Button = ({ mode, text, ...props }: ButtonProps) => {
     return (
       <button
         {...props}
-        className={`${baseClasses} bg-[#151515] text-white hover:bg-[#151515]/90`}
+        className="text-center text-button-label uppercase tracking-tracked w-full h-12 flex items-center justify-center transition-all rounded-pill bg-ink text-on-primary hover:bg-shade-60 px-8"
       >
         {text}
       </button>
@@ -34,7 +32,7 @@ const Button = ({ mode, text, ...props }: ButtonProps) => {
     return (
       <button
         {...props}
-        className={`${baseClasses} text-white border border-white hover:bg-white/10`}
+        className="text-center text-button-label uppercase tracking-tracked w-full h-12 flex items-center justify-center transition-all rounded-pill text-on-primary border border-on-primary hover:bg-white/10 px-8"
       >
         {text}
       </button>

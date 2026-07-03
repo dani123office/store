@@ -56,7 +56,7 @@ const Landing = () => {
 
       {/* Full-width Promotional Image Split */}
       {activeSettings.promotional_section?.enabled && (
-        <section className="mt-24">
+        <section className="mt-huge">
           <div className="grid grid-cols-1 md:grid-cols-2 min-h-[500px]">
             <div className="relative overflow-hidden group">
               <img
@@ -66,13 +66,13 @@ const Landing = () => {
               />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-500" />
               <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-8">
-                <h3 className="text-sm tracking-[0.25em] uppercase font-light mb-3">{activeSettings.promotional_section.left_subtitle}</h3>
-                <h2 className="text-3xl md:text-5xl font-light tracking-[0.12em] uppercase font-serif leading-tight">
+                <p className="text-script-lead text-white/90 mb-2">{activeSettings.promotional_section.left_subtitle}</p>
+                <h2 className="text-display-hero text-white">
                   {activeSettings.promotional_section.left_title}
                 </h2>
                 <Link
                   to={activeSettings.promotional_section.left_btn_link}
-                  className="mt-6 border border-white text-white text-xs tracking-[0.2em] uppercase font-semibold px-10 py-3.5 hover:bg-white hover:text-[#151515] transition-all duration-300"
+                  className="mt-6 bg-white text-ink text-button-label uppercase tracking-tracked font-semibold px-10 py-4 rounded-pill hover:bg-shade-20 transition-all duration-300"
                 >
                   {activeSettings.promotional_section.left_btn_text}
                 </Link>
@@ -86,13 +86,13 @@ const Landing = () => {
               />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-500" />
               <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-8">
-                <h3 className="text-sm tracking-[0.25em] uppercase font-light mb-3">{activeSettings.promotional_section.right_subtitle}</h3>
-                <h2 className="text-3xl md:text-5xl font-light tracking-[0.12em] uppercase font-serif leading-tight">
+                <p className="text-script-lead text-white/90 mb-2">{activeSettings.promotional_section.right_subtitle}</p>
+                <h2 className="text-display-hero text-white">
                   {activeSettings.promotional_section.right_title}
                 </h2>
                 <Link
                   to={activeSettings.promotional_section.right_btn_link}
-                  className="mt-6 border border-white text-white text-xs tracking-[0.2em] uppercase font-semibold px-10 py-3.5 hover:bg-white hover:text-[#151515] transition-all duration-300"
+                  className="mt-6 bg-white text-ink text-button-label uppercase tracking-tracked font-semibold px-10 py-4 rounded-pill hover:bg-shade-20 transition-all duration-300"
                 >
                   {activeSettings.promotional_section.right_btn_text}
                 </Link>
@@ -102,10 +102,49 @@ const Landing = () => {
         </section>
       )}
 
-      {/* Trending Products Section */}
+      {/* Maroon Bestsellers Band — editorial circular portraits */}
       {activeSettings.trending_products?.enabled && trendingProducts.length > 0 && (
-        <section className="max-w-screen-2xl mx-auto px-5 mt-24">
-          <h2 className="section-title mb-12 font-serif">
+        <section className="bg-surface-maroon text-on-primary mt-huge py-huge px-5 sm:px-8">
+          <div className="max-w-screen-2xl mx-auto text-center">
+            <p className="text-script-lead text-white/70 mb-2">Season's Finest</p>
+            <h2 className="text-heading-section text-white mb-12">
+              {activeSettings.trending_products?.title || "Bestsellers"}
+            </h2>
+            <div className="flex flex-wrap justify-center gap-8 md:gap-12">
+              {trendingProducts.slice(0, 4).map((product: Product) => (
+                <Link
+                  key={product.id}
+                  to={`/product/${product.id}`}
+                  className="flex flex-col items-center gap-3 group"
+                >
+                  <div className="w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-surface-maroon-elevated transition-transform duration-300 group-hover:scale-105">
+                    <img
+                      src={`/assets/${product.image}`}
+                      alt={product.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <span className="text-product-title text-white/90">{product.title}</span>
+                  <span className="text-price-current text-white">PKR {product.price.toLocaleString()}</span>
+                </Link>
+              ))}
+            </div>
+            <div className="mt-12">
+              <Link
+                to="/shop"
+                className="inline-block border border-on-primary text-on-primary text-button-label uppercase tracking-tracked font-semibold px-10 py-4 rounded-pill hover:bg-white/10 transition-all duration-300"
+              >
+                View All
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Trending Products Section — horizontal scroll */}
+      {activeSettings.trending_products?.enabled && trendingProducts.length > 0 && (
+        <section className="max-w-screen-2xl mx-auto px-5 sm:px-8 mt-huge">
+          <h2 className="section-title mb-10">
             {activeSettings.trending_products?.title || "Trending Now"}
           </h2>
           <div className="horizontal-scroll-list">
@@ -125,7 +164,7 @@ const Landing = () => {
           <div className="text-center mt-12">
             <Link
               to="/shop"
-              className="inline-block border border-[#151515] text-xs font-semibold tracking-[0.2em] uppercase text-[#151515] px-10 py-3.5 hover:bg-[#151515] hover:text-white transition-all duration-300"
+              className="inline-block border border-ink text-ink text-button-label uppercase tracking-tracked font-semibold px-10 py-4 rounded-pill hover:bg-ink hover:text-on-primary transition-all duration-300"
             >
               View All Products
             </Link>
@@ -138,14 +177,15 @@ const Landing = () => {
         <CategoriesSection themeSettings={activeSettings} />
       )}
 
-      {/* Newsletter / Email Signup Section */}
-      <section className="bg-[#f8f6f3] mt-24 py-20">
+      {/* Newsletter Section */}
+      <section className="bg-canvas-cream mt-huge py-huge">
         <div className="max-w-screen-md mx-auto px-5 text-center">
-          <h2 className="text-2xl md:text-3xl font-light tracking-[0.15em] uppercase text-[#151515] font-serif mb-4">
-            Stay Connected
+          <p className="text-script-lead text-ink/70 mb-2">Stay in Touch</p>
+          <h2 className="text-heading-section text-ink mb-4">
+            Join Our Newsletter
           </h2>
-          <p className="text-sm text-[#151515]/60 tracking-wider mb-8">
-            Subscribe to our newsletter for exclusive access to new collections, private sales and more.
+          <p className="text-body-md text-shade-50 mb-8">
+            Subscribe for exclusive access to new collections, private sales and more.
           </p>
           <form
             className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto"
@@ -158,12 +198,12 @@ const Landing = () => {
             <input
               type="email"
               placeholder="Enter your email address"
-              className="flex-1 border border-[#c8c8c8] bg-white px-5 py-3.5 text-sm tracking-wider outline-none focus:border-[#151515] transition-colors"
+              className="flex-1 border border-hairline bg-canvas px-5 py-3.5 text-body-md outline-none focus:border-ink transition-colors rounded-pill"
               required
             />
             <button
               type="submit"
-              className="bg-[#151515] text-white text-xs tracking-[0.2em] uppercase font-semibold px-10 py-3.5 hover:bg-[#333] transition-colors"
+              className="bg-ink text-on-primary text-button-label uppercase tracking-tracked font-semibold px-10 py-3.5 rounded-pill hover:bg-shade-60 transition-colors"
             >
               Subscribe
             </button>

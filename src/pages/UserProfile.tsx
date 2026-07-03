@@ -31,7 +31,6 @@ const UserProfile = () => {
     const data = Object.fromEntries(formData);
     if (!checkUserProfileFormData(data)) return;
 
-    // Clean payload: exclude empty password to prevent overriding/re-hashing on backend
     const payload = { ...data };
     if (!payload.password || String(payload.password).trim() === "") {
       delete payload.password;
@@ -65,7 +64,7 @@ const UserProfile = () => {
   if (!user) {
     return (
       <div className="max-w-screen-lg mx-auto mt-24 px-5 flex items-center justify-center min-h-[300px]">
-        <div className="text-lg tracking-widest uppercase font-serif text-[#151515]/60 animate-pulse">
+        <div className="text-body-md tracking-tracked-wide uppercase text-shade-50 animate-pulse">
           Loading Account...
         </div>
       </div>
@@ -74,15 +73,15 @@ const UserProfile = () => {
 
   return (
     <div className="max-w-screen-lg mx-auto mt-24 px-5">
-      <h1 className="text-2xl md:text-3xl font-light tracking-[0.15em] uppercase mb-10 text-center">
+      <h1 className="text-heading-section text-ink mb-10 text-center">
         My Account
       </h1>
       <form className="flex flex-col gap-5 max-w-md mx-auto" onSubmit={updateUser}>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="firstname" className="text-xs tracking-wider uppercase text-[#151515]/70">First Name</label>
+          <label htmlFor="firstname" className="text-caption uppercase tracking-tracked text-shade-50">First Name</label>
           <input
             type="text"
-            className="bg-white border border-[#E2E2E2] text-sm py-3 px-4 w-full outline-none focus:border-[#151515] transition-colors"
+            className="bg-canvas border border-hairline text-body-md py-3 px-4 w-full outline-none focus:border-ink transition-colors"
             placeholder="Enter first name"
             id="firstname"
             name="name"
@@ -90,10 +89,10 @@ const UserProfile = () => {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="lastname" className="text-xs tracking-wider uppercase text-[#151515]/70">Last Name</label>
+          <label htmlFor="lastname" className="text-caption uppercase tracking-tracked text-shade-50">Last Name</label>
           <input
             type="text"
-            className="bg-white border border-[#E2E2E2] text-sm py-3 px-4 w-full outline-none focus:border-[#151515] transition-colors"
+            className="bg-canvas border border-hairline text-body-md py-3 px-4 w-full outline-none focus:border-ink transition-colors"
             placeholder="Enter last name"
             id="lastname"
             name="lastname"
@@ -101,10 +100,10 @@ const UserProfile = () => {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="email" className="text-xs tracking-wider uppercase text-[#151515]/70">Email</label>
+          <label htmlFor="email" className="text-caption uppercase tracking-tracked text-shade-50">Email</label>
           <input
             type="email"
-            className="bg-white border border-[#E2E2E2] text-sm py-3 px-4 w-full outline-none focus:border-[#151515] transition-colors"
+            className="bg-canvas border border-hairline text-body-md py-3 px-4 w-full outline-none focus:border-ink transition-colors"
             placeholder="Enter email address"
             id="email"
             name="email"
@@ -112,10 +111,10 @@ const UserProfile = () => {
           />
         </div>
          <div className="flex flex-col gap-1.5">
-          <label htmlFor="password" className="text-xs tracking-wider uppercase text-[#151515]/70">Password</label>
+          <label htmlFor="password" className="text-caption uppercase tracking-tracked text-shade-50">Password</label>
           <input
             type="password"
-            className="bg-white border border-[#E2E2E2] text-sm py-3 px-4 w-full outline-none focus:border-[#151515] transition-colors"
+            className="bg-canvas border border-hairline text-body-md py-3 px-4 w-full outline-none focus:border-ink transition-colors"
             placeholder="Enter new password (optional)"
             id="password"
             name="password"
@@ -124,7 +123,7 @@ const UserProfile = () => {
         <Button type="submit" text="Update Profile" mode="black" />
         <Link
           to="/order-history"
-          className="text-center text-sm tracking-[0.15em] uppercase font-medium border border-[#151515]/30 py-3.5 hover:bg-[#151515] hover:text-white transition-colors"
+          className="text-center text-button-label uppercase tracking-tracked font-medium border border-ink py-4 rounded-pill hover:bg-ink hover:text-on-primary transition-colors"
         >
           Order History
         </Link>

@@ -12,14 +12,13 @@ import WithNumberInputWrapper from "../utils/withNumberInputWrapper";
 import { motion, AnimatePresence } from "framer-motion";
 
 const colorsMap: { [key: string]: string } = {
-  black: "#151515",
+  black: "#1a1a1a",
   red: "#dc2626",
   blue: "#2563eb",
   white: "#ffffff",
   rose: "#fda4af",
   green: "#16a34a",
 };
-
 
 const SingleProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -30,13 +29,11 @@ const SingleProduct = () => {
   const [availableColors, setAvailableColors] = useState<string[]>([]);
   const [availableSizes, setAvailableSizes] = useState<string[]>([]);
 
-  // Gallery states
   const [activeImage, setActiveImage] = useState<string>("");
   const [additionalImages, setAdditionalImages] = useState<string[]>([]);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
 
-  // Reviews states
   const [reviews, setReviews] = useState<any[]>([]);
   const [newReviewText, setNewReviewText] = useState("");
   const [newRating, setNewRating] = useState(5);
@@ -52,7 +49,9 @@ const SingleProduct = () => {
   const isWishlisted = singleProduct ? wishlistItems.some((item) => item.id === singleProduct.id) : false;
   const isOutOfStock = singleProduct ? Number(singleProduct.stock) <= 0 : false;
 
-  // Fetch product & reviews
+  const originalPrice = singleProduct ? singleProduct.price * 2 : 0;
+  const discountPercent = singleProduct ? Math.round((1 - singleProduct.price / originalPrice) * 100) : 0;
+
   useEffect(() => {
     const fetchSingleProduct = async () => {
       try {
@@ -70,7 +69,6 @@ const SingleProduct = () => {
           content_type: "product"
         });
 
-        // Check for real database images
         try {
           const imgRes = await customFetch.get("/product-images");
           const realImg = imgRes.data.find((img: any) => String(img.pro_id) === String(prod.id));
@@ -107,7 +105,6 @@ const SingleProduct = () => {
     const fetchReviews = async () => {
       try {
         const response = await customFetch.get("/reviews");
-        // filter reviews for this product
         const filtered = response.data.filter((r: any) => String(r.product_id) === String(params.id));
         setReviews(filtered);
       } catch (e) {
@@ -128,7 +125,6 @@ const SingleProduct = () => {
   useEffect(() => {
     if (!singleProduct) return;
 
-    // 1. Process colors
     const colorsList: string[] = [];
     const relColors = singleProduct.colors as any;
     if (relColors) {
@@ -145,7 +141,6 @@ const SingleProduct = () => {
       setColor(finalColors[0]);
     }
 
-    // 2. Process sizes
     const sizesList: string[] = [];
     const relSizes = singleProduct.sizes as any;
     if (relSizes) {
@@ -162,7 +157,6 @@ const SingleProduct = () => {
       setSize(finalSizes[0]);
     }
 
-    // 3. Process additional images
     const gallery = [singleProduct.image];
     const relImg = (singleProduct.additional_images || (singleProduct as any).additionalImages) as any;
     if (relImg) {
@@ -208,7 +202,6 @@ const SingleProduct = () => {
         quantity
       });
 
-      // Trigger flying cart animation
       const startX = e.clientX;
       const startY = e.clientY;
       const event = new CustomEvent("cart-fly", {
@@ -252,7 +245,6 @@ const SingleProduct = () => {
     }
   };
 
-  // Zoom on Hover Calculations
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - left) / width) * 100;
@@ -260,28 +252,28 @@ const SingleProduct = () => {
     setZoomPos({ x, y });
   };
 
-  // Determine variant availability (mocked out-of-stock sizes if stock <= 2)
   const isSizeDisabled = (sz: string) => {
     if (!singleProduct) return false;
-    // Deteministic stock check simulation
     if (singleProduct.stock <= 2 && (sz === "XXL" || sz === "XS")) {
       return true;
     }
     return false;
   };
 
-  // Review Summary statistics
   const avgRating = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : "5.0";
 
+  // In-stock indicator
+  const inStock = singleProduct && Number(singleProduct.stock) > 0;
+
   return (
-    <div className="max-w-screen-2xl mx-auto px-5 mt-10">
+    <div className="max-w-screen-2xl mx-auto px-5 sm:px-8 mt-10">
       {/* Breadcrumbs */}
-      <nav className="text-xs text-[#151515]/60 tracking-wider uppercase mb-8 flex items-center gap-2">
-        <Link to="/" className="hover:text-[#151515]">Home</Link>
-        <span>/</span>
-        <Link to="/shop" className="hover:text-[#151515]">Shop</Link>
-        <span>/</span>
-        <span className="text-[#151515] font-semibold truncate max-w-[200px]">
+      <nav className="text-caption text-link-slate tracking-tracked-wide uppercase mb-8 flex items-center gap-2">
+        <Link to="/" className="hover:text-ink">Home</Link>
+        <span className="text-shade-30">&gt;</span>
+        <Link to="/shop" className="hover:text-ink">Shop</Link>
+        <span className="text-shade-30">&gt;</span>
+        <span className="text-ink font-semibold truncate max-w-[200px]">
           {singleProduct?.title || "Product details"}
         </span>
       </nav>
@@ -289,14 +281,13 @@ const SingleProduct = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Left Side: Image Gallery */}
         <div className="lg:col-span-7 flex flex-col-reverse md:flex-row gap-4">
-          {/* Thumbnails strip */}
           <div className="flex md:flex-col gap-3 flex-shrink-0 justify-center md:justify-start">
             {additionalImages.map((img, idx) => (
               <button
                 key={idx}
                 onClick={() => setActiveImage(img)}
-                className={`w-16 h-20 border-2 overflow-hidden flex-shrink-0 transition-all ${
-                  activeImage === img ? "border-[#151515] scale-95" : "border-transparent opacity-75 hover:opacity-100"
+                className={`w-16 h-20 border-2 overflow-hidden flex-shrink-0 transition-all rounded-sm ${
+                  activeImage === img ? "border-ink scale-95" : "border-transparent opacity-75 hover:opacity-100"
                 }`}
               >
                 <img
@@ -309,9 +300,8 @@ const SingleProduct = () => {
             ))}
           </div>
 
-          {/* Main Display Image Container with Hover Zoom */}
           <div
-            className="flex-1 bg-[#f8f8f8] relative overflow-hidden cursor-zoom-in aspect-[3/4]"
+            className="flex-1 bg-canvas-cream relative overflow-hidden cursor-zoom-in aspect-[3/4] rounded-md"
             onMouseEnter={() => setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
             onMouseMove={handleMouseMove}
@@ -326,12 +316,12 @@ const SingleProduct = () => {
                     toast.success("Added to wishlist");
                   }
                 }}
-                className="absolute top-4 right-4 z-20 p-3 rounded-full bg-white/90 shadow-md hover:bg-white hover:scale-110 active:scale-95 transition-all duration-300"
+                className="absolute top-4 right-4 z-20 p-3 rounded-full bg-white/90 hover:bg-white hover:scale-110 active:scale-95 transition-all duration-300"
               >
                 {isWishlisted ? (
                   <HiHeart className="text-red-500 text-xl" />
                 ) : (
-                  <HiOutlineHeart className="text-[#151515] text-xl hover:text-red-500 transition-colors" />
+                  <HiOutlineHeart className="text-ink text-xl hover:text-red-500 transition-colors" />
                 )}
               </button>
             )}
@@ -356,10 +346,14 @@ const SingleProduct = () => {
           </div>
         </div>
 
-        {/* Right Side: Product Details & Configurator */}
+        {/* Right Side: Product Details */}
         <div className="lg:col-span-5 flex flex-col gap-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-light tracking-wider uppercase font-serif">
+            {/* Category caption */}
+            <p className="text-product-caption text-shade-50 uppercase tracking-tracked-wide mb-1">
+              {singleProduct?.category}
+            </p>
+            <h1 className="text-heading-md text-ink leading-tight">
               {singleProduct?.title}
             </h1>
             <div className="flex items-center gap-2 mt-2">
@@ -368,20 +362,34 @@ const SingleProduct = () => {
                   <HiStar key={s} className="w-4 h-4 fill-current" />
                 ))}
               </div>
-              <span className="text-xs text-[#151515]/60 tracking-wider">
+              <span className="text-caption text-shade-50 tracking-tracked-wide">
                 {reviews.length} Verified Reviews
               </span>
             </div>
-            <p className="text-xl font-semibold text-[#151515] mt-4 tracking-wider">
-              PKR {singleProduct?.price.toLocaleString()}
-            </p>
+            {/* Price row: strike + current + badge */}
+            <div className="flex items-center gap-2 mt-4">
+              <span className="text-price-strike text-price-strike line-through">
+                PKR {originalPrice.toLocaleString()}
+              </span>
+              <span className="text-price-current text-ink">
+                PKR {singleProduct?.price.toLocaleString()}
+              </span>
+              {discountPercent >= 30 && (
+                <span className="bg-primary text-on-primary text-caption uppercase tracking-tracked font-medium px-2.5 py-0.5 rounded-pill">
+                  {discountPercent}% OFF
+                </span>
+              )}
+            </div>
+            {/* In Stock indicator */}
+            {inStock && (
+              <p className="text-caption text-success-green mt-1 tracking-tracked-wide">In Stock</p>
+            )}
           </div>
-
 
           {/* Color Selection Swatches */}
           <div className="space-y-3">
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-[#151515]/70">
-              Color: <span className="text-[#151515] uppercase font-bold">{color}</span>
+            <h4 className="text-caption uppercase tracking-tracked text-shade-50">
+              Color: <span className="text-ink uppercase font-semibold">{color}</span>
             </h4>
             <div className="flex gap-2">
               {availableColors.map((c) => {
@@ -391,13 +399,13 @@ const SingleProduct = () => {
                     key={c}
                     onClick={() => setColor(c)}
                     className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all relative ${
-                      isSelected ? "ring-2 ring-offset-2 ring-[#151515]" : "border-gray-300"
+                      isSelected ? "ring-2 ring-offset-2 ring-ink" : "border-shade-30"
                     }`}
                     style={{ backgroundColor: colorsMap[c.toLowerCase()] || c }}
                     aria-label={`Select Color: ${c}`}
                   >
                     {isSelected && (
-                      <span className={`w-2 h-2 rounded-full ${c.toLowerCase() === "white" || c.toLowerCase() === "#ffffff" ? "bg-black" : "bg-white"}`} />
+                      <span className={`w-2 h-2 rounded-full ${c.toLowerCase() === "white" || c.toLowerCase() === "#ffffff" ? "bg-ink" : "bg-white"}`} />
                     )}
                   </button>
                 );
@@ -407,9 +415,9 @@ const SingleProduct = () => {
 
           {/* Size Selection Pills */}
           <div className="space-y-3">
-            <div className="flex justify-between text-xs font-semibold uppercase tracking-widest text-[#151515]/70">
-              <span>Size: <span className="text-[#151515] font-bold">{size}</span></span>
-              <span className="underline cursor-pointer">Size Guide</span>
+            <div className="flex justify-between text-caption uppercase tracking-tracked text-shade-50">
+              <span>Size: <span className="text-ink font-semibold">{size}</span></span>
+              <span className="underline cursor-pointer hover:text-ink">Size Guide</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {availableSizes.map((sz) => {
@@ -420,12 +428,12 @@ const SingleProduct = () => {
                     key={sz}
                     disabled={isDisabled}
                     onClick={() => setSize(sz)}
-                    className={`min-w-12 h-10 px-3 flex items-center justify-center border text-xs font-semibold tracking-wider transition-all relative ${
+                    className={`min-w-12 h-10 px-3 flex items-center justify-center text-caption font-medium tracking-tracked-wide transition-all relative rounded-sm ${
                       isDisabled
-                        ? "border-gray-200 text-gray-300 cursor-not-allowed line-through"
+                        ? "border border-shade-20 text-shade-30 cursor-not-allowed line-through"
                         : isSelected
-                        ? "bg-[#151515] text-white border-[#151515]"
-                        : "bg-white text-[#151515]/70 border-gray-300 hover:border-[#151515]"
+                        ? "bg-ink text-on-primary border-ink"
+                        : "bg-canvas text-shade-50 border border-hairline hover:border-ink"
                     }`}
                   >
                     {sz}
@@ -437,7 +445,7 @@ const SingleProduct = () => {
 
           {/* Quantity selector */}
           <div className="space-y-3">
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-[#151515]/70">Quantity</h4>
+            <h4 className="text-caption uppercase tracking-tracked text-shade-50">Quantity</h4>
             <div className="w-32">
               <QuantityInputUpgrade
                 value={quantity}
@@ -448,32 +456,32 @@ const SingleProduct = () => {
             </div>
           </div>
 
-          {/* Add to Cart button */}
+          {/* Add to Cart button — pill */}
           <div className="pt-2">
             <button
               onClick={handleAddToCart}
               disabled={isOutOfStock}
-              className={`w-full text-xs font-bold tracking-[0.2em] uppercase py-4 transition-colors focus:outline-none ${
+              className={`w-full text-button-label uppercase tracking-tracked py-4 transition-all focus:outline-none rounded-pill ${
                 isOutOfStock
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-[#151515] text-white hover:bg-[#333] focus:ring-2 focus:ring-offset-2 focus:ring-[#151515]"
+                  ? "bg-shade-20 text-shade-40 cursor-not-allowed"
+                  : "bg-ink text-on-primary hover:bg-shade-60"
               }`}
             >
-              {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+              {isOutOfStock ? "Out of Stock" : "Add to Bag"}
             </button>
           </div>
 
-          <p className="text-xs text-[#151515]/50 tracking-wider text-center">
+          <p className="text-caption text-shade-50 tracking-tracked-wide text-center">
             Free shipping nationwide · Safe secure SSL Checkout
           </p>
 
-          <div className="border-t border-[#E2E2E2] pt-6 space-y-4">
+          <div className="border-t border-hairline pt-6 space-y-4">
             <Dropdown dropdownTitle="Description">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent euismod ultrices ante,
               eget hendrerit massa tristique vel. Curabitur vel luctus justo.
             </Dropdown>
             <Dropdown dropdownTitle="Product Details">
-              100% premium luxury fabric. Fully hand-embroidered, unstitched dress segment including dupattas, trouser fabric, and sleeves.
+              100% premium quality fabric. Fully hand-embroidered, unstitched dress segment including dupattas, trouser fabric, and sleeves.
             </Dropdown>
             <Dropdown dropdownTitle="Delivery &amp; Return Details">
               Returns accepted within 14 days of delivery. Free shipping nationwide. International orders deliver within 10-15 business days.
@@ -483,97 +491,93 @@ const SingleProduct = () => {
       </div>
 
       {/* Reviews Section */}
-      <section className="mt-24 border-t border-[#E2E2E2] pt-16">
-        <h2 className="text-2xl font-light tracking-[0.15em] uppercase text-[#151515] font-serif mb-10 text-center">
+      <section className="mt-huge border-t border-hairline pt-16">
+        <h2 className="text-heading-section text-ink mb-10 text-center">
           Customer Reviews
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* Left Column: Star Rating Breakdown Summary */}
-          <div className="lg:col-span-4 bg-[#fafafa] border border-[#e8e8e8] p-6 rounded-lg h-fit">
-            <div className="text-center pb-6 border-b border-[#e2e2e2] mb-6">
-              <p className="text-5xl font-light font-serif text-[#151515] mb-2">{avgRating}</p>
+          <div className="lg:col-span-4 bg-canvas-cream border border-hairline p-6 rounded-md h-fit">
+            <div className="text-center pb-6 border-b border-hairline mb-6">
+              <p className="text-5xl font-light font-script text-ink mb-2">{avgRating}</p>
               <div className="flex justify-center text-amber-500 mb-1">
                 {[1, 2, 3, 4, 5].map((s) => (
                   <HiStar key={s} className="w-5 h-5 fill-current" />
                 ))}
               </div>
-              <p className="text-xs text-[#151515]/60 tracking-wider">Based on {reviews.length} reviews</p>
+              <p className="text-caption text-shade-50 tracking-tracked-wide">Based on {reviews.length} reviews</p>
             </div>
 
-            {/* Simulated bar chart percentages */}
             <div className="space-y-2.5">
               {[5, 4, 3, 2, 1].map((stars) => {
                 const count = reviews.filter((r) => Math.round(r.rating) === stars).length;
                 const percent = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
                 return (
-                  <div key={stars} className="flex items-center gap-3 text-xs">
-                    <span className="w-3 text-[#151515] font-medium">{stars}★</span>
-                    <div className="flex-1 bg-gray-200 h-2 rounded-full overflow-hidden">
+                  <div key={stars} className="flex items-center gap-3 text-caption">
+                    <span className="w-3 text-ink font-medium">{stars}*</span>
+                    <div className="flex-1 bg-shade-20 h-2 rounded-full overflow-hidden">
                       <div className="bg-amber-500 h-full rounded-full" style={{ width: `${percent}%` }} />
                     </div>
-                    <span className="w-8 text-right text-gray-400 font-medium">{count}</span>
+                    <span className="w-8 text-right text-shade-40 font-medium">{count}</span>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Right Column: Review List & Submission Form */}
           <div className="lg:col-span-8 space-y-10">
-            {/* Submit review Form */}
-            <form onSubmit={handleReviewSubmit} className="bg-white border border-[#e2e2e2] p-6 rounded-lg space-y-4">
-              <h3 className="text-sm font-semibold uppercase tracking-widest text-[#151515]">Write a Review</h3>
+            <form onSubmit={handleReviewSubmit} className="bg-canvas border border-hairline p-6 rounded-md space-y-4">
+              <h3 className="text-caption uppercase tracking-tracked font-semibold text-ink">Write a Review</h3>
               
               <div className="flex gap-4">
                 <div className="flex-1">
-                  <label className="block text-[10px] uppercase tracking-wider text-[#151515]/70 mb-1">Name</label>
+                  <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Name</label>
                   <input
                     type="text"
                     required
                     value={reviewerName}
                     onChange={(e) => setReviewerName(e.target.value)}
-                    className="block w-full py-2 px-3 border border-[#E2E2E2] text-sm"
+                    className="block w-full py-2 px-3 border border-hairline text-body-md"
                     placeholder="e.g. Ayesha Khan"
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-[10px] uppercase tracking-wider text-[#151515]/70 mb-1">City</label>
+                  <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">City</label>
                   <input
                     type="text"
                     required
                     value={reviewerCity}
                     onChange={(e) => setReviewerCity(e.target.value)}
-                    className="block w-full py-2 px-3 border border-[#E2E2E2] text-sm"
+                    className="block w-full py-2 px-3 border border-hairline text-body-md"
                     placeholder="e.g. Islamabad"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase tracking-wider text-[#151515]/70 mb-1">Rating</label>
+                <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Rating</label>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((s) => (
                     <button
                       key={s}
                       type="button"
                       onClick={() => setNewRating(s)}
-                      className={`text-2xl transition-colors ${s <= newRating ? "text-amber-500" : "text-gray-300"}`}
+                      className={`text-2xl transition-colors ${s <= newRating ? "text-amber-500" : "text-shade-30"}`}
                     >
-                      ★
+                      *
                     </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase tracking-wider text-[#151515]/70 mb-1">Review Body</label>
+                <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Review Body</label>
                 <textarea
                   required
                   rows={3}
                   value={newReviewText}
                   onChange={(e) => setNewReviewText(e.target.value)}
-                  className="block w-full py-2 px-3 border border-[#E2E2E2] text-sm outline-none focus:border-[#151515]"
+                  className="block w-full py-2 px-3 border border-hairline text-body-md outline-none focus:border-ink"
                   placeholder="Share details of your experience with this dress..."
                 />
               </div>
@@ -581,37 +585,36 @@ const SingleProduct = () => {
               <button
                 type="submit"
                 disabled={isSubmittingReview}
-                className="bg-[#151515] text-white text-xs font-bold tracking-widest uppercase px-6 py-3 hover:bg-[#333] transition-colors disabled:opacity-50"
+                className="bg-ink text-on-primary text-button-label uppercase tracking-tracked px-6 py-3 rounded-pill hover:bg-shade-60 transition-colors disabled:opacity-50"
               >
                 {isSubmittingReview ? "Submitting..." : "Submit Review"}
               </button>
             </form>
 
-            {/* List of Reviews */}
             <div className="space-y-6">
               {reviews.length === 0 ? (
-                <p className="text-sm text-[#151515]/60 italic">No reviews yet for this product. Be the first to write one!</p>
+                <p className="text-body-md text-shade-50 italic">No reviews yet for this product. Be the first to write one!</p>
               ) : (
                 reviews.map((r) => (
-                  <div key={r.id} className="border-b border-[#e2e2e2] pb-6 space-y-2 animate-fade">
+                  <div key={r.id} className="border-b border-hairline pb-6 space-y-2 animate-fade">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-[#151515]">{r.username}</span>
-                        <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded tracking-wide uppercase font-medium">{r.usercity}</span>
-                        <span className="flex items-center gap-0.5 text-green-600 text-xs font-bold">
+                        <span className="text-body-md font-semibold text-ink">{r.username}</span>
+                        <span className="text-caption bg-shade-20 text-shade-50 px-2 py-0.5 rounded-pill tracking-tracked-wide uppercase font-medium">{r.usercity}</span>
+                        <span className="flex items-center gap-0.5 text-success-green text-caption font-bold">
                           <HiCheckCircle className="text-sm" /> Verified Buyer
                         </span>
                       </div>
-                      <span className="text-xs text-gray-400">{new Date(r.created_at || Date.now()).toLocaleDateString()}</span>
+                      <span className="text-caption text-shade-40">{new Date(r.created_at || Date.now()).toLocaleDateString()}</span>
                     </div>
 
                     <div className="flex text-amber-500 text-sm">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <span key={star}>{star <= r.rating ? "★" : "☆"}</span>
+                        <span key={star}>{star <= r.rating ? "*" : ""}</span>
                       ))}
                     </div>
 
-                    <p className="text-sm text-[#151515]/80 leading-relaxed font-light">
+                    <p className="text-body-md text-ink/80 leading-relaxed font-light">
                       {r.review}
                     </p>
                   </div>
@@ -623,8 +626,8 @@ const SingleProduct = () => {
       </section>
 
       {/* Related Products */}
-      <section className="mt-24 mb-20">
-        <h2 className="section-title mb-12 font-serif">You May Also Like</h2>
+      <section className="mt-huge mb-20">
+        <h2 className="section-title mb-10">You May Also Like</h2>
         <div className="collection-grid">
           {products.slice(0, 4).map((product: Product) => (
             <ProductItem

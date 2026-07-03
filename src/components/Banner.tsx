@@ -55,10 +55,13 @@ const Banner = ({ themeSettings }: BannerProps) => {
 
   if (slides.length === 0) {
     return (
-      <div className="hero-banner w-full flex flex-col justify-end items-center pb-16 md:pb-24 bg-gray-900 h-[85vh] md:h-[calc(100vh-120px)]">
-        <h2 className="text-white text-center text-4xl md:text-6xl font-light tracking-[0.15em] uppercase font-serif">
-          Luxury Designer Dresses
+      <div className="w-full flex flex-col justify-end items-center pb-16 md:pb-24 bg-canvas-cream h-[85vh] md:h-[calc(100vh-120px)]">
+        <h2 className="text-display-hero text-ink text-center">
+          BASICS
         </h2>
+        <p className="text-script-lead text-ink/70 mt-2">
+          summer petals
+        </p>
       </div>
     );
   }
@@ -68,7 +71,7 @@ const Banner = ({ themeSettings }: BannerProps) => {
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
-      className="relative w-full h-[85vh] md:h-[calc(100vh-120px)] overflow-hidden bg-gray-900 select-none"
+      className="relative w-full h-[85vh] md:h-[calc(100vh-120px)] overflow-hidden bg-canvas-cream select-none"
     >
       {slides.map((slide, index) => {
         const isActive = index === activeIndex;
@@ -80,7 +83,7 @@ const Banner = ({ themeSettings }: BannerProps) => {
         return (
           <div
             key={slide.id || index}
-            className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out flex flex-col justify-end items-center pb-20 md:pb-28 ${
+            className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out flex flex-col justify-center items-center ${
               isActive ? "opacity-100 z-10" : "opacity-0 z-0"
             }`}
           >
@@ -109,17 +112,19 @@ const Banner = ({ themeSettings }: BannerProps) => {
               />
             </div>
 
-            <div className="relative z-20 px-8 py-10 md:px-16 md:py-14 text-center flex flex-col items-center max-w-2xl space-y-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-2xl mx-5 animate-fade-in">
-              <h3 className="text-white/90 text-xs md:text-sm tracking-[0.25em] font-light uppercase animate-fade-in">
+            <div className="relative z-20 px-8 text-center flex flex-col items-center max-w-3xl mx-5 animate-fade-in">
+              {/* Script subhead */}
+              <p className="text-script-lead text-white/90 mb-2">
                 {slide.subtitle}
-              </h3>
-              <h2 className="text-white text-center text-3xl md:text-5xl font-light tracking-[0.18em] uppercase leading-tight font-serif">
+              </p>
+              {/* Display hero headline */}
+              <h2 className="text-display-hero text-white">
                 {slide.title}
               </h2>
-              <div className="flex justify-center items-center gap-4 pt-2 flex-col sm:flex-row">
+              <div className="flex justify-center items-center gap-4 pt-6 flex-col sm:flex-row">
                 <Link
                   to={slide.btn_link || "/shop"}
-                  className="bg-white text-[#151515] text-xs tracking-[0.2em] uppercase font-semibold px-10 py-3.5 hover:bg-[#e6e6e6] transition-all duration-300 shadow-md"
+                  className="bg-white text-ink text-button-label uppercase tracking-tracked font-semibold px-10 py-4 rounded-pill hover:bg-shade-20 transition-all duration-300"
                 >
                   {slide.btn_text || "Shop Now"}
                 </Link>

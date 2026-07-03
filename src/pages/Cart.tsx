@@ -21,6 +21,7 @@ const Cart = () => {
   const [couponInput, setCouponInput] = useState("");
   const [shippingFee, setShippingFee] = useState<number>(500);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState<number>(0);
+
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -68,11 +69,9 @@ const Cart = () => {
   };
 
   return (
-    <div className="bg-transparent mx-auto max-w-screen-2xl px-5">
+    <div className="bg-canvas mx-auto max-w-screen-2xl px-5">
       <div className="pb-24 pt-16">
-        <h1 className="text-2xl md:text-3xl font-light tracking-[0.15em] uppercase">
-          Shopping Cart
-        </h1>
+        <h1 className="text-heading-section text-ink text-center">Shopping Cart</h1>
         <form className="mt-12 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16">
           <section aria-labelledby="cart-heading" className="lg:col-span-7">
             <h2 id="cart-heading" className="sr-only">
@@ -81,7 +80,7 @@ const Cart = () => {
 
             <ul
               role="list"
-              className="divide-y divide-[#E2E2E2] border-b border-t border-[#E2E2E2]"
+              className="divide-y divide-hairline border-b border-t border-hairline"
             >
               {productsInCart.map((product) => (
                 <li key={product.id} className="flex py-6 sm:py-10">
@@ -89,7 +88,7 @@ const Cart = () => {
                     <img
                       src={`/assets/${product.image}`}
                       alt={product.title}
-                      className="h-24 w-24 object-cover object-center sm:h-48 sm:w-48"
+                      className="h-24 w-24 object-cover object-center sm:h-48 sm:w-48 rounded-md"
                     />
                   </div>
 
@@ -97,35 +96,35 @@ const Cart = () => {
                     <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
                       <div>
                         <div className="flex justify-between">
-                          <h3 className="text-sm">
+                          <h3 className="text-body-md">
                             <Link
                               to={`/product/${product.id}`}
-                              className="font-medium text-[#151515] hover:text-[#151515]/70"
+                              className="font-medium text-ink hover:text-shade-50"
                             >
                               {product.title}
                             </Link>
                           </h3>
                         </div>
-                        <div className="mt-1 flex text-sm">
-                          <p className="text-[#151515]/60">{product.color}</p>
+                        <div className="mt-1 flex text-caption">
+                          <p className="text-shade-50">{product.color}</p>
                           {product.size ? (
-                            <p className="ml-4 border-l border-[#E2E2E2] pl-4 text-[#151515]/60">
+                            <p className="ml-4 border-l border-hairline pl-4 text-shade-50">
                               {product.size}
                             </p>
                           ) : null}
                         </div>
-                        <p className="mt-1 text-sm font-medium text-[#151515]">
+                        <p className="mt-1 text-price-current text-ink">
                           Rs.{product.price}
                         </p>
                       </div>
 
                       <div className="mt-4 sm:mt-0 sm:pr-9">
-                        <label htmlFor="quantity" className="text-xs tracking-wider uppercase mr-2">Qty:</label>
+                        <label htmlFor="quantity" className="text-caption uppercase tracking-tracked mr-2">Qty:</label>
                         <input
                           type="number"
                           id="quantity"
                           min="1"
-                          className="w-16 h-7 indent-1 bg-white border border-[#E2E2E2] text-sm"
+                          className="w-16 h-7 indent-1 bg-canvas border border-hairline text-body-md rounded-sm"
                           value={product?.quantity}
                           onChange={(e) => {
                             const val = parseInt(e.target.value);
@@ -142,7 +141,7 @@ const Cart = () => {
                         <div className="absolute right-0 top-0">
                           <button
                             type="button"
-                            className="-m-2 inline-flex p-2 text-[#151515]/40 hover:text-[#151515]"
+                            className="-m-2 inline-flex p-2 text-shade-40 hover:text-ink"
                             onClick={() => {
                               dispatch(
                                 removeProductFromTheCart({ id: product?.id })
@@ -157,10 +156,10 @@ const Cart = () => {
                       </div>
                     </div>
 
-                    <p className="mt-4 flex space-x-2 text-sm text-[#151515]/70">
+                    <p className="mt-4 flex space-x-2 text-caption text-shade-50">
                       {product?.stock ? (
                         <CheckIcon
-                          className="h-5 w-5 flex-shrink-0 text-green-500"
+                          className="h-5 w-5 flex-shrink-0 text-success-green"
                           aria-hidden="true"
                         />
                       ) : (
@@ -181,28 +180,28 @@ const Cart = () => {
 
           <section
             aria-labelledby="summary-heading"
-            className="mt-16 bg-gray-50 px-4 py-6 sm:p-6 lg:col-span-5 lg:mt-0 lg:p-8"
+            className="mt-16 bg-canvas-cream border border-hairline px-4 py-6 sm:p-6 lg:col-span-5 lg:mt-0 lg:p-8 rounded-md"
           >
             <h2
               id="summary-heading"
-              className="text-base font-medium text-[#151515] tracking-wider uppercase"
+              className="text-caption uppercase tracking-tracked font-medium text-ink"
             >
               Order Summary
             </h2>
 
             <dl className="mt-6 space-y-4">
               <div className="flex items-center justify-between">
-                <dt className="text-sm text-[#151515]/60">Subtotal</dt>
-                <dd className="text-sm font-medium text-[#151515]">
+                <dt className="text-body-md text-shade-50">Subtotal</dt>
+                <dd className="text-body-md font-medium text-ink">
                   Rs.{subtotal}
                 </dd>
               </div>
-              <div className="flex items-center justify-between border-t border-[#E2E2E2] pt-4">
-                <dt className="flex items-center text-sm text-[#151515]/60">
+              <div className="flex items-center justify-between border-t border-hairline pt-4">
+                <dt className="flex items-center text-body-md text-shade-50">
                   <span>Shipping estimate</span>
                   <a
                     href="#"
-                    className="ml-2 flex-shrink-0 text-[#151515]/40 hover:text-[#151515]"
+                    className="ml-2 flex-shrink-0 text-shade-40 hover:text-ink"
                   >
                     <span className="sr-only">
                       Learn more about how shipping is calculated
@@ -213,18 +212,18 @@ const Cart = () => {
                     />
                   </a>
                 </dt>
-                <dd className="text-sm font-medium text-[#151515]">
+                <dd className="text-body-md font-medium text-ink">
                   Rs.{subtotal === 0 ? 0 : (freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? "0 (Free!)" : shippingFee.toLocaleString())}
                 </dd>
               </div>
 
               {appliedCoupon && (
-                <div className="flex items-center justify-between border-t border-dashed border-[#E2E2E2] pt-4 text-green-600 font-medium text-sm">
+                <div className="flex items-center justify-between border-t border-dashed border-hairline pt-4 text-success-green font-medium text-body-md">
                   <dt className="flex items-center gap-1.5">
                     <span>Discount ({appliedCoupon.code})</span>
                     <button
                       onClick={handleRemoveCoupon}
-                      className="text-red-500 hover:text-red-700 text-xs font-semibold focus:outline-none"
+                      className="text-primary hover:text-primary-dark text-caption font-semibold focus:outline-none"
                     >
                       (Remove)
                     </button>
@@ -235,20 +234,19 @@ const Cart = () => {
                 </div>
               )}
 
-              <div className="flex items-center justify-between border-t border-[#E2E2E2] pt-4">
-                <dt className="text-base font-medium text-[#151515]">
+              <div className="flex items-center justify-between border-t border-hairline pt-4">
+                <dt className="text-body-md font-medium text-ink">
                   Order total
                 </dt>
-                <dd className="text-base font-medium text-[#151515]">
+                <dd className="text-body-md font-medium text-ink">
                   Rs.{subtotal === 0 ? 0 : (subtotal - (appliedCoupon?.discountAmount || 0) + (freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? 0 : shippingFee)).toLocaleString()}
                 </dd>
               </div>
             </dl>
 
-            {/* Coupon Code Input Area */}
             {productsInCart.length > 0 && (
-              <div className="mt-8 border-t border-[#E2E2E2] pt-6">
-                <label className="block text-xs font-semibold uppercase tracking-widest text-[#151515] mb-2">
+              <div className="mt-8 border-t border-hairline pt-6">
+                <label className="block text-caption uppercase tracking-tracked font-medium text-ink mb-2">
                   Promo / Coupon Code
                 </label>
                 <div className="flex gap-2">
@@ -257,11 +255,11 @@ const Cart = () => {
                     placeholder="Enter code (e.g. WELCOME10)"
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value)}
-                    className="flex-1 bg-white border border-[#E2E2E2] px-3 py-2 text-sm outline-none focus:border-[#151515]"
+                    className="flex-1 bg-canvas border border-hairline px-3 py-2 text-body-md outline-none focus:border-ink rounded-pill"
                   />
                   <button
                     onClick={handleApplyCoupon}
-                    className="bg-[#151515] text-white text-xs font-bold tracking-widest uppercase px-6 py-2 hover:bg-[#333] transition-colors"
+                    className="bg-ink text-on-primary text-button-label uppercase tracking-tracked px-6 py-2 rounded-pill hover:bg-shade-60 transition-colors"
                   >
                     Apply
                   </button>
@@ -273,7 +271,7 @@ const Cart = () => {
               <div className="mt-6">
                 <Link
                   to="/checkout"
-                  className="text-white bg-[#151515] text-center text-sm tracking-[0.15em] uppercase font-medium w-full h-12 flex items-center justify-center hover:bg-[#151515]/90 transition-colors shadow-md"
+                  className="text-on-primary bg-ink text-center text-button-label uppercase tracking-tracked font-semibold w-full h-12 flex items-center justify-center rounded-pill hover:bg-shade-60 transition-colors"
                 >
                   Checkout
                 </Link>

@@ -12,19 +12,19 @@ const Dropdown = ({
   return (
     <div>
       <div
-        className="flex justify-between items-center border-b border-[#E2E2E2] h-12 cursor-pointer hover:opacity-70 transition-opacity"
+        className="flex justify-between items-center border-b border-hairline h-12 cursor-pointer hover:opacity-70 transition-opacity"
         onClick={() => setIsOpen((prev) => !prev)}
       >
-        <p className="text-sm tracking-wider uppercase text-[#151515]/70">{dropdownTitle}</p>
+        <p className="text-body-md uppercase tracking-tracked text-shade-50">{dropdownTitle}</p>
         {isOpen ? (
-          <HiChevronUp className="text-sm text-[#151515]/50" />
+          <HiChevronUp className="text-sm text-shade-50" />
         ) : (
-          <HiChevronDown className="text-sm text-[#151515]/50" />
+          <HiChevronDown className="text-sm text-shade-50" />
         )}
       </div>
       {isOpen && (
         <div className="mt-4">
-          <p className="text-sm text-[#151515]/60 leading-relaxed">{children}</p>
+          <p className="text-body-md text-shade-50 leading-relaxed">{children}</p>
         </div>
       )}
     </div>

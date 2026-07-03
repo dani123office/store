@@ -1,146 +1,113 @@
 ---
 version: alpha
-name: Shopifi-design-analysis
-description: An inspired interpretation of Shopifi's design language — a cinematic commerce platform that runs two parallel design tracks. The marketing-hero and product-narrative pages live on near-black canvases with full-bleed photography of merchants, giant Neue Haas Grotesk display type at thin weights, and a single black-pill CTA stroked in white. The transactional pages (pricing, signup, dashboards) flip to a cream-mint canvas with pastel aloe and pistachio greens, the same pill button vocabulary, and Inter for UI body. The two tracks share typographic DNA but diverge sharply in canvas polarity — and that choice is the brand.
+name: Khaadi-design-analysis
+description: An inspired interpretation of Khaadi's design language — a warm, editorial ethnic-fashion storefront built on a pure white canvas with a single coral-orange brand accent. The system is photography-first: full-width lifestyle shoots of models in embroidered fabrics carry the emotional weight, while a restrained black-and-white UI (rounded-rectangle cards, pill buttons, uppercase tracked nav) stays quiet underneath so the clothes and the coral accent do the talking. A recurring "editorial band" pattern — dark maroon backdrops with circular-cropped portraits — breaks up the white canvas for seasonal storytelling moments.
 
 colors:
-  primary: "#000000"
-  ink: "#000000"
+  primary: "#e8613a"
+  primary-dark: "#c94f2c"
+  ink: "#1a1a1a"
   on-primary: "#ffffff"
-  on-dark: "#ffffff"
-  canvas-night: "#000000"
-  canvas-night-elevated: "#0a0a0a"
-  canvas-light: "#ffffff"
-  canvas-cream: "#fbfbf5"
-  surface-elevated-dark: "#1e2c31"
-  shade-30: "#d4d4d8"
-  shade-40: "#a1a1aa"
-  shade-50: "#71717a"
-  shade-60: "#52525b"
-  shade-70: "#3f3f46"
-  hairline-light: "#e4e4e7"
-  hairline-dark: "#1e2c31"
-  aloe-10: "#c1fbd4"
-  pistachio-10: "#d4f9e0"
-  link-cool-1: "#9dabad"
-  link-cool-2: "#9797a2"
-  link-cool-3: "#bdbdca"
-  link-mint: "#99b3ad"
+  canvas: "#ffffff"
+  canvas-cream: "#faf7f2"
+  surface-maroon: "#4a201f"
+  surface-maroon-elevated: "#5c2b26"
+  accent-pink-bar: "#f2a8b8"
+  accent-blush: "#f6d9c9"
+  shade-20: "#e5e5e5"
+  shade-30: "#d4d4d4"
+  shade-40: "#a3a3a3"
+  shade-50: "#767676"
+  shade-60: "#525252"
+  hairline: "#e8e8e8"
+  success-green: "#1e7d32"
+  link-slate: "#5c6b7a"
+  price-strike: "#9a9a9a"
 
 typography:
-  display-xxl:
-    fontFamily: "NeueHaasGrotesk Display, Helvetica, Arial, sans-serif"
-    fontSize: 96px
-    fontWeight: 330
-    lineHeight: 1.0
-    letterSpacing: 2.4px
-    fontFeature: ss03
-  display-xl:
-    fontFamily: "NeueHaasGrotesk Display, Helvetica, Arial, sans-serif"
-    fontSize: 70px
-    fontWeight: 330
-    lineHeight: 1.0
-    letterSpacing: 0
-    fontFeature: ss03
-  display-lg:
-    fontFamily: "NeueHaasGrotesk Display, Helvetica, Arial, sans-serif"
-    fontSize: 55px
-    fontWeight: 330
-    lineHeight: 1.16
-    letterSpacing: 0
-    fontFeature: ss03
-  display-md:
-    fontFamily: "NeueHaasGrotesk Display, Helvetica, Arial, sans-serif"
-    fontSize: 48px
-    fontWeight: 330
-    lineHeight: 1.14
-    letterSpacing: 0
-    fontFeature: ss03
-  heading-xl:
-    fontFamily: "NeueHaasGrotesk Display, Helvetica, Arial, sans-serif"
-    fontSize: 28px
-    fontWeight: 500
-    lineHeight: 1.28
-    letterSpacing: 0.42px
-    fontFeature: ss03
-  heading-lg:
-    fontFamily: "NeueHaasGrotesk Display, Helvetica, Arial, sans-serif"
-    fontSize: 24px
+  display-hero:
+    fontFamily: "Helvetica Neue, Arial, sans-serif"
+    fontSize: 72px
+    fontWeight: 800
+    lineHeight: 0.95
+    letterSpacing: -0.5px
+  script-lead:
+    fontFamily: "Big Caslon, Cormorant Garamond, Georgia, serif"
+    fontSize: 30px
     fontWeight: 400
-    lineHeight: 1.14
-    letterSpacing: 0.36px
-    fontFeature: ss03
+    fontStyle: italic
+    lineHeight: 1.1
+    letterSpacing: 0
+  heading-section:
+    fontFamily: "Helvetica Neue, Arial, sans-serif"
+    fontSize: 32px
+    fontWeight: 700
+    lineHeight: 1.2
+    letterSpacing: 0
   heading-md:
-    fontFamily: "NeueHaasGrotesk Display, Helvetica, Arial, sans-serif"
+    fontFamily: "Helvetica Neue, Arial, sans-serif"
     fontSize: 20px
-    fontWeight: 500
-    lineHeight: 1.4
-    letterSpacing: 0.3px
-    fontFeature: ss03
-  heading-sm:
-    fontFamily: "NeueHaasGrotesk Display, Helvetica, Arial, sans-serif"
-    fontSize: 18px
-    fontWeight: 500
-    lineHeight: 1.25
-    letterSpacing: 0.72px
-    fontFeature: ss03
-  body-lg:
-    fontFamily: "Inter Variable, Inter, Helvetica, Arial, sans-serif"
-    fontSize: 18px
-    fontWeight: 550
-    lineHeight: 1.56
+    fontWeight: 600
+    lineHeight: 1.3
     letterSpacing: 0
-    fontFeature: ss03
-  body-md:
-    fontFamily: "Inter Variable, Inter, Helvetica, Arial, sans-serif"
-    fontSize: 16px
-    fontWeight: 420
-    lineHeight: 1.5
-    letterSpacing: 0
-    fontFeature: ss03
-  body-strong:
-    fontFamily: "Inter Variable, Inter, Helvetica, Arial, sans-serif"
-    fontSize: 16px
-    fontWeight: 550
-    lineHeight: 1.5
-    letterSpacing: 0
-    fontFeature: ss03
-  caption:
-    fontFamily: "Inter Variable, Inter, Helvetica, Arial, sans-serif"
-    fontSize: 14px
-    fontWeight: 500
-    lineHeight: 1.49
-    letterSpacing: 0.28px
-    fontFeature: ss03
-  micro:
-    fontFamily: "Inter Variable, Inter, Helvetica, Arial, sans-serif"
+  nav-label:
+    fontFamily: "Helvetica Neue, Arial, sans-serif"
     fontSize: 13px
     fontWeight: 500
-    lineHeight: 1.5
-    letterSpacing: -0.13px
-    fontFeature: ss03
-  eyebrow-cap:
-    fontFamily: "Inter Variable, Inter, Helvetica, Arial, sans-serif"
+    lineHeight: 1.2
+    letterSpacing: 1px
+    textTransform: uppercase
+  product-title:
+    fontFamily: "Helvetica Neue, Arial, sans-serif"
+    fontSize: 15px
+    fontWeight: 600
+    lineHeight: 1.4
+    letterSpacing: 0
+  product-caption:
+    fontFamily: "Helvetica Neue, Arial, sans-serif"
     fontSize: 12px
     fontWeight: 400
-    lineHeight: 1.2
-    letterSpacing: 0.72px
-    fontFeature: ss03
-  code:
-    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+    lineHeight: 1.4
+    letterSpacing: 0.2px
+  price-current:
+    fontFamily: "Helvetica Neue, Arial, sans-serif"
     fontSize: 16px
+    fontWeight: 700
+    lineHeight: 1.3
+    letterSpacing: 0
+  price-strike:
+    fontFamily: "Helvetica Neue, Arial, sans-serif"
+    fontSize: 14px
+    fontWeight: 400
+    lineHeight: 1.3
+    letterSpacing: 0
+  body-md:
+    fontFamily: "Helvetica Neue, Arial, sans-serif"
+    fontSize: 15px
     fontWeight: 400
     lineHeight: 1.5
     letterSpacing: 0
-    fontFeature: ss03
+  caption:
+    fontFamily: "Helvetica Neue, Arial, sans-serif"
+    fontSize: 12px
+    fontWeight: 400
+    lineHeight: 1.45
+    letterSpacing: 0.2px
+  button-label:
+    fontFamily: "Helvetica Neue, Arial, sans-serif"
+    fontSize: 14px
+    fontWeight: 600
+    lineHeight: 1.2
+    letterSpacing: 1px
+    textTransform: uppercase
 
 rounded:
   xs: 4px
-  sm: 5px
+  sm: 6px
   md: 8px
-  lg: 12px
-  xl: 20px
+  lg: 16px
   pill: 9999px
+  circle: 50%
 
 spacing:
   xxs: 2px
@@ -153,230 +120,229 @@ spacing:
   huge: 64px
 
 components:
-  button-primary-pill:
+  nav-bar-primary:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    typography: "{typography.nav-label}"
+    rounded: "{rounded.xs}"
+    padding: 16px 32px
+  nav-bar-top-strip:
+    backgroundColor: "{colors.accent-pink-bar}"
+    textColor: "{colors.ink}"
+    typography: "{typography.caption}"
+    rounded: "0px"
+    padding: 6px 0px
+  mega-menu-panel:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body-md}"
+    rounded: "0px"
+    padding: 32px 48px
+  button-add-to-bag:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.on-primary}"
+    typography: "{typography.button-label}"
+    rounded: "{rounded.pill}"
+    padding: 16px 32px
+  button-add-to-bag-pressed:
+    backgroundColor: "{colors.shade-60}"
+    textColor: "{colors.on-primary}"
+    typography: "{typography.button-label}"
+    rounded: "{rounded.pill}"
+    padding: 16px 32px
+  button-quantity-stepper:
+    backgroundColor: "{colors.shade-20}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body-md}"
+    rounded: "{rounded.sm}"
+    padding: 8px 12px
+  button-outline-ink:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    typography: "{typography.button-label}"
+    rounded: "{rounded.pill}"
+    padding: 14px 28px
+  size-selector-pill:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.on-primary}"
+    typography: "{typography.caption}"
+    rounded: "{rounded.sm}"
+    padding: 8px 16px
+  size-selector-pill-inactive:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    typography: "{typography.caption}"
+    rounded: "{rounded.sm}"
+    padding: 8px 16px
+  badge-discount:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.on-primary}"
-    typography: "{typography.body-md}"
+    typography: "{typography.caption}"
     rounded: "{rounded.pill}"
-    padding: 12px 24px
-  button-primary-pill-pressed:
-    backgroundColor: "{colors.shade-70}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.pill}"
-    padding: 12px 24px
-  button-outline-on-dark:
-    backgroundColor: "{colors.canvas-night}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.pill}"
-    padding: 12px 26px
-  button-outline-on-light:
-    backgroundColor: "{colors.canvas-light}"
+    padding: 4px 10px
+  badge-tag-neutral:
+    backgroundColor: "{colors.shade-20}"
     textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
+    typography: "{typography.caption}"
     rounded: "{rounded.pill}"
-    padding: 12px 24px
-  button-aloe-pill:
-    backgroundColor: "{colors.aloe-10}"
+    padding: 4px 10px
+  product-card:
+    backgroundColor: "{colors.canvas}"
     textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.pill}"
-    padding: 12px 24px
-  text-input:
-    backgroundColor: "{colors.canvas-light}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
+    typography: "{typography.product-title}"
     rounded: "{rounded.md}"
-    padding: 10px 12px
-  card-pricing:
-    backgroundColor: "{colors.canvas-light}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.lg}"
-    padding: 32px
-  card-pricing-featured:
-    backgroundColor: "{colors.aloe-10}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.lg}"
-    padding: 32px
-  card-feature-cinematic:
-    backgroundColor: "{colors.canvas-night-elevated}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.body-lg}"
-    rounded: "{rounded.lg}"
-    padding: 32px
-  card-pistachio-band:
-    backgroundColor: "{colors.pistachio-10}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.lg}"
-    padding: 32px
-  card-photo-frame:
-    backgroundColor: "{colors.canvas-night}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.xl}"
     padding: 0px
-  pill-tag-mint:
-    backgroundColor: "{colors.aloe-10}"
+  section-heading-centered:
+    backgroundColor: "{colors.canvas}"
     textColor: "{colors.ink}"
-    typography: "{typography.eyebrow-cap}"
-    rounded: "{rounded.pill}"
-    padding: 4px 12px
-  pill-tag-shade:
-    backgroundColor: "{colors.shade-30}"
-    textColor: "{colors.ink}"
-    typography: "{typography.eyebrow-cap}"
-    rounded: "{rounded.pill}"
-    padding: 4px 12px
-  nav-bar-light:
-    backgroundColor: "{colors.canvas-light}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.xs}"
-    padding: 16px 24px
-  nav-bar-dark:
-    backgroundColor: "{colors.canvas-night}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.xs}"
-    padding: 16px 24px
-  link-on-dark:
-    backgroundColor: "{colors.canvas-night}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.xs}"
+    typography: "{typography.heading-section}"
+    rounded: "0px"
     padding: 0px
-  footer-dark:
-    backgroundColor: "{colors.canvas-night}"
+  bestsellers-band:
+    backgroundColor: "{colors.surface-maroon}"
     textColor: "{colors.on-primary}"
+    typography: "{typography.body-md}"
+    rounded: "0px"
+    padding: 64px 32px
+  hero-banner-editorial:
+    backgroundColor: "{colors.canvas-cream}"
+    textColor: "{colors.ink}"
+    typography: "{typography.display-hero}"
+    rounded: "0px"
+    padding: 0px
+  breadcrumb-trail:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.link-slate}"
     typography: "{typography.caption}"
-    rounded: "{rounded.xs}"
-    padding: 64px 24px
+    rounded: "0px"
+    padding: 12px 0px
+  accordion-details:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body-md}"
+    rounded: "0px"
+    padding: 16px 0px
+  in-stock-tag:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.success-green}"
+    typography: "{typography.caption}"
+    rounded: "0px"
+    padding: 0px
   footer-light:
-    backgroundColor: "{colors.canvas-light}"
+    backgroundColor: "{colors.canvas}"
     textColor: "{colors.ink}"
     typography: "{typography.caption}"
-    rounded: "{rounded.xs}"
-    padding: 64px 24px
+    rounded: "0px"
+    padding: 48px 32px
 ---
 
 ## Overview
 
-Shopifi runs two parallel design tracks that share typographic DNA and a single button vocabulary, but diverge in canvas polarity. The marketing track lives on `{colors.canvas-night}` (`#000000`) — full-bleed cinematic photography of merchants, giant `{typography.display-xxl}` headlines in Neue Haas Grotesk Display set at weight 330 (a thin, almost editorial cut), and a single CTA: a white-stroked black pill with the form `button-outline-on-dark`. The pages read like the spread of a high-end print magazine: lots of black, lots of negative space, photography that doesn't compete with text, and one and only one action per band.
+Khaadi runs a single-canvas system — pure white throughout — where the brand's identity comes from **photography and one accent color**, not from UI chrome. The nav, buttons, cards, and type are deliberately quiet (black, white, and grey) so that the coral `{colors.primary}` (`#e8613a`) — used only for the logo mark, the "SALE" nav item, and discount badges — reads as a sharp, unmistakable signal against all the neutral surroundings.
 
-The transactional track flips to `{colors.canvas-light}` and `{colors.canvas-cream}` (an off-white that's barely warmer than pure white). Pricing tiers, comparison tables, and signup flows sit on this lighter canvas, with the same pill button system but in inverse polarity (a solid black pill with white text, or a `{colors.aloe-10}` mint pill for the featured / "Start free trial" tier). The accents — `{colors.aloe-10}` mint and `{colors.pistachio-10}` pistachio — show up only on the light track, never on the cinematic dark hero pages.
+A thin `{colors.accent-pink-bar}` strip runs across the very top of every page — a small seasonal flourish above the main nav, usually carrying a promo line. Below it, the nav bar itself is minimal: an uppercase tracked wordmark ("KHAADI" set in the coral bubble-letter logo), a row of uppercase nav labels, and four line-icons (search, wishlist, account, bag) on the right. Hovering a nav item drops a full-width **mega menu** — three plain text columns of subcategories plus a single editorial photo — rather than a boxed dropdown.
 
-Typography is split across three families. **Neue Haas Grotesk Display** at thin weights (330–500) handles every display, headline, and editorial moment — the brand's identity is that thin display cut. **Inter Variable** at 420–550 weights handles every UI body, button label, caption, and form field — utility text that doesn't fight the display. **ui-monospace** appears only in code blocks and rare technical eyebrows. Across all three families, the OpenType `ss03` stylistic set is enabled — it's the brand's character-level signature, applied universally.
+Hero moments pair a **bold sans headline** (`{typography.display-hero}`, weight 800) with a **script italic subhead** (`{typography.script-lead}`) — e.g. "BASICS" in heavy black type next to "summer petals" in a delicate italic serif. This headline/script pairing is the brand's signature editorial device, always set over or beside full-bleed lifestyle photography, never on a flat color block.
+
+Product cards are almost invisible as "cards" — no border, no shadow, just an image, a grey category caption, a black product title, and a price row where the original price strikes through in grey and the sale price sits bold in black, capped off with a coral `badge-discount` pill. Deeper in the funnel (bestsellers, seasonal stories), the palette breaks from white into a **maroon editorial band** (`{colors.surface-maroon}`) filled with circular-cropped portrait photography — the one deliberate departure from the white canvas, reserved for storytelling moments rather than commerce.
 
 **Key Characteristics:**
-- Two-canvas system: `{colors.canvas-night}` for cinematic marketing, `{colors.canvas-light}` / `{colors.canvas-cream}` for transactional surfaces — never blended.
-- Pill-shape (`{rounded.pill}`) is the only button shape across both tracks; rounded rectangles do not exist for buttons.
-- Thin-weight (330) display typography is the signature; `{typography.display-xxl}` at 96px / weight 330 is the brand's loudest visual.
-- Aloe and pistachio greens (`{colors.aloe-10}`, `{colors.pistachio-10}`) are reserved for the light track — they signal commerce, growth, transactional success.
-- Photography is full-bleed, edge-to-edge, never inset in cards on the cinematic track; merchants and storefront imagery do the heavy visual lifting that gradients and illustrations would do elsewhere.
-- The OpenType `ss03` stylistic set is enabled across every text role — a character-level unifier that tracks across both tracks.
-- Tight letter-spacing on display sizes (2.4px positive tracking on 96px display) gives the thin weight extra optical air.
+- Single white canvas (`{colors.canvas}`) for nearly the entire site; the only recurring departure is the maroon storytelling band (`{colors.surface-maroon}`).
+- One brand accent, `{colors.primary}` coral-orange, used sparingly and consistently: logo, the "SALE" nav label, and discount badges — never as a general UI color.
+- Photography carries the brand; UI chrome (buttons, cards, nav) stays black/white/grey so it never competes with the clothing.
+- Headline + script-italic pairing (`{typography.display-hero}` + `{typography.script-lead}`) is the signature editorial typographic device for campaign moments.
+- Pill shape (`{rounded.pill}`) for primary actions (Add to Bag, outline buttons, badges); small `{rounded.sm}`/`{rounded.md}` radii for cards, size selectors, and steppers.
+- Price hierarchy is a fixed pattern: grey strikethrough original → bold black sale price → coral discount-percentage pill.
+- A thin coral/pink promo strip tops every page, separate from and above the main nav bar.
 
 ## Colors
 
-> **Source pages:** home (`/`), `/start`, `/website/builder`, `/pricing`.
+> **Source pages:** home (`/`), category listing (Sale), product detail page (PDP).
 
 ### Brand & Accent
-- **Aloe** (`{colors.aloe-10}` — `#c1fbd4`): The featured-tier and "growth" accent. Used as a pill button background on light surfaces and as a feature-card fill in the pricing comparison band.
-- **Pistachio** (`{colors.pistachio-10}` — `#d4f9e0`): Softer than aloe; used as a wide section band fill on the light track to signal a different category of feature without leaving the green family.
-- **Cool Link Tones** (`{colors.link-cool-1}` `#9dabad`, `{colors.link-cool-2}` `#9797a2`, `{colors.link-cool-3}` `#bdbdca`, `{colors.link-mint}` `#99b3ad`): Muted footer / tertiary link colors used on dark surfaces to create a quiet hierarchy below the primary white type.
+- **Primary** (`{colors.primary}` — `#e8613a`): The only brand color. Used for the KHAADI logo mark, the active "SALE" nav label, and every discount badge (`50% OFF`).
+- **Primary Dark** (`{colors.primary-dark}` — `#c94f2c`): Hover/pressed state of coral elements; darker underline on active nav.
+- **Accent Pink Bar** (`{colors.accent-pink-bar}` — `#f2a8b8`): The thin promotional strip above the main nav — a softer seasonal cousin of the primary coral.
+- **Accent Blush** (`{colors.accent-blush}` — `#f6d9c9`): Soft peach used sparingly in campaign photography backdrops and promo tiles, never as UI fill.
 
 ### Surface
-- **Canvas Night** (`{colors.canvas-night}` — `#000000`): Pure black hero, cinematic feature pages, footer.
-- **Canvas Night Elevated** (`{colors.canvas-night-elevated}` — `#0a0a0a`): Cards on cinematic surfaces, video frames.
-- **Surface Elevated Dark** (`{colors.surface-elevated-dark}` — `#1e2c31`): Dark teal-shifted surface used on a small subset of dark cards to introduce subtle depth without breaking the black.
-- **Canvas Light** (`{colors.canvas-light}` — `#ffffff`): Pricing, signup, comparison tables.
-- **Canvas Cream** (`{colors.canvas-cream}` — `#fbfbf5`): Slightly warm off-white used on the pricing-page background canvas — invisibly different from `#ffffff` but adds editorial warmth.
-- **Hairline Light** (`{colors.hairline-light}` — `#e4e4e7`): 1px borders on light cards, table dividers.
-- **Hairline Dark** (`{colors.hairline-dark}` — `#1e2c31`): 1px borders on the rare dark cards that have visible chrome.
+- **Canvas** (`{colors.canvas}` — `#ffffff`): The default background for essentially every page — nav, listing, PDP.
+- **Canvas Cream** (`{colors.canvas-cream}` — `#faf7f2`): Warm off-white used behind hero/editorial banners to separate them subtly from pure-white commerce sections.
+- **Surface Maroon** (`{colors.surface-maroon}` — `#4a201f`): Dark storytelling band background (e.g. "Bestsellers" circular-portrait section) — the system's one bold surface departure.
+- **Surface Maroon Elevated** (`{colors.surface-maroon-elevated}` — `#5c2b26`): Slightly lifted tone within the maroon band for layered circular photo frames.
+- **Hairline** (`{colors.hairline}` — `#e8e8e8`): 1px dividers between accordion rows, thumbnail borders, table lines.
 
 ### Shade Ladder
-- **Shade-30** (`{colors.shade-30}` — `#d4d4d8`): Tag / chip background on light, footer hairline on dark.
-- **Shade-40** (`{colors.shade-40}` — `#a1a1aa`): Tertiary text on light, secondary text on dark.
-- **Shade-50** (`{colors.shade-50}` — `#71717a`): Secondary text on light.
-- **Shade-60** (`{colors.shade-60}` — `#52525b`): Tertiary text on light, deep on dark.
-- **Shade-70** (`{colors.shade-70}` — `#3f3f46`): Pressed-state of the primary pill button; deep dark surface accent.
+- **Shade-20** (`{colors.shade-20}` — `#e5e5e5`): Neutral tag background, quantity-stepper button fill.
+- **Shade-30** (`{colors.shade-30}` — `#d4d4d4`): Inactive dots in carousel pagination.
+- **Shade-40** (`{colors.shade-40}` — `#a3a3a3`): Placeholder/disabled text.
+- **Shade-50** (`{colors.shade-50}` — `#767676`): Secondary body text, product captions.
+- **Shade-60** (`{colors.shade-60}` — `#525252`): Pressed state of the ink button; deep secondary text.
 
-### Text
-- **Ink** (`{colors.ink}` — `#000000`): All text on light canvas.
-- **On Primary** (`{colors.on-primary}` — `#ffffff`): All text on dark canvas + filled-pill labels.
+### Text & Status
+- **Ink** (`{colors.ink}` — `#1a1a1a`): Default text color and the fill for all primary (black) buttons — a soft-black rather than pure `#000000`.
+- **On Primary** (`{colors.on-primary}` — `#ffffff`): Text on ink-filled buttons and on the maroon band.
+- **Success Green** (`{colors.success-green}` — `#1e7d32`): "In Stock" availability label on the PDP.
+- **Link Slate** (`{colors.link-slate}` — `#5c6b7a`): Breadcrumb trail links (Home / Sale / Fabrics / …).
+- **Price Strike** (`{colors.price-strike}` — `#9a9a9a`): The struck-through original price, always paired with a bold black sale price.
 
 ## Typography
 
 ### Font Family
 
-The display tier is **Neue Haas Grotesk Display** at thin weights (330–500). When unavailable, fall back to **Helvetica** at light weight, then Arial. The thin-weight cut is the brand — no substitution should default to weight 400+.
+The system runs on a single grotesque sans — **Helvetica Neue** (falling back to Arial) — for nearly every role: nav, product titles, prices, buttons, body copy. There is no separate "display" typeface for headings; scale and weight alone create the hierarchy.
 
-The UI tier is **Inter Variable** at 420–550 — a variable font with sub-weight precision that lets the system span body (420), strong (550), and caption (500) without jumping to heavier tiers. Inter is open-source via Google Fonts.
-
-The code tier is **ui-monospace**, the system mono — preferred over a webfont mono to avoid unnecessary downloads.
-
-The OpenType `ss03` stylistic set is enabled across every role. It alters specific glyph forms (lowercase `a`, `g`, single-story numerals) for a slightly more geometric character. Apply via `font-feature-settings: "ss03"` on the body element or root.
+The one exception is **script-lead** (`Big Caslon` / `Cormorant Garamond` italic), a serif italic reserved exclusively for the small editorial subhead that pairs with a bold hero headline (e.g. "summer petals" beneath "BASICS"). It never appears in UI, only in campaign moments.
 
 ### Hierarchy
 
-| Token | Size | Weight | Line Height | Letter Spacing | Use |
-|---|---|---|---|---|---|
-| `{typography.display-xxl}` | 96px | 330 | 1.0 | 2.4px | Cinematic hero headline |
-| `{typography.display-xl}` | 70px | 330 | 1.0 | 0 | Section opener on cinematic pages |
-| `{typography.display-lg}` | 55px | 330 | 1.16 | 0 | Pricing-page page title |
-| `{typography.display-md}` | 48px | 330 | 1.14 | 0 | Sub-section headline on light track |
-| `{typography.heading-xl}` | 28px | 500 | 1.28 | 0.42px | Card title / pricing tier name |
-| `{typography.heading-lg}` | 24px | 400 | 1.14 | 0.36px | Compact card title |
-| `{typography.heading-md}` | 20px | 500 | 1.4 | 0.3px | Section sub-heading |
-| `{typography.heading-sm}` | 18px | 500 | 1.25 | 0.72px | Eyebrow / mini-section label |
-| `{typography.body-lg}` | 18px | 550 | 1.56 | 0 | Marketing body lead, large body |
-| `{typography.body-md}` | 16px | 420 | 1.5 | 0 | Default UI body, pill-button labels |
-| `{typography.body-strong}` | 16px | 550 | 1.5 | 0 | Emphasized body run |
-| `{typography.caption}` | 14px | 500 | 1.49 | 0.28px | Helper copy, footnotes |
-| `{typography.micro}` | 13px | 500 | 1.5 | -0.13px | Pricing fine print |
-| `{typography.eyebrow-cap}` | 12px | 400 | 1.2 | 0.72px | All-caps eyebrow above large headlines |
-| `{typography.code}` | 16px | 400 | 1.5 | 0 | Code blocks |
+| Token | Size | Weight | Line Height | Use |
+|---|---|---|---|---|
+| `{typography.display-hero}` | 72px | 800 | 0.95 | Campaign hero headline ("BASICS") |
+| `{typography.script-lead}` | 30px | 400 italic | 1.1 | Script subhead paired with hero ("summer petals") |
+| `{typography.heading-section}` | 32px | 700 | 1.2 | Centered section titles ("Bestsellers") |
+| `{typography.heading-md}` | 20px | 600 | 1.3 | PDP product name |
+| `{typography.nav-label}` | 13px | 500 | 1.2 | Top nav items, mega-menu column headers (uppercase) |
+| `{typography.product-title}` | 15px | 600 | 1.4 | Product card title |
+| `{typography.product-caption}` | 12px | 400 | 1.4 | Product card fabric/print caption ("Printed \| Raw Silk") |
+| `{typography.price-current}` | 16px | 700 | 1.3 | Sale/current price |
+| `{typography.price-strike}` | 14px | 400 | 1.3 | Struck-through original price |
+| `{typography.body-md}` | 15px | 400 | 1.5 | Default body copy, section descriptions |
+| `{typography.caption}` | 12px | 400 | 1.45 | Badges, breadcrumbs, fine print |
+| `{typography.button-label}` | 14px | 600 | 1.2 | Button text (always uppercase, tracked) |
 
 ### Principles
-- **Display thinness is the brand.** Always render display sizes at weight 330 — never 400+. The thinness is a deliberate editorial choice that makes the giant size feel quiet.
-- **Display in NHGD, body in Inter.** Don't push body roles up to NHGD; don't push display roles down to Inter.
-- **Tracking lifts on display.** The 96px hero gets +2.4px positive tracking — the thin glyphs need air. At 70px and below, tracking returns to 0.
-
-### Note on Font Substitutes
-Open substitutes for Neue Haas Grotesk Display: **Helvetica Now Display** (proprietary) or **Inter Display** at light weights (open-source) are the closest matches. Avoid Helvetica Neue at default weight — it's too heavy for the brand's thin tier. **Inter Variable** is open-source via Google Fonts and is the canonical body face — no substitute needed.
+- **One workhorse sans, weight does the work.** Hierarchy comes from size + weight jumps on Helvetica Neue, not from switching families — keeps the UI calm around busy photography.
+- **Script is a garnish, never a workhorse.** `{typography.script-lead}` is reserved for one line per hero moment; it never appears in body copy, buttons, or product titles.
+- **Buttons are always uppercase and tracked.** `{typography.button-label}` carries +1px letter-spacing and uppercase transform — this is what makes flat black buttons feel deliberate rather than plain.
+- **Prices are a fixed two-weight pattern.** Struck-through original (`{typography.price-strike}`, regular, grey) always precedes the bold current price (`{typography.price-current}`, black) — never the reverse order.
 
 ## Layout
 
 ### Spacing System
-- **Base unit**: 8px (with denser sub-units 1, 2, 3, 4 for fine work).
+- **Base unit**: 8px.
 - **Tokens**: `{spacing.xxs}` 2px · `{spacing.xs}` 4px · `{spacing.sm}` 8px · `{spacing.md}` 12px · `{spacing.lg}` 16px · `{spacing.xl}` 24px · `{spacing.xxl}` 32px · `{spacing.huge}` 64px.
-- **Section padding**: `{spacing.huge}` 64–128px on cinematic marketing pages (extreme negative space is the point); collapses to ~48px on transactional pages where density takes priority.
-- **Card internal padding**: `{spacing.xxl}` 32px on pricing cards; `{spacing.xl}` 24px on compact tag rows.
+- **Section padding**: `{spacing.huge}` 64px top/bottom around storytelling bands (Bestsellers); tightens to `{spacing.xl}` 24px on dense listing grids.
+- **Mega-menu padding**: `{spacing.xxl}` 32px vertical, 48px horizontal — generous enough that a 3-column subcategory list plus one photo doesn't feel cramped.
 
 ### Grid & Container
-- Cinematic hero pages use a wide max-width container (~1440–1600px) with edge-bleeding photography that escapes the container.
-- Pricing collapses through 4-up → 2-up → 1-up tiers based on viewport.
-- Body content centers in a ~720–840px reading column on long-form pages.
+- Product listing grids run 4–6 columns on desktop, each card fixed-width with `{spacing.lg}` gutters.
+- The PDP splits into a fixed-width vertical thumbnail rail, a large primary image, and a right-hand info column (title, price, size, CTA) — no max-width reading column; the layout is commerce-first, not editorial-first, on this page.
+- Hero banners are full-bleed edge-to-edge, breaking any container width.
 
 ### Whitespace Philosophy
-The cinematic track treats whitespace as the brand's most valuable asset — sections often have 128–192px of vertical air between content blocks, with photography filling the rest. The transactional track tightens to ~48–64px between bands because users are scanning, comparing, and acting. The contrast between the two whitespace philosophies is part of the brand voice.
+Commerce pages (listing, PDP) keep whitespace tight and functional — cards sit close together, the info column is compact — because the priority is scanning and buying. Editorial moments (hero banners, the maroon Bestsellers band) open the whitespace up dramatically, giving photography room to breathe. The contrast mirrors the split between "shop it" and "feel it" moments.
 
 ## Elevation & Depth
 
 | Level | Treatment | Use |
 |---|---|---|
-| 0 | Flat, no shadow | Default surface |
-| 1 | `0 1px 2px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.04)` | Subtle inset highlight on dark cards (a top-edge sheen) |
-| 2 | `0 0 0 1px rgba(255,255,255,0.08), 0 1px 3px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2)` | Dark elevated cards with hairline + drop shadow stack |
-| 3 | `0 8px 8px rgba(0,0,0,0.1), 0 4px 4px rgba(0,0,0,0.1), 0 2px 2px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.1)` | Stacked-shadow card on light surfaces; layered tiny shadows produce a soft halo |
-| 4 | `0 25px 50px -12px rgba(0,0,0,0.25)` | Modal / floating panel on light |
+| 0 | Flat, no shadow | Default — nearly everything: nav, cards, buttons |
+| 1 | `0 1px 2px rgba(0,0,0,0.06)` | Sticky nav bar on scroll, floating chat bubble |
+| 2 | `0 2px 8px rgba(0,0,0,0.08)` | Mega-menu panel dropdown shadow |
+| 3 | `0 8px 24px rgba(0,0,0,0.12)` | Modal / size-guide overlay |
 
-### Decorative Depth
-On the cinematic track, depth comes from photography — full-bleed merchant imagery layered behind cards, with subtle inset top-edge highlights creating the illusion of light hitting a glass surface. On the light track, the layered tiny-shadow stack (Level 3) produces a soft, paper-like halo around pricing cards — depth without harshness.
+Depth is used extremely sparingly — this system is almost entirely flat. Shadows exist only where something floats above content (dropdown, modal), never as card decoration.
 
 ## Shapes
 
@@ -384,102 +350,87 @@ On the cinematic track, depth comes from photography — full-bleed merchant ima
 
 | Token | Value | Use |
 |---|---|---|
-| `{rounded.xs}` | 4px | Inputs, hairline tags |
-| `{rounded.sm}` | 5px | Image containers (small) |
-| `{rounded.md}` | 8px | Form inputs, video frames, smaller cards |
-| `{rounded.lg}` | 12px | Pricing cards, feature cards |
-| `{rounded.xl}` | 20px (top-only on some asymmetric cards) | Hero photo frames, cinematic card chrome |
-| `{rounded.pill}` | 9999px | All buttons, pill tags, mint chips |
+| `{rounded.xs}` | 4px | Nav bar container corners (barely visible) |
+| `{rounded.sm}` | 6px | Quantity stepper, size-selector pills, thumbnail corners |
+| `{rounded.md}` | 8px | Product card image corners |
+| `{rounded.lg}` | 16px | Circular photo frame containers in the maroon band (large radius before full circle) |
+| `{rounded.pill}` | 9999px | Add to Bag, outline buttons, discount/tag badges, carousel arrows |
+| `{rounded.circle}` | 50% | Portrait crops in the Bestsellers band, wishlist/account icon hit-areas |
 
 ### Photography Geometry
-Photography is full-bleed with no border. On cinematic pages it escapes the container entirely; on transactional pages it sits inside `{rounded.lg}` containers with no shadow. Avatar treatments in customer-logo strips are simple greyscale wordmarks at uniform height (~24–32px), aligned in a single horizontal strip.
+Listing and hero photography is rectangular, full-bleed with no border or shadow. The one distinctive geometric move is the **circular crop** used exclusively in the maroon storytelling band — portrait photos are masked into large overlapping circles (`{rounded.circle}`), creating a scrapbook / editorial-collage feel that's never used elsewhere on the site.
 
 ## Components
 
 ### Buttons
 
-**`button-primary-pill`** — the dominant CTA across the system.
-- Background `{colors.primary}` (black), text `{colors.on-primary}`, type `{typography.body-md}`, padding `{spacing.md} {spacing.xl}` (12px 24px), rounded `{rounded.pill}` 9999px.
-- Pressed state `button-primary-pill-pressed`: background lifts to `{colors.shade-70}`.
+**`button-add-to-bag`** — the dominant commerce CTA.
+- Background `{colors.ink}`, text `{colors.on-primary}`, type `{typography.button-label}` (uppercase, tracked), padding `{spacing.lg} {spacing.xxl}` (16px 32px), rounded `{rounded.pill}`, full-width on PDP.
+- Pressed state `button-add-to-bag-pressed`: background lifts to `{colors.shade-60}`.
 
-**`button-outline-on-dark`** — the cinematic hero CTA.
-- Background `{colors.canvas-night}` (transparent on the canvas), 2px solid `{colors.on-primary}` border, text `{colors.on-primary}`, same pill geometry.
+**`button-outline-ink`** — secondary action (e.g. "Notify Me", filters).
+- Background `{colors.canvas}`, 1px solid `{colors.ink}` border, text `{colors.ink}`, same pill geometry, padding 14px 28px.
 
-**`button-outline-on-light`** — the light-track equivalent.
-- Background `{colors.canvas-light}`, 1px solid `{colors.ink}` border, text `{colors.ink}`, same pill geometry.
+**`button-quantity-stepper`** — the +/− quantity control on PDP.
+- Background `{colors.shade-20}`, text `{colors.ink}`, rounded `{rounded.sm}` 6px (not pill — this is the one small-radius interactive control), padding 8px 12px.
 
-**`button-aloe-pill`** — the featured CTA on pricing pages.
-- Background `{colors.aloe-10}`, text `{colors.ink}`, same pill geometry. Used for the "Start free trial" tier.
+### Cards & Tags
 
-### Cards & Containers
+**`product-card`** — the standard listing/carousel tile.
+- Background `{colors.canvas}`, no border, no shadow, rounded `{rounded.md}` on the image only. Stack: image → `{typography.product-caption}` (grey fabric/print line) → `{typography.product-title}` (black) → price row → badge row.
 
-**`card-pricing`** — the standard tier card on the pricing page.
-- Background `{colors.canvas-light}`, padding `{spacing.xxl}`, rounded `{rounded.lg}` 12px, 1px `{colors.hairline-light}` border. Title in `{typography.heading-xl}`, price in `{typography.display-md}`, body in `{typography.body-md}`, CTA pinned to the bottom as `button-primary-pill`.
+**`badge-discount`** — the coral discount pill on sale items.
+- Background `{colors.primary}`, text `{colors.on-primary}`, type `{typography.caption}`, rounded `{rounded.pill}`, padding 4px 10px. Reads "50% OFF" — the only place coral fills a solid background outside the logo.
 
-**`card-pricing-featured`** — the highlighted pricing tier.
-- Background `{colors.aloe-10}`, otherwise identical to `card-pricing`. The mint fill (rather than a brand-color border) is the brand's distinctive featured-tier choice.
+**`badge-tag-neutral`** — status pill like "Restocked".
+- Background `{colors.shade-20}`, text `{colors.ink}`, otherwise identical shape to `badge-discount`.
 
-**`card-feature-cinematic`** — feature card on the cinematic track.
-- Background `{colors.canvas-night-elevated}`, text `{colors.on-primary}`, rounded `{rounded.lg}`, often with a top-edge inset highlight (Level 1 elevation). Holds full-bleed photography or a single large statement.
-
-**`card-pistachio-band`** — wide horizontal band card used to highlight a category of features on the light track.
-- Background `{colors.pistachio-10}`, text `{colors.ink}`, rounded `{rounded.lg}` 12px, padding `{spacing.xxl}`.
-
-**`card-photo-frame`** — full-bleed photography container on cinematic pages.
-- Background `{colors.canvas-night}`, padding 0, rounded `{rounded.xl}` 20px (often top-only). The photo IS the content; no inner padding, no overlay text inside the card.
-
-### Inputs & Forms
-
-**`text-input`** — standard text input on light surfaces.
-- Background `{colors.canvas-light}`, text `{colors.ink}`, type `{typography.body-md}`, padding `{spacing.sm}+ {spacing.md}` (10px 12px), rounded `{rounded.md}` 8px, 1px `{colors.hairline-light}` border.
+**`size-selector-pill`** / **`size-selector-pill-inactive`** — size choice on PDP.
+- Active: background `{colors.ink}`, text `{colors.on-primary}`. Inactive: background `{colors.canvas}`, 1px `{colors.hairline}` border, text `{colors.ink}`. Rounded `{rounded.sm}`, not pill — sized like a small square-ish chip (e.g. "3PC").
 
 ### Navigation
 
-**`nav-bar-light`** — top nav on light pages.
-- Background `{colors.canvas-light}`, text `{colors.ink}`, padding `{spacing.lg} {spacing.xl}`. Logo wordmark on the left, nav items center, two pill buttons on the right (`button-outline-on-light` for "Log in", `button-primary-pill` for "Start free trial").
+**`nav-bar-top-strip`** — the thin promo bar above the main nav.
+- Background `{colors.accent-pink-bar}`, type `{typography.caption}`, full width, padding 6px vertical. Carries a rotating seasonal message.
 
-**`nav-bar-dark`** — top nav on cinematic pages.
-- Background `{colors.canvas-night}`, text `{colors.on-primary}`, otherwise identical structure. Two pill buttons on the right (`button-outline-on-dark` for both, with the rightmost subtly more prominent via type weight).
+**`nav-bar-primary`** — the main nav.
+- Background `{colors.canvas}`, text `{colors.ink}`, type `{typography.nav-label}` (uppercase, tracked). Logo left, nav items center, four line-icons (search, wishlist, account, bag) right. The active/hovered "SALE" item switches to `{colors.primary}`.
 
-### Pills, Tags, and Chips
+**`mega-menu-panel`** — full-width dropdown on nav hover.
+- Background `{colors.canvas}`, padding `{spacing.xxl}` vertical, 48px horizontal, Level-2 shadow. Three plain-text subcategory columns (bold uppercase column header + regular sentence-case links) plus one editorial photo anchoring the right edge — no card chrome around the columns themselves.
 
-**`pill-tag-mint`** — small tag on light surfaces, signaling a feature category.
-- Background `{colors.aloe-10}`, text `{colors.ink}`, type `{typography.eyebrow-cap}`, padding `{spacing.xs} {spacing.md}`, rounded `{rounded.pill}`.
-
-**`pill-tag-shade`** — neutral tag on light surfaces.
-- Background `{colors.shade-30}`, text `{colors.ink}`, otherwise same shape as `pill-tag-mint`.
+**`breadcrumb-trail`** — PDP wayfinding row.
+- Text `{colors.link-slate}` for links, `{colors.ink}` for the current page, type `{typography.caption}`, separated by `>` chevrons.
 
 ### Signature Components
 
-**Cinematic Photography Layer** — full-bleed merchant photos on the hero. No overlay scrim, no text-on-image; instead, the type sits in clean negative space above or below the photo. The brand treats photography as an editorial spread, not as decoration.
+**`hero-banner-editorial`** — campaign/collection hero.
+- Background `{colors.canvas-cream}` or full-bleed photography, headline in `{typography.display-hero}` (black, weight 800) paired with a `{typography.script-lead}` accent line — the brand's most recognizable typographic signature.
 
-**Stacked Tiny Shadows (Level 3 Elevation)** — pricing cards on the light track use 4 stacked tiny drop shadows (each 1–8px Y offset, 10% black) to produce a soft, layered paper halo. This is the brand's distinctive depth on light.
+**`bestsellers-band`** — the maroon storytelling section.
+- Background `{colors.surface-maroon}`, text `{colors.on-primary}`, padding `{spacing.huge}`. Contains 3+ large `{rounded.circle}` portrait crops arranged in an overlapping arc — the system's one deliberate break from the white canvas and rectangular photography elsewhere.
 
-**`link-on-dark`** — inline link on cinematic pages.
-- Color `{colors.on-primary}`, no underline by default (links rely on context); for tertiary footer links, color shifts to one of the cool muted tones (`{colors.link-cool-1}` etc.) with a persistent underline.
+**`in-stock-tag`** — availability indicator on PDP.
+- Text-only, `{colors.success-green}`, type `{typography.caption}`, right-aligned next to the "Size" label — no background fill.
 
-**`footer-dark`** — full-page-width footer on the cinematic track.
-- Background `{colors.canvas-night}`, text `{colors.on-primary}`, type `{typography.caption}`, padding `{spacing.huge} {spacing.xl}`. Contains 4–5 columns of muted-tone link groups, social icons, and a small legal row.
-
-**`footer-light`** — equivalent on the transactional track.
-- Background `{colors.canvas-light}`, text `{colors.ink}`, otherwise same structure.
+**`accordion-details`** — expandable Details/Fabric section on PDP.
+- Background `{colors.canvas}`, 1px `{colors.hairline}` top border, header row in `{typography.heading-md}` with a +/− toggle icon right-aligned; expanded content in `{typography.body-md}`.
 
 ## Do's and Don'ts
 
 ### Do
-- Reserve `{colors.aloe-10}` and `{colors.pistachio-10}` for the light track only — they don't appear on cinematic black pages.
-- Always use `{rounded.pill}` for buttons; never `{rounded.md}` or `{rounded.lg}`.
-- Render display tiers at weight 330; bumping to 400 or 500 breaks the brand's thin-display signature.
-- Use full-bleed photography on cinematic pages — let it escape the container.
-- Apply `font-feature-settings: "ss03"` globally; the stylistic set is the brand's typographic signature.
-- Pair black canvas with white type and white-stroked outline pills; pair light canvas with black type and filled-black pills.
+- Reserve `{colors.primary}` coral for exactly three things: logo, "SALE" label, discount badges. Never use it as a general accent, link color, or button fill.
+- Keep every commerce-page button and card flat (Elevation 0); save shadows for things that truly float (menus, modals).
+- Always pair the hero display headline with the script-italic subhead when doing a campaign moment — the two typefaces together are the signature, neither alone is.
+- Use `{rounded.pill}` for all primary/secondary buttons and badges; use `{rounded.sm}` only for small functional controls (stepper, size chips).
+- Keep the price pattern fixed: grey strikethrough original, then bold black current price, then coral discount badge — in that order.
 
 ### Don't
-- Don't introduce a third canvas color — stick to black or light/cream. Greys, beiges, and blues are not in the system.
-- Don't add drop shadows on cinematic dark cards beyond the subtle inset top-highlight; the cinematic track wants flat blackness.
-- Don't shrink display tiers below `{typography.display-md}` (48px) on hero surfaces; below that they read as section heads, not display.
-- Don't put aloe / pistachio greens behind type — they're surface fills, not text colors.
-- Don't replace the pill shape with a rounded-rectangle button anywhere.
+- Don't introduce a second accent color alongside coral — the whole system depends on there being exactly one brand color that reads as "unmissable" because nothing else competes with it.
+- Don't apply the circular photo-crop treatment (`{rounded.circle}`) outside the maroon storytelling band; everywhere else photography stays rectangular.
+- Don't set body copy, buttons, or product titles in the script typeface — `{typography.script-lead}` is a one-line garnish only.
+- Don't add borders or shadows to product cards; the "cardless card" look (just image + text stack) is deliberate.
+- Don't mix uppercase-tracked nav typography into product titles or body copy — tracking + uppercase is reserved for nav labels and button text.
 
 ## Responsive Behavior
 
@@ -487,30 +438,29 @@ Photography is full-bleed with no border. On cinematic pages it escapes the cont
 
 | Name | Width | Key Changes |
 |---|---|---|
-| Wide | ≥ 1440px | Full cinematic hero with edge-bleeding photography; pricing 4-up |
-| Desktop | 1024–1440px | Default content max-width; pricing 4-up tightens |
-| Tablet | 768–1023px | Pricing 2-up; cinematic hero photography crops |
-| Mobile | < 768px | Pricing 1-up; hamburger nav; display-xxl drops to ~56–64px |
+| Desktop | ≥ 1200px | Full mega-menu, 5–6 column product grid, PDP side-by-side |
+| Tablet | 768–1199px | Mega-menu simplifies to accordion-in-drawer, grid drops to 3 columns |
+| Mobile | < 768px | Hamburger nav, top strip persists, grid drops to 2 columns, PDP stacks image above info |
 
 ### Touch Targets
-- Pill buttons hit ≥ 44×44px on mobile via 12px vertical padding × 16px line-height. WCAG AAA compliant.
-- Form fields stay at the 44px minimum height across all breakpoints.
+- `button-add-to-bag` and `button-outline-ink` maintain ≥ 44×44px tap area via 16px vertical padding.
+- Size-selector pills and quantity stepper buttons enforce a 40×40px minimum on mobile even though visual padding is smaller.
 
 ### Collapsing Strategy
-- Display sizes scale down through the breakpoint stair: 96 → 70 → 55 → 48 → 36px on mobile.
-- Cinematic photography crops aggressively at smaller widths, prioritizing focal subject over edge-bleed.
-- Pricing tiers stair-step 4-up → 2-up → 1-up; the featured aloe tier stays visually distinguished at every step.
-- Top nav collapses to hamburger below 768px; menu inherits canvas polarity.
+- `{typography.display-hero}` scales 72px → 44px → 32px across desktop/tablet/mobile; the script subhead scales proportionally but never drops below 18px (it must stay legible as a deliberate accent, not disappear).
+- Mega-menu collapses into a single-column accordion drawer on mobile — three-column layout is desktop/tablet only.
+- Product grid steps 5–6 → 3 → 2 columns; cards keep their aspect ratio rather than cropping tighter.
+- The maroon Bestsellers band's overlapping circular photos stack into a horizontal swipeable carousel on mobile.
 
 ### Image Behavior
-Photography uses responsive `srcset` with art-direction crops at major breakpoints. Mobile crops favor close subjects; wide crops favor environmental / storefront context.
+Listing and PDP images use responsive `srcset`. Hero photography crops toward the model's face/upper body on mobile; desktop keeps the full environmental frame.
 
 ## Iteration Guide
 
 1. Focus on ONE component at a time.
-2. Reference component names and tokens directly (`{colors.aloe-10}`, `{button-primary-pill}-pressed`, `{rounded.pill}`).
-3. Run `npx @google/design.md lint DESIGN.md` after edits.
-4. Add new variants as separate entries.
-5. Default body to `{typography.body-md}`; reserve `{typography.body-lg}` for marketing leads.
-6. Keep the two canvas tracks separated — when designing a new page, choose cinematic OR transactional, not both.
-7. The pill shape is non-negotiable; new button variants vary in fill / border / canvas, never in shape.
+2. Reference component names and tokens directly (`{colors.primary}`, `{button-add-to-bag}-pressed`, `{rounded.pill}`).
+3. Add new variants as separate entries rather than overloading an existing one.
+4. Default body to `{typography.body-md}`; reserve `{typography.script-lead}` strictly for one-line editorial accents.
+5. When adding a new discount/status badge, follow the `badge-discount` / `badge-tag-neutral` pill shape — never introduce a square badge.
+6. Keep coral (`{colors.primary}`) rare by design — if a new component wants it, ask whether it truly needs to compete for attention with the logo and sale badges.
+7. The maroon storytelling band and circular photo crop are reserved for narrative/seasonal moments — don't reuse them for standard commerce sections like listing or PDP.

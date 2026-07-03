@@ -17,7 +17,7 @@ const ShowingPagination = ({
   return (
     <div className="px-5 mt-12 mb-24">
       <div className="flex flex-col gap-6 justify-center items-center w-full max-w-xs mx-auto">
-        <p className="text-sm text-[#151515]/60 tracking-wider">
+        <p className="text-body-md text-shade-50 tracking-tracked-wide">
           Showing {showingProducts} of {totalProducts}
         </p>
         <Button
@@ -28,7 +28,7 @@ const ShowingPagination = ({
             navigate(`/shop${category ? `/${category}` : ""}?page=${page + 1}`);
           }}
         />
-        <a href="#gridTop" className="flex justify-center items-center text-xs tracking-wider uppercase gap-2 text-[#151515]/50 hover:text-[#151515] transition-colors">
+        <a href="#gridTop" className="flex justify-center items-center text-caption uppercase tracking-tracked gap-2 text-shade-50 hover:text-ink transition-colors">
           Back to Top <HiChevronUp />
         </a>
       </div>

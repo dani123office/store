@@ -47,59 +47,57 @@ const SingleOrderHistory = () => {
 
   return (
     <div className="max-w-screen-2xl mx-auto pt-20 px-5">
-      <h1 className="text-2xl md:text-3xl font-light tracking-[0.15em] uppercase mb-10">
-        Order Details
-      </h1>
-      <div className="bg-white border border-[#E2E2E2] p-6">
-        <div className="grid grid-cols-2 gap-4 mb-8 text-sm">
+      <h1 className="text-heading-section text-ink mb-10">Order Details</h1>
+      <div className="bg-canvas border border-hairline p-6 rounded-md">
+        <div className="grid grid-cols-2 gap-4 mb-8 text-body-md">
           <div>
-            <p className="text-xs tracking-wider uppercase text-[#151515]/60 mb-1">Order ID</p>
-            <p className="font-medium">#{singleOrder.id}</p>
+            <p className="text-caption uppercase tracking-tracked text-shade-50 mb-1">Order ID</p>
+            <p className="font-medium text-ink">#{singleOrder.id}</p>
           </div>
           <div>
-            <p className="text-xs tracking-wider uppercase text-[#151515]/60 mb-1">Date</p>
-            <p className="font-medium">{formatDate(singleOrder.orderDate)}</p>
+            <p className="text-caption uppercase tracking-tracked text-shade-50 mb-1">Date</p>
+            <p className="font-medium text-ink">{formatDate(singleOrder.orderDate)}</p>
           </div>
           <div>
-            <p className="text-xs tracking-wider uppercase text-[#151515]/60 mb-1">Status</p>
-            <span className="text-xs tracking-wider uppercase bg-[#151515]/10 px-2 py-1">{singleOrder.orderStatus}</span>
+            <p className="text-caption uppercase tracking-tracked text-shade-50 mb-1">Status</p>
+            <span className="text-caption uppercase tracking-tracked bg-shade-20 px-2 py-1 rounded-pill text-ink">{singleOrder.orderStatus}</span>
           </div>
         </div>
 
-        <div className="border-t border-[#E2E2E2] pt-6 mb-8">
-          <h3 className="text-sm tracking-wider uppercase font-medium mb-4">Order Summary</h3>
-          <div className="space-y-2 text-sm">
+        <div className="border-t border-hairline pt-6 mb-8">
+          <h3 className="text-caption uppercase tracking-tracked font-medium text-ink mb-4">Order Summary</h3>
+          <div className="space-y-2 text-body-md">
             <div className="flex justify-between">
-              <span className="text-[#151515]/70">Subtotal</span>
-              <span>Rs.{singleOrder.subtotal.toLocaleString()}</span>
+              <span className="text-shade-50">Subtotal</span>
+              <span className="text-ink">Rs.{singleOrder.subtotal.toLocaleString()}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#151515]/70">Shipping</span>
-              <span>Rs.{shippingFee.toLocaleString()}</span>
+              <span className="text-shade-50">Shipping</span>
+              <span className="text-ink">Rs.{shippingFee.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between border-t border-[#E2E2E2] pt-2 font-medium">
+            <div className="flex justify-between border-t border-hairline pt-2 font-medium text-ink">
               <span>Total</span>
               <span>Rs.{Math.round(singleOrder.subtotal + shippingFee).toLocaleString()}</span>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-[#E2E2E2] pt-6">
-          <h3 className="text-sm tracking-wider uppercase font-medium mb-4">Items</h3>
-          <table className="w-full text-sm">
+        <div className="border-t border-hairline pt-6">
+          <h3 className="text-caption uppercase tracking-tracked font-medium text-ink mb-4">Items</h3>
+          <table className="w-full text-body-md">
             <thead>
-              <tr className="bg-[#f8f8f8]">
-                <th className="py-3 px-4 text-left text-xs tracking-wider uppercase text-[#151515]/60">Product</th>
-                <th className="py-3 px-4 text-center text-xs tracking-wider uppercase text-[#151515]/60">Qty</th>
-                <th className="py-3 px-4 text-right text-xs tracking-wider uppercase text-[#151515]/60">Price</th>
+              <tr className="bg-canvas-cream">
+                <th className="py-3 px-4 text-left text-caption uppercase tracking-tracked text-shade-50">Product</th>
+                <th className="py-3 px-4 text-center text-caption uppercase tracking-tracked text-shade-50">Qty</th>
+                <th className="py-3 px-4 text-right text-caption uppercase tracking-tracked text-shade-50">Price</th>
               </tr>
             </thead>
             <tbody>
               {singleOrder.products.map((product) => (
-                <tr key={nanoid()} className="border-t border-[#E2E2E2]">
-                  <td className="py-3 px-4">{product?.title}</td>
-                  <td className="py-3 px-4 text-center text-[#151515]/70">{product?.quantity}</td>
-                  <td className="py-3 px-4 text-right">Rs.{product?.price.toLocaleString()}</td>
+                <tr key={nanoid()} className="border-t border-hairline">
+                  <td className="py-3 px-4 text-ink">{product?.title}</td>
+                  <td className="py-3 px-4 text-center text-shade-50">{product?.quantity}</td>
+                  <td className="py-3 px-4 text-right text-ink">Rs.{product?.price.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>

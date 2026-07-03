@@ -18,21 +18,19 @@ const HomeCollectionSection = ({ themeSettings }: HomeCollectionSectionProps) =>
   const activeCategory = activeTab?.category || "all";
 
   return (
-    <section className="max-w-screen-2xl mx-auto px-5 mt-24">
-      {/* Title */}
-      <h2 className="section-title mb-6 font-serif">{title}</h2>
+    <section className="max-w-screen-2xl mx-auto px-5 sm:px-8 mt-huge">
+      <h2 className="section-title mb-6">{title}</h2>
 
-      {/* Tabs Navigation */}
       {tabs.length > 0 && (
-        <div className="flex justify-center flex-wrap gap-x-6 gap-y-3 border-b border-[#E2E2E2] pb-3 mb-10 text-xs md:text-sm tracking-[0.18em] uppercase text-[#151515]/50 font-sans">
+        <div className="flex justify-center flex-wrap gap-x-6 gap-y-3 border-b border-hairline pb-3 mb-10 text-nav-label uppercase tracking-tracked text-shade-40">
           {tabs.map((tab, idx) => (
             <button
               key={idx}
               onClick={() => setActiveTabIdx(idx)}
               className={`pb-2.5 transition-all duration-300 font-medium whitespace-nowrap ${
                 idx === activeTabIdx
-                  ? "border-b-2 border-[#151515] text-[#151515] font-semibold"
-                  : "hover:text-[#151515]"
+                  ? "border-b-2 border-ink text-ink font-semibold"
+                  : "hover:text-ink"
               }`}
             >
               {tab.label}
@@ -41,10 +39,9 @@ const HomeCollectionSection = ({ themeSettings }: HomeCollectionSectionProps) =>
         </div>
       )}
 
-      {/* Dynamic Products Grid */}
       <div className="min-h-[400px]">
         <ProductGridWrapper
-          key={activeCategory} // Force re-render on category tab switch
+          key={activeCategory}
           category={activeCategory === "all" ? undefined : activeCategory}
           limit={8}
         >
@@ -52,11 +49,10 @@ const HomeCollectionSection = ({ themeSettings }: HomeCollectionSectionProps) =>
         </ProductGridWrapper>
       </div>
 
-      {/* View All Button */}
       <div className="text-center mt-12">
         <Link
           to="/shop"
-          className="inline-block border border-[#151515] text-xs font-semibold tracking-[0.2em] uppercase text-[#151515] px-10 py-3.5 hover:bg-[#151515] hover:text-white transition-all duration-300"
+          className="inline-block border border-ink text-ink text-button-label uppercase tracking-tracked font-semibold px-10 py-4 rounded-pill hover:bg-ink hover:text-on-primary transition-all duration-300"
         >
           View All Products
         </Link>

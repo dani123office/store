@@ -30,7 +30,7 @@ const Search = () => {
         <input
           type="text"
           placeholder="Search products..."
-          className="border border-[#E2E2E2] focus:border-[#151515] h-12 text-sm px-4 w-full outline-none tracking-wider"
+          className="border border-hairline focus:border-ink h-12 text-body-md px-4 w-full outline-none tracking-tracked-wide"
           name="searchInput"
         />
         <div className="w-40">

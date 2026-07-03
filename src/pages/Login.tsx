@@ -48,35 +48,35 @@ const Login = () => {
         onSubmit={handleLogin}
         className="w-full max-w-md flex flex-col gap-6"
       >
-        <h2 className="text-2xl md:text-3xl font-light tracking-[0.15em] uppercase text-center">
+        <h2 className="text-heading-section text-ink text-center">
           Sign In
         </h2>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-xs tracking-wider uppercase text-[#151515]/70">Email</label>
+            <label htmlFor="email" className="text-caption uppercase tracking-tracked text-shade-50">Email</label>
             <input
               type="email"
               id="email"
-              className="bg-white border border-[#E2E2E2] text-sm py-3 px-4 w-full outline-none focus:border-[#151515] transition-colors"
+              className="bg-canvas border border-hairline text-body-md py-3 px-4 w-full outline-none focus:border-ink transition-colors"
               placeholder="Enter email address"
               name="email"
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-xs tracking-wider uppercase text-[#151515]/70">Password</label>
+            <label htmlFor="password" className="text-caption uppercase tracking-tracked text-shade-50">Password</label>
             <input
               type="password"
               id="password"
-              className="bg-white border border-[#E2E2E2] text-sm py-3 px-4 w-full outline-none focus:border-[#151515] transition-colors"
+              className="bg-canvas border border-hairline text-body-md py-3 px-4 w-full outline-none focus:border-ink transition-colors"
               placeholder="Enter password"
               name="password"
             />
           </div>
         </div>
         <Button type="submit" text="Login" mode="black" />
-        <p className="text-xs tracking-wider text-[#151515]/60 text-center">
+        <p className="text-caption text-shade-50 text-center">
           Don&rsquo;t have an account?{" "}
-          <Link to="/register" className="text-[#151515] underline underline-offset-2 hover:opacity-60">
+          <Link to="/register" className="text-ink underline underline-offset-2 hover:opacity-60">
             Register now
           </Link>
         </p>

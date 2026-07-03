@@ -7,7 +7,6 @@ interface CategoriesSectionProps {
   themeSettings?: ThemeSettings;
 }
 
-// Default fallback — same as Header's defaultNavItems
 const fallbackCategories = [
   { title: "New Arrivals", image: "product image 1.jpg", link: "new-arrivals" },
   { title: "Unstitched", image: "product image 3.jpg", link: "unstitched" },
@@ -17,7 +16,6 @@ const fallbackCategories = [
   { title: "Special Prices", image: "product image 11.jpg", link: "special-prices" },
 ];
 
-// Cycle through product images for each nav item
 const imagePool = [
   "product image 1.jpg", "product image 3.jpg", "product image 5.jpg",
   "product image 7.jpg", "product image 9.jpg", "product image 11.jpg",
@@ -48,8 +46,8 @@ const CategoriesSection = ({ themeSettings }: CategoriesSectionProps) => {
   }, []);
 
   return (
-    <section className="max-w-screen-2xl mx-auto px-5 mt-20 mb-20">
-      <h2 className="section-title mb-10 font-serif">{title}</h2>
+    <section className="max-w-screen-2xl mx-auto px-5 sm:px-8 mt-huge mb-huge">
+      <h2 className="section-title mb-10">{title}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {categories.map((cat) => (
           <CategoryItem
@@ -65,4 +63,3 @@ const CategoriesSection = ({ themeSettings }: CategoriesSectionProps) => {
 };
 
 export default CategoriesSection;
-

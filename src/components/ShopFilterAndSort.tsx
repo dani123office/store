@@ -17,7 +17,6 @@ const ShopFilterAndSort = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
 
-  // Read filter values from URL search params
   const activeColor = searchParams.get("color") || "";
   const activeSize = searchParams.get("size") || "";
   const activePrice = searchParams.get("price") ? Number(searchParams.get("price")) : 35000;
@@ -29,7 +28,6 @@ const ShopFilterAndSort = ({
     } else {
       newParams.set(key, String(value));
     }
-    // reset page to 1 on filter change
     newParams.set("page", "1");
     setSearchParams(newParams);
   };
@@ -41,7 +39,6 @@ const ShopFilterAndSort = ({
     setShowFilters(false);
   };
 
-  // Keep sorting synced with URL
   useEffect(() => {
     const urlSort = searchParams.get("sort");
     if (urlSort && urlSort !== sortCriteria) {
@@ -56,25 +53,24 @@ const ShopFilterAndSort = ({
 
   return (
     <div className="px-5 mb-8">
-      {/* Top Bar with Totals, Toggle, and Sort */}
-      <div className="flex justify-between items-center pb-4 border-b border-[#E2E2E2] max-sm:flex-col max-sm:gap-4">
+      <div className="flex justify-between items-center pb-4 border-b border-hairline max-sm:flex-col max-sm:gap-4">
         <div className="flex items-center gap-4">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 border border-[#151515] px-4 py-2 text-xs font-semibold tracking-widest uppercase hover:bg-[#151515] hover:text-white transition-all focus:outline-none"
+            className="flex items-center gap-2 border border-ink px-4 py-2 text-caption uppercase tracking-tracked font-medium hover:bg-ink hover:text-on-primary transition-all focus:outline-none rounded-pill"
           >
             <HiAdjustmentsHorizontal className="text-sm" />
             {showFilters ? "Hide Filters" : "Filter"}
           </button>
-          <p className="text-xs text-[#151515]/60 tracking-wider">
+          <p className="text-caption text-shade-50 tracking-tracked-wide">
             Showing {showingProducts} of {totalProducts} results
           </p>
         </div>
 
         <div className="flex gap-3 items-center">
-          <label className="text-xs tracking-wider uppercase text-[#151515]/70">Sort by:</label>
+          <label className="text-caption uppercase tracking-tracked text-shade-50">Sort by:</label>
           <select
-            className="border border-[#E2E2E2] px-3 py-2 text-xs bg-white text-[#151515] focus:outline-none focus:border-[#151515] font-medium"
+            className="border border-hairline px-3 py-2 text-caption bg-canvas text-ink focus:outline-none focus:border-ink font-medium rounded-sm"
             onChange={(e) => handleSortChange(e.target.value)}
             value={sortCriteria}
           >
@@ -86,12 +82,10 @@ const ShopFilterAndSort = ({
         </div>
       </div>
 
-      {/* Expandable Filter Drawer Panel */}
       {showFilters && (
-        <div className="bg-[#fcfbf9] border-b border-x border-[#E2E2E2] p-6 grid grid-cols-1 md:grid-cols-4 gap-6 animate-fade">
-          {/* Price Range Filter */}
+        <div className="bg-canvas-cream border-b border-x border-hairline p-6 grid grid-cols-1 md:grid-cols-4 gap-6 animate-fade">
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#151515]">
+            <h4 className="text-caption uppercase tracking-tracked font-medium text-ink">
               Max Price (PKR)
             </h4>
             <div className="space-y-2">
@@ -102,18 +96,17 @@ const ShopFilterAndSort = ({
                 step="1000"
                 value={activePrice}
                 onChange={(e) => updateFilters("price", e.target.value)}
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#151515]"
+                className="w-full h-1 bg-shade-20 rounded-lg appearance-none cursor-pointer accent-ink"
               />
-              <div className="flex justify-between text-xs font-medium text-[#151515]/70">
+              <div className="flex justify-between text-caption font-medium text-shade-50">
                 <span>PKR 2,000</span>
-                <span className="font-bold text-[#151515]">PKR {activePrice.toLocaleString()}</span>
+                <span className="font-bold text-ink">PKR {activePrice.toLocaleString()}</span>
               </div>
             </div>
           </div>
 
-          {/* Color Filter */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#151515]">
+            <h4 className="text-caption uppercase tracking-tracked font-medium text-ink">
               Filter by Color
             </h4>
             <div className="flex flex-wrap gap-2">
@@ -123,10 +116,10 @@ const ShopFilterAndSort = ({
                   <button
                     key={color}
                     onClick={() => updateFilters("color", isActive ? null : color.toLowerCase())}
-                    className={`text-[10px] uppercase font-bold tracking-wider px-3 py-1.5 border transition-all ${
+                    className={`text-caption uppercase font-medium tracking-tracked px-3 py-1.5 border transition-all rounded-pill ${
                       isActive
-                        ? "bg-[#151515] text-white border-[#151515]"
-                        : "bg-white text-[#151515]/70 border-[#e0e0e0] hover:border-[#151515]"
+                        ? "bg-ink text-on-primary border-ink"
+                        : "bg-canvas text-shade-50 border-hairline hover:border-ink"
                     }`}
                   >
                     {color}
@@ -136,9 +129,8 @@ const ShopFilterAndSort = ({
             </div>
           </div>
 
-          {/* Size Filter */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#151515]">
+            <h4 className="text-caption uppercase tracking-tracked font-medium text-ink">
               Filter by Size
             </h4>
             <div className="flex flex-wrap gap-2">
@@ -148,10 +140,10 @@ const ShopFilterAndSort = ({
                   <button
                     key={size}
                     onClick={() => updateFilters("size", isActive ? null : size.toLowerCase())}
-                    className={`text-[10px] font-bold px-3 py-1.5 border transition-all ${
+                    className={`text-caption font-medium px-3 py-1.5 border transition-all rounded-sm ${
                       isActive
-                        ? "bg-[#151515] text-white border-[#151515]"
-                        : "bg-white text-[#151515]/70 border-[#e0e0e0] hover:border-[#151515]"
+                        ? "bg-ink text-on-primary border-ink"
+                        : "bg-canvas text-shade-50 border-hairline hover:border-ink"
                     }`}
                   >
                     {size}
@@ -161,32 +153,31 @@ const ShopFilterAndSort = ({
             </div>
           </div>
 
-          {/* Filter Actions */}
           <div className="flex flex-col justify-end space-y-2">
             <div className="flex flex-wrap gap-1 mb-2">
               {activeColor && (
-                <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase bg-gray-100 px-2.5 py-1 rounded">
+                <span className="inline-flex items-center gap-1 text-caption uppercase font-medium bg-shade-20 px-2.5 py-1 rounded-pill text-ink">
                   Color: {activeColor}
-                  <button onClick={() => updateFilters("color", null)} className="text-red-500 hover:text-red-700">×</button>
+                  <button onClick={() => updateFilters("color", null)} className="text-primary hover:text-primary-dark">x</button>
                 </span>
               )}
               {activeSize && (
-                <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase bg-gray-100 px-2.5 py-1 rounded">
+                <span className="inline-flex items-center gap-1 text-caption uppercase font-medium bg-shade-20 px-2.5 py-1 rounded-pill text-ink">
                   Size: {activeSize}
-                  <button onClick={() => updateFilters("size", null)} className="text-red-500 hover:text-red-700">×</button>
+                  <button onClick={() => updateFilters("size", null)} className="text-primary hover:text-primary-dark">x</button>
                 </span>
               )}
               {searchParams.get("price") && (
-                <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase bg-gray-100 px-2.5 py-1 rounded">
+                <span className="inline-flex items-center gap-1 text-caption uppercase font-medium bg-shade-20 px-2.5 py-1 rounded-pill text-ink">
                   Under: {activePrice.toLocaleString()}
-                  <button onClick={() => updateFilters("price", null)} className="text-red-500 hover:text-red-700">×</button>
+                  <button onClick={() => updateFilters("price", null)} className="text-primary hover:text-primary-dark">x</button>
                 </span>
               )}
             </div>
             
             <button
               onClick={clearAllFilters}
-              className="flex items-center justify-center gap-1.5 border border-red-500 hover:bg-red-500 hover:text-white text-red-500 text-[10px] font-bold uppercase tracking-wider px-4 py-2.5 transition-all"
+              className="flex items-center justify-center gap-1.5 border border-primary text-primary hover:bg-primary hover:text-on-primary text-caption uppercase tracking-tracked font-medium px-4 py-2.5 transition-all rounded-pill"
             >
               <HiXMark className="text-sm" />
               Clear All Filters

@@ -18,7 +18,6 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Load recent searches from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("zarka_recent_searches");
     if (stored) {
@@ -26,7 +25,6 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     }
   }, [isOpen]);
 
-  // Focus input on open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -41,7 +39,6 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     };
   }, [isOpen]);
 
-  // Debounced Search API call
   useEffect(() => {
     if (query.trim().length < 2) {
       setResults([]);
@@ -57,7 +54,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
             p.title.toLowerCase().includes(query.toLowerCase()) ||
             p.category.toLowerCase().includes(query.toLowerCase())
           );
-          setResults(filtered.slice(0, 6)); // limit to 6 results
+          setResults(filtered.slice(0, 6));
         }
       } catch (e) {
         console.error(e);
@@ -70,7 +67,6 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     return () => clearTimeout(delayDebounce);
   }, [query]);
 
-  // Handle saving search term to localStorage
   const saveSearchTerm = (term: string) => {
     if (!term.trim()) return;
     const cleanTerm = term.trim();
@@ -79,7 +75,6 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     localStorage.setItem("zarka_recent_searches", JSON.stringify(updated));
   };
 
-  // Keyboard navigation handler
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -108,38 +103,35 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm transition-opacity animate-fade">
-      <div className="min-h-screen bg-[#DCD7CB] py-8 px-5">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-ink/40 backdrop-blur-sm transition-opacity animate-fade">
+      <div className="min-h-screen bg-canvas py-8 px-5">
         <div className="max-w-4xl mx-auto">
-          {/* Top Header Controls */}
-          <div className="flex items-center justify-between border-b border-[#E2E2E2] pb-6 mb-8">
+          <div className="flex items-center justify-between border-b border-hairline pb-6 mb-8">
             <div className="flex items-center gap-3 flex-1">
-              <HiOutlineMagnifyingGlass className="text-xl text-[#151515]/60" />
+              <HiOutlineMagnifyingGlass className="text-xl text-shade-50" />
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Search for luxury suits, bridal, collections..."
+                placeholder="Search for unstitched, bridal, collections..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full text-lg md:text-xl font-light outline-none border-none placeholder:text-[#151515]/30 tracking-wide bg-transparent"
+                className="w-full text-lg md:text-xl font-light outline-none border-none placeholder:text-shade-30 tracking-tracked-wide bg-transparent text-ink"
               />
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-[#f8f8f8] rounded-full text-[#151515]/60 hover:text-[#151515] transition-colors"
+              className="p-2 hover:bg-canvas-cream rounded-full text-shade-50 hover:text-ink transition-colors"
             >
               <HiXMark className="text-2xl" />
             </button>
           </div>
 
-          {/* Results Area */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {/* Left Column: Recent Searches & Suggestions */}
             <div className="md:col-span-1 space-y-8">
               {recentSearches.length > 0 && (
                 <div>
-                  <h3 className="text-xs font-semibold text-[#151515]/50 tracking-[0.2em] uppercase mb-4">
+                  <h3 className="text-caption uppercase tracking-tracked text-shade-50 mb-4">
                     Recent Searches
                   </h3>
                   <div className="space-y-2.5">
@@ -147,9 +139,9 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                       <button
                         key={index}
                         onClick={() => setQuery(term)}
-                        className="flex items-center gap-2.5 text-sm text-[#151515] hover:opacity-75 transition-opacity"
+                        className="flex items-center gap-2.5 text-body-md text-ink hover:opacity-75 transition-opacity"
                       >
-                        <HiClock className="text-[#151515]/40" />
+                        <HiClock className="text-shade-40" />
                         <span>{term}</span>
                       </button>
                     ))}
@@ -158,7 +150,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
               )}
 
               <div>
-                <h3 className="text-xs font-semibold text-[#151515]/50 tracking-[0.2em] uppercase mb-4">
+                <h3 className="text-caption uppercase tracking-tracked text-shade-50 mb-4">
                   Suggested Categories
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -169,7 +161,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                         navigate(`/shop/${cat.toLowerCase().replace(/\s+/g, "-")}`);
                         onClose();
                       }}
-                      className="text-xs bg-[#f8f8f8] border border-[#e8e8e8] px-4 py-2 hover:bg-[#151515] hover:text-white hover:border-[#151515] transition-all tracking-wider uppercase"
+                      className="text-caption bg-canvas-cream border border-hairline px-4 py-2 rounded-pill hover:bg-ink hover:text-on-primary hover:border-ink transition-all tracking-tracked uppercase font-medium"
                     >
                       {cat}
                     </button>
@@ -178,9 +170,8 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
               </div>
             </div>
 
-            {/* Right Column: Search Results */}
             <div className="md:col-span-2">
-              <h3 className="text-xs font-semibold text-[#151515]/50 tracking-[0.2em] uppercase mb-4">
+              <h3 className="text-caption uppercase tracking-tracked text-shade-50 mb-4">
                 Products {loading && "..."}
               </h3>
 
@@ -188,10 +179,10 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                 <div className="space-y-4">
                   {[1, 2, 3].map((n) => (
                     <div key={n} className="flex gap-4 items-center">
-                      <div className="w-16 h-20 bg-gray-100 skeleton-shimmer"></div>
+                      <div className="w-16 h-20 bg-shade-20 skeleton-shimmer rounded-sm"></div>
                       <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-gray-100 skeleton-shimmer w-3/4"></div>
-                        <div className="h-4 bg-gray-100 skeleton-shimmer w-1/4"></div>
+                        <div className="h-4 bg-shade-20 skeleton-shimmer w-3/4"></div>
+                        <div className="h-4 bg-shade-20 skeleton-shimmer w-1/4"></div>
                       </div>
                     </div>
                   ))}
@@ -199,12 +190,12 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
               )}
 
               {!loading && query.trim() && results.length === 0 && (
-                <p className="text-sm text-[#151515]/60 mt-4 font-light">
+                <p className="text-body-md text-shade-50 mt-4 font-light">
                   No products matched your search. Try adjusting your terms.
                 </p>
               )}
 
-              <div className="divide-y divide-[#E2E2E2]">
+              <div className="divide-y divide-hairline">
                 {results.map((product, index) => (
                   <Link
                     key={product.id}
@@ -215,25 +206,25 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                     }}
                     className={`flex gap-5 py-4 items-center transition-all ${
                       activeIndex === index
-                        ? "bg-[#f8f8f8] px-4 -mx-4 border-l-2 border-[#151515]"
-                        : "hover:bg-[#fafafa]"
+                        ? "bg-canvas-cream px-4 -mx-4 border-l-2 border-ink"
+                        : "hover:bg-canvas-cream"
                     }`}
                   >
                     <img
                       src={`/assets/${product.image}`}
                       alt={product.title}
-                      className="w-16 h-20 object-cover object-center border border-[#e8e8e8]"
+                      className="w-16 h-20 object-cover object-center border border-hairline rounded-sm"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-[#151515]/50 uppercase tracking-widest mb-1">
+                      <p className="text-caption text-shade-50 uppercase tracking-tracked-wide mb-1">
                         {product.category}
                       </p>
-                      <h4 className="text-sm font-semibold text-[#151515] truncate tracking-wide font-serif">
+                      <h4 className="text-product-title text-ink truncate">
                         {product.title}
                       </h4>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium text-[#151515] tracking-widest">
+                      <p className="text-price-current text-ink">
                         PKR {product.price.toLocaleString()}
                       </p>
                     </div>
@@ -242,14 +233,14 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
               </div>
 
               {results.length > 0 && (
-                <div className="pt-6 border-t border-[#E2E2E2] mt-4 text-center">
+                <div className="pt-6 border-t border-hairline mt-4 text-center">
                   <button
                     onClick={() => {
                       saveSearchTerm(query);
                       navigate(`/shop?query=${encodeURIComponent(query)}`);
                       onClose();
                     }}
-                    className="text-xs font-semibold tracking-[0.25em] uppercase hover:opacity-75 transition-opacity"
+                    className="text-button-label uppercase tracking-tracked text-ink hover:opacity-75 transition-opacity"
                   >
                     View All Matching Products &rarr;
                   </button>

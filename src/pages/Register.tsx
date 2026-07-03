@@ -39,65 +39,65 @@ const Register = () => {
         onSubmit={handleRegister}
         className="w-full max-w-md flex flex-col gap-6"
       >
-        <h2 className="text-2xl md:text-3xl font-light tracking-[0.15em] uppercase text-center">
+        <h2 className="text-heading-section text-ink text-center">
           Create Account
         </h2>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="name" className="text-xs tracking-wider uppercase text-[#151515]/70">First Name</label>
+            <label htmlFor="name" className="text-caption uppercase tracking-tracked text-shade-50">First Name</label>
             <input
               type="text"
               id="name"
-              className="bg-white border border-[#E2E2E2] text-sm py-3 px-4 w-full outline-none focus:border-[#151515] transition-colors"
+              className="bg-canvas border border-hairline text-body-md py-3 px-4 w-full outline-none focus:border-ink transition-colors"
               placeholder="Enter first name"
               name="name"
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="lastname" className="text-xs tracking-wider uppercase text-[#151515]/70">Last Name</label>
+            <label htmlFor="lastname" className="text-caption uppercase tracking-tracked text-shade-50">Last Name</label>
             <input
               type="text"
               id="lastname"
-              className="bg-white border border-[#E2E2E2] text-sm py-3 px-4 w-full outline-none focus:border-[#151515] transition-colors"
+              className="bg-canvas border border-hairline text-body-md py-3 px-4 w-full outline-none focus:border-ink transition-colors"
               placeholder="Enter last name"
               name="lastname"
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-xs tracking-wider uppercase text-[#151515]/70">Email</label>
+            <label htmlFor="email" className="text-caption uppercase tracking-tracked text-shade-50">Email</label>
             <input
               type="email"
               id="email"
-              className="bg-white border border-[#E2E2E2] text-sm py-3 px-4 w-full outline-none focus:border-[#151515] transition-colors"
+              className="bg-canvas border border-hairline text-body-md py-3 px-4 w-full outline-none focus:border-ink transition-colors"
               placeholder="Enter email address"
               name="email"
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-xs tracking-wider uppercase text-[#151515]/70">Password</label>
+            <label htmlFor="password" className="text-caption uppercase tracking-tracked text-shade-50">Password</label>
             <input
               type="password"
               id="password"
-              className="bg-white border border-[#E2E2E2] text-sm py-3 px-4 w-full outline-none focus:border-[#151515] transition-colors"
+              className="bg-canvas border border-hairline text-body-md py-3 px-4 w-full outline-none focus:border-ink transition-colors"
               placeholder="Enter password"
               name="password"
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="confirmPassword" className="text-xs tracking-wider uppercase text-[#151515]/70">Confirm Password</label>
+            <label htmlFor="confirmPassword" className="text-caption uppercase tracking-tracked text-shade-50">Confirm Password</label>
             <input
               type="password"
               id="confirmPassword"
-              className="bg-white border border-[#E2E2E2] text-sm py-3 px-4 w-full outline-none focus:border-[#151515] transition-colors"
+              className="bg-canvas border border-hairline text-body-md py-3 px-4 w-full outline-none focus:border-ink transition-colors"
               placeholder="Confirm password"
               name="confirmPassword"
             />
           </div>
         </div>
         <Button type="submit" text="Register" mode="black" />
-        <p className="text-xs tracking-wider text-[#151515]/60 text-center">
+        <p className="text-caption text-shade-50 text-center">
           Already have an account?{" "}
-          <Link to="/login" className="text-[#151515] underline underline-offset-2 hover:opacity-60">
+          <Link to="/login" className="text-ink underline underline-offset-2 hover:opacity-60">
             Login now
           </Link>
         </p>
