@@ -13,7 +13,7 @@ const Footer = ({ logoText }: FooterProps) => {
           {/* Brand Column */}
           <div className="md:col-span-1">
             <Link to="/" className="block mb-4">
-              <img src="/assets/zlogo.png" alt="ZARKA COUTURE" className="h-10 w-auto" />
+              <img src="/assets/zlogo.png" alt="ZARKA COUTURE" className="max-h-14 w-auto object-contain" />
             </Link>
             <p className="text-caption text-shade-50 leading-relaxed">
               Unstitched fabric, ready-to-wear, and accessories — crafted for the modern woman.

@@ -63,7 +63,7 @@ const Header = ({}: HeaderProps) => {
 
             {/* Logo */}
             <Link to="/">
-              <img src="/assets/zlogo.png" alt="ZARKA COUTURE" className="h-10 sm:h-12 w-auto" />
+              <img src="/assets/zlogo.png" alt="ZARKA COUTURE" className="max-h-14 w-auto object-contain" />
             </Link>
 
             {/* Desktop navigation */}
