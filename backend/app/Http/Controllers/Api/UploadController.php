@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class UploadController extends Controller
 {
@@ -14,7 +15,8 @@ class UploadController extends Controller
         ]);
 
         $file = $request->file('file');
-        $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
+        $extension = $file->getClientOriginalExtension();
+        $filename = Str::uuid() . '.' . $extension;
         
         $backendPath = public_path('assets');
         $file->move($backendPath, $filename);
@@ -22,7 +24,7 @@ class UploadController extends Controller
         // Also save to frontend's public/assets directory if it exists
         $frontendPath = base_path('../public/assets');
         if (!is_dir($frontendPath)) {
-            mkdir($frontendPath, 0755, true);
+            @mkdir($frontendPath, 0755, true);
         }
         
         $sourceFile = $backendPath . '/' . $filename;

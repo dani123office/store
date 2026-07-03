@@ -31,452 +31,568 @@ use App\Http\Controllers\Api\ProductSizeController;
 use App\Http\Controllers\Api\ProductWidthController;
 use App\Http\Controllers\Api\NavItemController;
 use App\Http\Controllers\Api\AdminLoginController;
+use Illuminate\Support\Facades\Log;
 
-Route::post('/auth/login', [AuthController::class, 'login']);
-Route::post('/auth/register', [AuthController::class, 'register']);
+// ==========================================
+// 1. PUBLIC ROUTES (GUEST ACCESS) - AUTH THROTTLED
+// ==========================================
+Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:auth');
+Route::post('/auth/register', [AuthController::class, 'register'])->middleware('throttle:auth');
 
-Route::apiResource('/products', ProductController::class);
-Route::apiResource('/users', UserController::class);
-Route::apiResource('/orders', OrderController::class);
-Route::apiResource('/categories', CategoryController::class);
-Route::apiResource('/sub-categories', SubCategoryController::class);
-Route::apiResource('/cat-items', CatItemController::class);
-Route::apiResource('/carts', CartController::class);
-Route::apiResource('/admin-logins', AdminLoginController::class);
-Route::apiResource('/c-pages', CPageController::class);
-Route::apiResource('/admin-menus', AdminMenuController::class);
-Route::apiResource('/admin-menu-items', AdminMenuItemController::class);
-Route::apiResource('/notifications', NotificationController::class);
-Route::apiResource('/nav-items', NavItemController::class);
-Route::apiResource('/collections', CollectionController::class);
+// All other API routes are protected by throttle:api rate limiter
+Route::middleware('throttle:api')->group(function () {
 
-Route::get('/taxes', [TaxController::class, 'index']);
-Route::get('/taxes/{tax}', [TaxController::class, 'show']);
-Route::put('/taxes/{tax}', [TaxController::class, 'update']);
-Route::post('/taxes', [TaxController::class, 'store']);
+    // Storefront read-only views
+    Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/products/{product}', [ProductController::class, 'show']);
 
-Route::get('/db-migrate-custom', function () {
-    try {
-        $messages = [];
-        if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'theme_settings')) {
-            \Illuminate\Support\Facades\Schema::table('stores', function (\Illuminate\Database\Schema\Blueprint $table) {
-                $table->text('theme_settings')->nullable();
-            });
-            $messages[] = 'theme_settings column added to stores.';
-        }
-        if (!\Illuminate\Support\Facades\Schema::hasColumn('products', 'description')) {
-            \Illuminate\Support\Facades\Schema::table('products', function (\Illuminate\Database\Schema\Blueprint $table) {
-                $table->text('description')->nullable();
-            });
-            $messages[] = 'description column added to products.';
-        }
-        return response()->json([
-            'status' => 'success',
-            'message' => empty($messages) ? 'migrations already up to date.' : implode(' ', $messages)
-        ]);
-    } catch (\Exception $e) {
-        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
-    }
-});
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/categories/{category}', [CategoryController::class, 'show']);
 
-Route::get('/db-migrate-custom-v2', function () {
-    try {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('coupons')) {
-            \Illuminate\Support\Facades\Schema::create('coupons', function (\Illuminate\Database\Schema\Blueprint $table) {
-                $table->id();
-                $table->string('code')->unique();
-                $table->string('type'); // Percentage / Fixed Amount
-                $table->double('value');
-                $table->string('status'); // Active / Expired
-                $table->string('expiry_date')->nullable();
-                $table->timestamps();
-            });
+    Route::get('/sub-categories', [SubCategoryController::class, 'index']);
+    Route::get('/sub-categories/{sub_category}', [SubCategoryController::class, 'show']);
 
-            // Seed initial coupons
-            \Illuminate\Support\Facades\DB::table('coupons')->insert([
-                [
-                    'code' => 'WELCOME10',
-                    'type' => 'Percentage',
-                    'value' => 10,
-                    'status' => 'Active',
-                    'expiry_date' => '2026-12-31',
+    Route::get('/cat-items', [CatItemController::class, 'index']);
+    Route::get('/cat-items/{cat_item}', [CatItemController::class, 'show']);
+
+    Route::get('/collections', [CollectionController::class, 'index']);
+    Route::get('/collections/{collection}', [CollectionController::class, 'show']);
+
+    Route::get('/taxes', [TaxController::class, 'index']);
+    Route::get('/taxes/{tax}', [TaxController::class, 'show']);
+
+    Route::get('/stores', [StoreController::class, 'index']);
+    Route::get('/stores/{store}', [StoreController::class, 'show']);
+
+    Route::get('/reviews', [ReviewController::class, 'index']);
+    Route::post('/reviews', [ReviewController::class, 'store']); // Guests can leave reviews
+
+    Route::get('/product-colors', [ProductColorController::class, 'index']);
+    Route::get('/product-colors/{product_color}', [ProductColorController::class, 'show']);
+
+    Route::get('/product-images', [ProductImageController::class, 'index']);
+    Route::get('/product-images/{product_image}', [ProductImageController::class, 'show']);
+
+    Route::get('/product-sizes', [ProductSizeController::class, 'index']);
+    Route::get('/product-sizes/{product_size}', [ProductSizeController::class, 'show']);
+
+    Route::get('/product-widths', [ProductWidthController::class, 'index']);
+    Route::get('/nav-items', [NavItemController::class, 'index']);
+    Route::get('/nav-items/{nav_item}', [NavItemController::class, 'show']);
+
+    Route::get('/c-pages', [CPageController::class, 'index']);
+    Route::get('/c-pages/{c_page}', [CPageController::class, 'show']);
+
+    Route::get('/admin-menus', [AdminMenuController::class, 'index']);
+    Route::get('/admin-menus/{admin_menu}', [AdminMenuController::class, 'show']);
+
+    Route::get('/admin-menu-items', [AdminMenuItemController::class, 'index']);
+    Route::get('/admin-menu-items/{admin_menu_item}', [AdminMenuItemController::class, 'show']);
+
+    Route::get('/apps-list', function () {
+        return response()->json(\Illuminate\Support\Facades\DB::table('apps')->orderBy('id', 'asc')->get());
+    });
+
+    // Coupons access for validation during guest checkout
+    Route::get('/db-coupons', function () {
+        return response()->json(\Illuminate\Support\Facades\DB::table('coupons')->get());
+    });
+
+    // Order creation is public to support guest checkouts
+    Route::post('/orders', [OrderController::class, 'store']);
+
+    // ==========================================
+    // 2. AUTHENTICATED USER ROUTES
+    // ==========================================
+    Route::middleware('auth:sanctum')->group(function () {
+        // Orders access (authenticated user viewing/managing own orders)
+        Route::get('/orders', [OrderController::class, 'index']);
+        Route::get('/orders/{order}', [OrderController::class, 'show']);
+        Route::put('/orders/{order}', [OrderController::class, 'update']);
+        Route::delete('/orders/{order}', [OrderController::class, 'destroy']);
+
+        // User profile access (viewing/managing own user record)
+        Route::get('/users/{user}', [UserController::class, 'show']);
+        Route::put('/users/{user}', [UserController::class, 'update']);
+        Route::delete('/users/{user}', [UserController::class, 'destroy']);
+        
+        // Active session cart endpoints
+        Route::apiResource('/carts', CartController::class);
+        Route::get('/addresses', [AddressController::class, 'index']);
+    });
+
+    // ==========================================
+    // 3. ADMIN-ONLY ROUTES
+    // ==========================================
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+        // User list management
+        Route::get('/users', [UserController::class, 'index']);
+        Route::post('/users', [UserController::class, 'store']);
+
+        // Product modification management
+        Route::post('/products', [ProductController::class, 'store']);
+        Route::put('/products/{product}', [ProductController::class, 'update']);
+        Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+
+        Route::post('/categories', [CategoryController::class, 'store']);
+        Route::put('/categories/{category}', [CategoryController::class, 'update']);
+        Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+
+        Route::post('/sub-categories', [SubCategoryController::class, 'store']);
+        Route::put('/sub-categories/{sub_category}', [SubCategoryController::class, 'update']);
+        Route::delete('/sub-categories/{sub_category}', [SubCategoryController::class, 'destroy']);
+
+        Route::post('/cat-items', [CatItemController::class, 'store']);
+        Route::put('/cat-items/{cat_item}', [CatItemController::class, 'update']);
+        Route::delete('/cat-items/{cat_item}', [CatItemController::class, 'destroy']);
+
+        Route::post('/collections', [CollectionController::class, 'store']);
+        Route::put('/collections/{collection}', [CollectionController::class, 'update']);
+        Route::delete('/collections/{collection}', [CollectionController::class, 'destroy']);
+
+        Route::post('/taxes', [TaxController::class, 'store']);
+        Route::put('/taxes/{tax}', [TaxController::class, 'update']);
+
+        Route::post('/stores', [StoreController::class, 'store']);
+        Route::put('/stores/{store}', [StoreController::class, 'update']);
+
+        Route::post('/product-colors', [ProductColorController::class, 'store']);
+        Route::put('/product-colors/{product_color}', [ProductColorController::class, 'update']);
+        Route::delete('/product-colors/{product_color}', [ProductColorController::class, 'destroy']);
+
+        Route::post('/product-images', [ProductImageController::class, 'store']);
+        Route::put('/product-images/{product_image}', [ProductImageController::class, 'update']);
+        Route::delete('/product-images/{product_image}', [ProductImageController::class, 'destroy']);
+
+        Route::post('/product-sizes', [ProductSizeController::class, 'store']);
+        Route::put('/product-sizes/{product_size}', [ProductSizeController::class, 'update']);
+        Route::delete('/product-sizes/{product_size}', [ProductSizeController::class, 'destroy']);
+
+        Route::post('/c-pages', [CPageController::class, 'store']);
+        Route::put('/c-pages/{c_page}', [CPageController::class, 'update']);
+        Route::delete('/c-pages/{c_page}', [CPageController::class, 'destroy']);
+
+        Route::post('/nav-items', [NavItemController::class, 'store']);
+        Route::put('/nav-items/{nav_item}', [NavItemController::class, 'update']);
+        Route::delete('/nav-items/{nav_item}', [NavItemController::class, 'destroy']);
+
+        Route::post('/admin-menus', [AdminMenuController::class, 'store']);
+        Route::put('/admin-menus/{admin_menu}', [AdminMenuController::class, 'update']);
+        Route::delete('/admin-menus/{admin_menu}', [AdminMenuController::class, 'destroy']);
+
+        Route::post('/admin-menu-items', [AdminMenuItemController::class, 'store']);
+        Route::put('/admin-menu-items/{admin_menu_item}', [AdminMenuItemController::class, 'update']);
+        Route::delete('/admin-menu-items/{admin_menu_item}', [AdminMenuItemController::class, 'destroy']);
+
+        Route::apiResource('/admin-logins', AdminLoginController::class);
+        Route::apiResource('/notifications', NotificationController::class);
+
+        Route::get('/payments', [PaymentController::class, 'index']);
+        Route::get('/staff-areas', [StaffAreaController::class, 'index']);
+        Route::get('/roles', [RoleController::class, 'index']);
+        Route::get('/emarkets', [EmarketController::class, 'index']);
+        Route::get('/c-timelines', [CTimelineController::class, 'index']);
+        Route::get('/o-timelines', [OTimelineController::class, 'index']);
+        Route::get('/view-counts', [ViewCountController::class, 'index']);
+
+        Route::post('/upload', [App\Http\Controllers\Api\UploadController::class, 'store']);
+        Route::get('/media', [App\Http\Controllers\Api\MediaController::class, 'index']);
+        Route::delete('/media/{filename}', [App\Http\Controllers\Api\MediaController::class, 'destroy'])->where('filename', '.*');
+
+        // Apps Management CRUD
+        Route::post('/apps-list', function (\Illuminate\Http\Request $request) {
+            try {
+                $validated = $request->validate([
+                    'name' => 'required|string',
+                    'category' => 'required|string',
+                    'description' => 'required|string',
+                    'developer' => 'required|string',
+                    'link' => 'nullable|string',
+                ]);
+                
+                $id = \Illuminate\Support\Facades\DB::table('apps')->insertGetId([
+                    'name' => $validated['name'],
+                    'category' => $validated['category'],
+                    'description' => $validated['description'],
+                    'developer' => $validated['developer'],
+                    'logo' => '',
+                    'link' => $validated['link'] ?? '',
                     'created_at' => now(),
                     'updated_at' => now(),
-                ],
-                [
-                    'code' => 'EIDMUBARAK',
-                    'type' => 'Fixed Amount',
-                    'value' => 1000,
-                    'status' => 'Active',
-                    'expiry_date' => '2026-07-15',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            ]);
-
-            return response()->json(['status' => 'success', 'message' => 'coupons table created and seeded successfully.']);
-        }
-        return response()->json(['status' => 'success', 'message' => 'coupons table already exists.']);
-    } catch (\Exception $e) {
-        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
-    }
-});
-
-// Coupons Database CRUD
-Route::get('/db-coupons', function () {
-    return response()->json(\Illuminate\Support\Facades\DB::table('coupons')->get());
-});
-
-Route::post('/db-coupons', function (\Illuminate\Http\Request $request) {
-    try {
-        $validated = $request->validate([
-            'code' => 'required|string|unique:coupons,code',
-            'type' => 'required|string',
-            'value' => 'required|numeric',
-            'expiry_date' => 'nullable|string',
-        ]);
-        
-        $id = \Illuminate\Support\Facades\DB::table('coupons')->insertGetId([
-            'code' => strtoupper(str_replace(' ', '', $validated['code'])),
-            'type' => $validated['type'],
-            'value' => $validated['value'],
-            'status' => 'Active',
-            'expiry_date' => $validated['expiry_date'],
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-        
-        $newCoupon = \Illuminate\Support\Facades\DB::table('coupons')->where('id', $id)->first();
-        return response()->json($newCoupon, 201);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 400);
-    }
-});
-
-Route::put('/db-coupons/{id}', function (\Illuminate\Http\Request $request, $id) {
-    try {
-        $coupon = \Illuminate\Support\Facades\DB::table('coupons')->where('id', $id)->first();
-        if (!$coupon) {
-            return response()->json(['error' => 'Coupon not found'], 404);
-        }
-        $newStatus = $coupon->status === 'Active' ? 'Expired' : 'Active';
-        \Illuminate\Support\Facades\DB::table('coupons')->where('id', $id)->update([
-            'status' => $newStatus,
-            'updated_at' => now(),
-        ]);
-        return response()->json(['status' => 'success', 'new_status' => $newStatus]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 400);
-    }
-});
-
-Route::delete('/db-coupons/{id}', function ($id) {
-    \Illuminate\Support\Facades\DB::table('coupons')->where('id', $id)->delete();
-    return response()->json(['status' => 'success']);
-});
-
-Route::get('/stores', [StoreController::class, 'index']);
-Route::get('/stores/{store}', [StoreController::class, 'show']);
-Route::put('/stores/{store}', [StoreController::class, 'update']);
-Route::post('/stores', [StoreController::class, 'store']);
-
-Route::get('/addresses', [AddressController::class, 'index']);
-Route::get('/payments', [PaymentController::class, 'index']);
-Route::get('/reviews', [ReviewController::class, 'index']);
-Route::post('/reviews', [ReviewController::class, 'store']);
-Route::get('/staff-areas', [StaffAreaController::class, 'index']);
-Route::get('/roles', [RoleController::class, 'index']);
-Route::get('/emarkets', [EmarketController::class, 'index']);
-Route::get('/c-timelines', [CTimelineController::class, 'index']);
-Route::get('/o-timelines', [OTimelineController::class, 'index']);
-Route::get('/view-counts', [ViewCountController::class, 'index']);
-Route::apiResource('/product-colors', ProductColorController::class);
-Route::apiResource('/product-images', ProductImageController::class);
-Route::apiResource('/product-sizes', ProductSizeController::class);
-Route::get('/product-widths', [ProductWidthController::class, 'index']);
-
-Route::post('/upload', [App\Http\Controllers\Api\UploadController::class, 'store']);
-Route::get('/media', [App\Http\Controllers\Api\MediaController::class, 'index']);
-Route::delete('/media/{filename}', [App\Http\Controllers\Api\MediaController::class, 'destroy'])->where('filename', '.*');
-
-Route::get('/db-migrate-custom-v3', function () {
-    try {
-        $messages = [];
-        
-        // 1. Add columns to stores table
-        \Illuminate\Support\Facades\Schema::table('stores', function (\Illuminate\Database\Schema\Blueprint $table) use (&$messages) {
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'installed_apps')) {
-                $table->text('installed_apps')->nullable();
-                $messages[] = 'installed_apps column added to stores.';
-            }
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_pixel_id')) {
-                $table->text('fb_pixel_id')->nullable();
-                $messages[] = 'fb_pixel_id column added to stores.';
-            }
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_connected')) {
-                $table->boolean('fb_connected')->default(false);
-                $messages[] = 'fb_connected column added to stores.';
-            }
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_access_token')) {
-                $table->text('fb_access_token')->nullable();
-                $messages[] = 'fb_access_token column added to stores.';
-            }
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_business_manager')) {
-                $table->text('fb_business_manager')->nullable();
-                $messages[] = 'fb_business_manager column added to stores.';
-            }
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_ad_account')) {
-                $table->text('fb_ad_account')->nullable();
-                $messages[] = 'fb_ad_account column added to stores.';
-            }
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_page')) {
-                $table->text('fb_page')->nullable();
-                $messages[] = 'fb_page column added to stores.';
-            }
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_data_sharing')) {
-                $table->text('fb_data_sharing')->nullable();
-                $messages[] = 'fb_data_sharing column added to stores.';
+                ]);
+                
+                $newApp = \Illuminate\Support\Facades\DB::table('apps')->where('id', $id)->first();
+                return response()->json($newApp, 201);
+            } catch (\Exception $e) {
+                Log::error('App creation failed: ' . $e->getMessage());
+                return response()->json(['error' => 'Failed to create app.'], 400);
             }
         });
 
-        // 2. Create marketing_campaigns table
-        if (!\Illuminate\Support\Facades\Schema::hasTable('marketing_campaigns')) {
-            \Illuminate\Support\Facades\Schema::create('marketing_campaigns', function (\Illuminate\Database\Schema\Blueprint $table) {
-                $table->id();
-                $table->string('name', 255);
-                $table->string('channel', 255);
-                $table->string('status', 255);
-                $table->string('budget', 255)->nullable();
-                $table->string('revenue', 255)->nullable();
-                $table->timestamps();
-            });
-            
-            // Seed default campaigns
-            \Illuminate\Support\Facades\DB::table('marketing_campaigns')->insert([
-                [
-                    'name' => 'Summer Launch Newsletter',
-                    'channel' => 'Email',
-                    'status' => 'Active',
-                    'budget' => 'Rs.5,000',
-                    'revenue' => 'Rs.45,000',
+        Route::delete('/apps-list/{id}', function ($id) {
+            \Illuminate\Support\Facades\DB::table('apps')->where('id', $id)->delete();
+            return response()->json(['status' => 'success']);
+        });
+
+        // Campaign Management CRUD
+        Route::get('/marketing-campaigns', function () {
+            return response()->json(\Illuminate\Support\Facades\DB::table('marketing_campaigns')->orderBy('id', 'desc')->get());
+        });
+
+        Route::post('/marketing-campaigns', function (\Illuminate\Http\Request $request) {
+            try {
+                $validated = $request->validate([
+                    'name' => 'required|string',
+                    'channel' => 'required|string',
+                    'status' => 'required|string',
+                    'budget' => 'nullable|string',
+                    'revenue' => 'nullable|string',
+                ]);
+                
+                $id = \Illuminate\Support\Facades\DB::table('marketing_campaigns')->insertGetId([
+                    'name' => $validated['name'],
+                    'channel' => $validated['channel'],
+                    'status' => $validated['status'],
+                    'budget' => $validated['budget'] ?? 'Rs.0',
+                    'revenue' => $validated['revenue'] ?? 'Rs.0',
                     'created_at' => now(),
                     'updated_at' => now(),
-                ],
-                [
-                    'name' => 'Instagram Festive Ads',
-                    'channel' => 'Instagram',
-                    'status' => 'Active',
-                    'budget' => 'Rs.25,000',
-                    'revenue' => 'Rs.180,000',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'name' => 'Eid Collection SMS Promo',
-                    'channel' => 'SMS',
-                    'status' => 'Completed',
-                    'budget' => 'Rs.8,000',
-                    'revenue' => 'Rs.62,000',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            ]);
-            $messages[] = 'marketing_campaigns table created and seeded successfully.';
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => empty($messages) ? 'v3 migrations already up to date.' : implode(' ', $messages)
-        ]);
-    } catch (\Exception $e) {
-        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
-    }
-});
-
-// Marketing Campaigns DB CRUD
-Route::get('/marketing-campaigns', function () {
-    return response()->json(\Illuminate\Support\Facades\DB::table('marketing_campaigns')->orderBy('id', 'desc')->get());
-});
-
-Route::post('/marketing-campaigns', function (\Illuminate\Http\Request $request) {
-    try {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'channel' => 'required|string',
-            'status' => 'required|string',
-            'budget' => 'nullable|string',
-            'revenue' => 'nullable|string',
-        ]);
-        
-        $id = \Illuminate\Support\Facades\DB::table('marketing_campaigns')->insertGetId([
-            'name' => $validated['name'],
-            'channel' => $validated['channel'],
-            'status' => $validated['status'],
-            'budget' => $validated['budget'] ?? 'Rs.0',
-            'revenue' => $validated['revenue'] ?? 'Rs.0',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-        
-        $newCamp = \Illuminate\Support\Facades\DB::table('marketing_campaigns')->where('id', $id)->first();
-        return response()->json($newCamp, 201);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 400);
-    }
-});
-
-Route::put('/marketing-campaigns/{id}', function (\Illuminate\Http\Request $request, $id) {
-    try {
-        $data = $request->only(['name', 'channel', 'status', 'budget', 'revenue']);
-        $data['updated_at'] = now();
-        \Illuminate\Support\Facades\DB::table('marketing_campaigns')->where('id', $id)->update($data);
-        $updated = \Illuminate\Support\Facades\DB::table('marketing_campaigns')->where('id', $id)->first();
-        return response()->json($updated);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 400);
-    }
-});
-
-Route::delete('/marketing-campaigns/{id}', function ($id) {
-    \Illuminate\Support\Facades\DB::table('marketing_campaigns')->where('id', $id)->delete();
-    return response()->json(['status' => 'success']);
-});
-
-Route::get('/db-migrate-custom-v4', function () {
-    try {
-        $messages = [];
-        \Illuminate\Support\Facades\Schema::table('stores', function (\Illuminate\Database\Schema\Blueprint $table) use (&$messages) {
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'seo_settings')) {
-                $table->text('seo_settings')->nullable();
-                $messages[] = 'seo_settings column added to stores.';
+                ]);
+                
+                $newCamp = \Illuminate\Support\Facades\DB::table('marketing_campaigns')->where('id', $id)->first();
+                return response()->json($newCamp, 201);
+            } catch (\Exception $e) {
+                Log::error('Campaign creation failed: ' . $e->getMessage());
+                return response()->json(['error' => 'Failed to create campaign.'], 400);
             }
         });
-        return response()->json([
-            'status' => 'success',
-            'message' => empty($messages) ? 'v4 migrations already up to date.' : implode(' ', $messages)
-        ]);
-    } catch (\Exception $e) {
-        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
-    }
-});
 
-Route::get('/db-migrate-custom-v5', function () {
-    try {
-        $messages = [];
-        if (!\Illuminate\Support\Facades\Schema::hasTable('apps')) {
-            \Illuminate\Support\Facades\Schema::create('apps', function (\Illuminate\Database\Schema\Blueprint $table) {
-                $table->id();
-                $table->string('name');
-                $table->string('category');
-                $table->text('description');
-                $table->string('developer');
-                $table->string('logo')->nullable();
-                $table->string('link')->nullable();
-                $table->timestamps();
-            });
+        Route::put('/marketing-campaigns/{id}', function (\Illuminate\Http\Request $request, $id) {
+            try {
+                $data = $request->only(['name', 'channel', 'status', 'budget', 'revenue']);
+                $data['updated_at'] = now();
+                \Illuminate\Support\Facades\DB::table('marketing_campaigns')->where('id', $id)->update($data);
+                $updated = \Illuminate\Support\Facades\DB::table('marketing_campaigns')->where('id', $id)->first();
+                return response()->json($updated);
+            } catch (\Exception $e) {
+                Log::error('Campaign update failed: ' . $e->getMessage());
+                return response()->json(['error' => 'Failed to update campaign.'], 400);
+            }
+        });
 
-            // Seed default apps
-            \Illuminate\Support\Facades\DB::table('apps')->insert([
-                [
-                    'name' => 'Zarka Inbox',
-                    'category' => 'Customer Service',
-                    'description' => 'Real-time customer chat and support messages.',
-                    'developer' => 'Zarka Couture',
-                    'logo' => '',
-                    'link' => '',
+        Route::delete('/marketing-campaigns/{id}', function ($id) {
+            \Illuminate\Support\Facades\DB::table('marketing_campaigns')->where('id', $id)->delete();
+            return response()->json(['status' => 'success']);
+        });
+
+        // Custom Migrations (restricted to admin)
+        Route::get('/db-migrate-custom', function () {
+            try {
+                $messages = [];
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'theme_settings')) {
+                    \Illuminate\Support\Facades\Schema::table('stores', function (\Illuminate\Database\Schema\Blueprint $table) {
+                        $table->text('theme_settings')->nullable();
+                    });
+                    $messages[] = 'theme_settings column added to stores.';
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('products', 'description')) {
+                    \Illuminate\Support\Facades\Schema::table('products', function (\Illuminate\Database\Schema\Blueprint $table) {
+                        $table->text('description')->nullable();
+                    });
+                    $messages[] = 'description column added to products.';
+                }
+                return response()->json([
+                    'status' => 'success',
+                    'message' => empty($messages) ? 'migrations already up to date.' : implode(' ', $messages)
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Migration custom failed: ' . $e->getMessage());
+                return response()->json(['status' => 'error', 'message' => 'Migration failed.']);
+            }
+        });
+
+        Route::get('/db-migrate-custom-v2', function () {
+            try {
+                if (!\Illuminate\Support\Facades\Schema::hasTable('coupons')) {
+                    \Illuminate\Support\Facades\Schema::create('coupons', function (\Illuminate\Database\Schema\Blueprint $table) {
+                        $table->id();
+                        $table->string('code')->unique();
+                        $table->string('type');
+                        $table->double('value');
+                        $table->string('status');
+                        $table->string('expiry_date')->nullable();
+                        $table->timestamps();
+                    });
+
+                    \Illuminate\Support\Facades\DB::table('coupons')->insert([
+                        [
+                            'code' => 'WELCOME10',
+                            'type' => 'Percentage',
+                            'value' => 10,
+                            'status' => 'Active',
+                            'expiry_date' => '2026-12-31',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ],
+                        [
+                            'code' => 'EIDMUBARAK',
+                            'type' => 'Fixed Amount',
+                            'value' => 1000,
+                            'status' => 'Active',
+                            'expiry_date' => '2026-07-15',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]
+                    ]);
+
+                    return response()->json(['status' => 'success', 'message' => 'coupons table created and seeded.']);
+                }
+                                    return response()->json(['status' => 'success', 'message' => 'coupons table already exists.']);
+            } catch (\Exception $e) {
+                Log::error('Migration v2 failed: ' . $e->getMessage());
+                return response()->json(['status' => 'error', 'message' => 'Migration failed.']);
+            }
+        });
+
+        Route::post('/db-coupons', function (\Illuminate\Http\Request $request) {
+            try {
+                $validated = $request->validate([
+                    'code' => 'required|string|unique:coupons,code',
+                    'type' => 'required|string',
+                    'value' => 'required|numeric',
+                    'expiry_date' => 'nullable|string',
+                ]);
+                
+                $id = \Illuminate\Support\Facades\DB::table('coupons')->insertGetId([
+                    'code' => strtoupper(str_replace(' ', '', $validated['code'])),
+                    'type' => $validated['type'],
+                    'value' => $validated['value'],
+                    'status' => 'Active',
+                    'expiry_date' => $validated['expiry_date'],
                     'created_at' => now(),
                     'updated_at' => now(),
-                ],
-                [
-                    'name' => 'Judge.me Product Reviews',
-                    'category' => 'Social Proof',
-                    'description' => 'Collect and display product reviews and ratings.',
-                    'developer' => 'Judge.me',
-                    'logo' => '',
-                    'link' => '',
-                    'created_at' => now(),
+                ]);
+                
+                $newCoupon = \Illuminate\Support\Facades\DB::table('coupons')->where('id', $id)->first();
+                return response()->json($newCoupon, 201);
+            } catch (\Exception $e) {
+                Log::error('Coupon creation failed: ' . $e->getMessage());
+                return response()->json(['error' => 'Failed to create coupon.'], 400);
+            }
+        });
+
+        Route::put('/db-coupons/{id}', function (\Illuminate\Http\Request $request, $id) {
+            try {
+                $coupon = \Illuminate\Support\Facades\DB::table('coupons')->where('id', $id)->first();
+                if (!$coupon) {
+                    return response()->json(['error' => 'Coupon not found'], 404);
+                }
+                $newStatus = $coupon->status === 'Active' ? 'Expired' : 'Active';
+                \Illuminate\Support\Facades\DB::table('coupons')->where('id', $id)->update([
+                    'status' => $newStatus,
                     'updated_at' => now(),
-                ],
-                [
-                    'name' => 'Mailchimp Email Marketing',
-                    'category' => 'Marketing',
-                    'description' => 'Sync customer lists and build automated campaigns.',
-                    'developer' => 'Mailchimp',
-                    'logo' => '',
-                    'link' => '',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'name' => 'ShipRocket Delivery Integration',
-                    'category' => 'Shipping & Fulfillment',
-                    'description' => 'Fulfill orders with reliable local couriers.',
-                    'developer' => 'ShipRocket',
-                    'logo' => '',
-                    'link' => '',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'name' => 'Pixel Conversion Booster',
-                    'category' => 'Analytics',
-                    'description' => 'Advanced Facebook Pixel and analytics tracking.',
-                    'developer' => 'PixelInc',
-                    'logo' => '',
-                    'link' => '/admin/preferences',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-            ]);
+                ]);
+                return response()->json(['status' => 'success', 'new_status' => $newStatus]);
+            } catch (\Exception $e) {
+                Log::error('Coupon update failed: ' . $e->getMessage());
+                return response()->json(['error' => 'Failed to update coupon.'], 400);
+            }
+        });
 
-            $messages[] = 'apps table created and seeded successfully.';
-        }
+        Route::delete('/db-coupons/{id}', function ($id) {
+            \Illuminate\Support\Facades\DB::table('coupons')->where('id', $id)->delete();
+            return response()->json(['status' => 'success']);
+        });
 
-        return response()->json([
-            'status' => 'success',
-            'message' => empty($messages) ? 'v5 migrations already up to date.' : implode(' ', $messages)
-        ]);
-    } catch (\Exception $e) {
-        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
-    }
+        Route::get('/db-migrate-custom-v3', function () {
+            try {
+                $messages = [];
+                \Illuminate\Support\Facades\Schema::table('stores', function (\Illuminate\Database\Schema\Blueprint $table) use (&$messages) {
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'installed_apps')) {
+                        $table->text('installed_apps')->nullable();
+                        $messages[] = 'installed_apps column added to stores.';
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_pixel_id')) {
+                        $table->text('fb_pixel_id')->nullable();
+                        $messages[] = 'fb_pixel_id column added to stores.';
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_connected')) {
+                        $table->boolean('fb_connected')->default(false);
+                        $messages[] = 'fb_connected column added to stores.';
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_access_token')) {
+                        $table->text('fb_access_token')->nullable();
+                        $messages[] = 'fb_access_token column added to stores.';
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_business_manager')) {
+                        $table->text('fb_business_manager')->nullable();
+                        $messages[] = 'fb_business_manager column added to stores.';
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_ad_account')) {
+                        $table->text('fb_ad_account')->nullable();
+                        $messages[] = 'fb_ad_account column added to stores.';
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_page')) {
+                        $table->text('fb_page')->nullable();
+                        $messages[] = 'fb_page column added to stores.';
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'fb_data_sharing')) {
+                        $table->text('fb_data_sharing')->nullable();
+                        $messages[] = 'fb_data_sharing column added to stores.';
+                    }
+                });
+
+                if (!\Illuminate\Support\Facades\Schema::hasTable('marketing_campaigns')) {
+                    \Illuminate\Support\Facades\Schema::create('marketing_campaigns', function (\Illuminate\Database\Schema\Blueprint $table) {
+                        $table->id();
+                        $table->string('name', 255);
+                        $table->string('channel', 255);
+                        $table->string('status', 255);
+                        $table->string('budget', 255)->nullable();
+                        $table->string('revenue', 255)->nullable();
+                        $table->timestamps();
+                    });
+                    
+                    \Illuminate\Support\Facades\DB::table('marketing_campaigns')->insert([
+                        [
+                            'name' => 'Summer Launch Newsletter',
+                            'channel' => 'Email',
+                            'status' => 'Active',
+                            'budget' => 'Rs.5,000',
+                            'revenue' => 'Rs.45,000',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ],
+                        [
+                            'name' => 'Instagram Festive Ads',
+                            'channel' => 'Instagram',
+                            'status' => 'Active',
+                            'budget' => 'Rs.25,000',
+                            'revenue' => 'Rs.180,000',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ],
+                        [
+                            'name' => 'Eid Collection SMS Promo',
+                            'channel' => 'SMS',
+                            'status' => 'Completed',
+                            'budget' => 'Rs.8,000',
+                            'revenue' => 'Rs.62,000',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]
+                    ]);
+                    $messages[] = 'marketing_campaigns table created and seeded successfully.';
+                }
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => empty($messages) ? 'v3 migrations already up to date.' : implode(' ', $messages)
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Migration v3 failed: ' . $e->getMessage());
+                return response()->json(['status' => 'error', 'message' => 'Migration failed.']);
+            }
+        });
+
+        Route::get('/db-migrate-custom-v4', function () {
+            try {
+                $messages = [];
+                \Illuminate\Support\Facades\Schema::table('stores', function (\Illuminate\Database\Schema\Blueprint $table) use (&$messages) {
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('stores', 'seo_settings')) {
+                        $table->text('seo_settings')->nullable();
+                        $messages[] = 'seo_settings column added to stores.';
+                    }
+                });
+                return response()->json([
+                    'status' => 'success',
+                    'message' => empty($messages) ? 'v4 migrations already up to date.' : implode(' ', $messages)
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Migration v4 failed: ' . $e->getMessage());
+                return response()->json(['status' => 'error', 'message' => 'Migration failed.']);
+            }
+        });
+
+        Route::get('/db-migrate-custom-v5', function () {
+            try {
+                $messages = [];
+                if (!\Illuminate\Support\Facades\Schema::hasTable('apps')) {
+                    \Illuminate\Support\Facades\Schema::create('apps', function (\Illuminate\Database\Schema\Blueprint $table) {
+                        $table->id();
+                        $table->string('name');
+                        $table->string('category');
+                        $table->text('description');
+                        $table->string('developer');
+                        $table->string('logo')->nullable();
+                        $table->string('link')->nullable();
+                        $table->timestamps();
+                    });
+
+                    \Illuminate\Support\Facades\DB::table('apps')->insert([
+                        [
+                            'name' => 'Zarka Inbox',
+                            'category' => 'Customer Service',
+                            'description' => 'Real-time customer chat and support messages.',
+                            'developer' => 'Zarka Couture',
+                            'logo' => '',
+                            'link' => '',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ],
+                        [
+                            'name' => 'Judge.me Product Reviews',
+                            'category' => 'Social Proof',
+                            'description' => 'Collect and display product reviews and ratings.',
+                            'developer' => 'Judge.me',
+                            'logo' => '',
+                            'link' => '',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ],
+                        [
+                            'name' => 'Mailchimp Email Marketing',
+                            'category' => 'Marketing',
+                            'description' => 'Sync customer lists and build automated campaigns.',
+                            'developer' => 'Mailchimp',
+                            'logo' => '',
+                            'link' => '',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ],
+                        [
+                            'name' => 'ShipRocket Delivery Integration',
+                            'category' => 'Shipping & Fulfillment',
+                            'description' => 'Fulfill orders with reliable local couriers.',
+                            'developer' => 'ShipRocket',
+                            'logo' => '',
+                            'link' => '',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ],
+                        [
+                            'name' => 'Pixel Conversion Booster',
+                            'category' => 'Analytics',
+                            'description' => 'Advanced Facebook Pixel and analytics tracking.',
+                            'developer' => 'PixelInc',
+                            'logo' => '',
+                            'link' => '/admin/preferences',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ],
+                    ]);
+
+                    $messages[] = 'apps table created and seeded successfully.';
+                }
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => empty($messages) ? 'v5 migrations already up to date.' : implode(' ', $messages)
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Migration v5 failed: ' . $e->getMessage());
+                return response()->json(['status' => 'error', 'message' => 'Migration failed.']);
+            }
+        });
+    });
 });
-
-// Apps list API CRUD
-Route::get('/apps-list', function () {
-    return response()->json(\Illuminate\Support\Facades\DB::table('apps')->orderBy('id', 'asc')->get());
-});
-
-Route::post('/apps-list', function (\Illuminate\Http\Request $request) {
-    try {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'category' => 'required|string',
-            'description' => 'required|string',
-            'developer' => 'required|string',
-            'link' => 'nullable|string',
-        ]);
-        
-        $id = \Illuminate\Support\Facades\DB::table('apps')->insertGetId([
-            'name' => $validated['name'],
-            'category' => $validated['category'],
-            'description' => $validated['description'],
-            'developer' => $validated['developer'],
-            'logo' => '',
-            'link' => $validated['link'] ?? '',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-        
-        $newApp = \Illuminate\Support\Facades\DB::table('apps')->where('id', $id)->first();
-        return response()->json($newApp, 201);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 400);
-    }
-});
-
-Route::delete('/apps-list/{id}', function ($id) {
-    \Illuminate\Support\Facades\DB::table('apps')->where('id', $id)->delete();
-    return response()->json(['status' => 'success']);
-});
-
-

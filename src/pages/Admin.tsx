@@ -88,6 +88,8 @@ const Admin = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("meta_connected");
     navigate("/login");
   };
 

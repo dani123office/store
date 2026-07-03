@@ -1,0 +1,27 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "openai/GLM-5.1-FP8",
+  "provider": {
+    "openai": {
+      "options": {
+        "apiKey": "{env:MODEL_RESEARCH_API_KEY}",
+        "baseURL": "https://api.us-west-2.modal.direct/v1"
+      },
+      "models": {
+        "GLM-5.1-FP8": {
+          "id": "zai-org/GLM-5.1-FP8",
+          "name": "GLM-5.1-FP8",
+          "reasoning": true,
+          "cost": {
+            "input": 0,
+            "output": 0
+          },
+          "limit": {
+            "context": 128000,
+            "output": 8192
+          }
+        }
+      }
+    }
+  }
+}

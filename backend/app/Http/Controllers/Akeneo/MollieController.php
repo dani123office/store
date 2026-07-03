@@ -7,7 +7,10 @@ class MollieController extends Controller
 {   
 
     public function  __construct() {
-        Mollie::api()->setApiKey('test_zHW4Pxcn7kDjcm6Fx22W4FygE75xSJ'); // your mollie test api key
+        $apiKey = env('MOLLIE_API_KEY', '');
+        if (!empty($apiKey)) {
+            Mollie::api()->setApiKey($apiKey);
+        }
     }
 
     /**

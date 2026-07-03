@@ -11,10 +11,15 @@ class OrderController extends Controller
 {
     public function index()
     {
+        $user = request()->user();
         $query = Order::with('user');
-        if (request()->has('user_id')) {
+        
+        if ($user->role !== 'admin') {
+            $query->where('user_id', $user->id);
+        } elseif (request()->has('user_id')) {
             $query->where('user_id', request()->get('user_id'));
         }
+        
         $orders = $query->get();
         return $orders->map(function ($order) {
             return $this->format($order);
@@ -64,12 +69,20 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
+        $currUser = request()->user();
+        if ($currUser->role !== 'admin' && $order->user_id !== $currUser->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
         $order->load('user');
         return $this->format($order);
     }
 
     public function update(Request $request, Order $order)
     {
+        $currUser = request()->user();
+        if ($currUser->role !== 'admin' && $order->user_id !== $currUser->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
         $input = $request->all();
         if (isset($input['data']) && is_array($input['data'])) {
             $input['data'] = json_encode($input['data']);
@@ -88,6 +101,10 @@ class OrderController extends Controller
 
     public function destroy(Order $order)
     {
+        $currUser = request()->user();
+        if ($currUser->role !== 'admin' && $order->user_id !== $currUser->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
         $order->delete();
         return response()->noContent();
     }

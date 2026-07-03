@@ -203,12 +203,13 @@ const HomeLayout = () => {
     metaDesc.setAttribute('content', seo.defaultMetaDescription);
 
     // Google Analytics Script Injection
-    if (seo.gaTrackingId && seo.gaTrackingId !== "G-XXXXXXXXXX") {
+    const gaId = seo.gaTrackingId;
+    if (gaId && gaId !== "G-XXXXXXXXXX" && /^G-[A-Za-z0-9]+$/.test(gaId)) {
       const gaScriptId = "zarka-ga-script";
       if (!document.getElementById(gaScriptId)) {
         const script1 = document.createElement("script");
         script1.async = true;
-        script1.src = `https://www.googletagmanager.com/gtag/js?id=${seo.gaTrackingId}`;
+        script1.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`;
         script1.id = gaScriptId;
         document.head.appendChild(script1);
 
@@ -218,14 +219,15 @@ const HomeLayout = () => {
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', '${seo.gaTrackingId}');
+          gtag('config', '${gaId.replace(/[^A-Za-z0-9-]/g, '')}');
         `;
         document.head.appendChild(script2);
       }
     }
 
     // Facebook Pixel Script Injection
-    if (seo.fbPixelId && seo.fbPixelId !== "123456789012345") {
+    const fbId = seo.fbPixelId;
+    if (fbId && fbId !== "123456789012345" && /^\d+$/.test(fbId)) {
       const fbScriptId = "zarka-fb-pixel";
       if (!document.getElementById(fbScriptId)) {
         const script = document.createElement("script");
@@ -239,7 +241,7 @@ const HomeLayout = () => {
           t.src=v;s=b.getElementsByTagName(e)[0];
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
-          fbq('init', '${seo.fbPixelId}');
+          fbq('init', '${fbId.replace(/[^0-9]/g, '')}');
         `;
         document.head.appendChild(script);
       }

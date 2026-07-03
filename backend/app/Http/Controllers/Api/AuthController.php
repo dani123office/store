@@ -22,12 +22,15 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
             'id' => (string) $user->id,
             'name' => $user->name,
             'lastname' => $user->lastname,
             'email' => $user->email,
             'role' => $user->role,
+            'token' => $token,
         ]);
     }
 
@@ -47,12 +50,15 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
             'id' => (string) $user->id,
             'name' => $user->name,
             'lastname' => $user->lastname,
             'email' => $user->email,
             'role' => $user->role,
+            'token' => $token,
         ], 201);
     }
 }

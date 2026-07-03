@@ -39,6 +39,12 @@ class MediaController extends Controller
 
     public function destroy($filename)
     {
+        // Sanitize filename to prevent path traversal
+        $filename = basename($filename);
+        if (!preg_match('/^[a-zA-Z0-9._-]+$/', $filename)) {
+            return response()->json(['message' => 'Invalid filename.'], 400);
+        }
+
         // Prevent deletion of base system assets
         $systemAssets = ['banner.jpg', 'banner1.jpg', 'luxury fashion 7 1.png', 'luxury fashion 7 2.png', '1.jpg'];
         if (in_array($filename, $systemAssets) || str_starts_with($filename, 'product image')) {

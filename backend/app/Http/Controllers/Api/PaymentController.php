@@ -9,6 +9,7 @@ class PaymentController extends Controller
 {
     public function index()
     {
+        // Admin-only route, no sensitive data exposed
         return Payment::all();
     }
 }
