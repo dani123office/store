@@ -66,6 +66,5 @@ export const trackFbEvent = (eventName: string, data?: any) => {
     }
   }
 
-  // Debug logging
-  console.log(`[Meta Ads Pixel] Event: ${eventName}`, data);
+
 };

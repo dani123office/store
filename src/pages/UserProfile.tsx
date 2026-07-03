@@ -50,14 +50,26 @@ const UserProfile = () => {
     navigate("/login");
   };
 
+  const handleAuthError = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    store.dispatch(setLoginStatus(false));
+    toast.error("Session expired. Please login again.");
+    navigate("/login");
+  };
+
   const fetchUser = async (userId: number | string) => {
     try {
       const response = await customFetch(`/users/${userId}`);
       const u = response.data;
       setUser(u);
       setForm({ name: u.name || "", lastname: u.lastname || "", email: u.email || "", password: "" });
-    } catch {
-      toast.error("Failed to load profile");
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        handleAuthError();
+      } else {
+        toast.error("Failed to load profile");
+      }
     }
   };
 
