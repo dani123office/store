@@ -93,7 +93,7 @@ const SidebarMenu = ({
               className="text-2xl font-extrabold tracking-tighter text-primary"
               style={{ letterSpacing: "-1px" }}
             >
-              KHAADI
+              ZARKA COUTURE
             </Link>
           </div>
           <div className="flex flex-col items-center gap-1">

@@ -20,7 +20,7 @@ interface HeaderProps {
   logoText?: string;
 }
 
-const Header = ({ logoText }: HeaderProps) => {
+const Header = ({}: HeaderProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [navItems, setNavItems] = useState(defaultNavItems);
@@ -50,11 +50,6 @@ const Header = ({ logoText }: HeaderProps) => {
 
   return (
     <>
-      {/* Top promo strip */}
-      <div className="bg-accent-pink-bar text-ink text-caption text-center py-1.5 px-4 tracking-tracked uppercase">
-        Free Shipping Nationwide — For Queries: +923-111-111-975
-      </div>
-
       <header className="sticky top-0 z-40 bg-canvas border-b border-hairline/60 transition-all duration-300">
         <div className="max-w-screen-2xl mx-auto px-5 sm:px-8">
           <div className="flex items-center justify-between h-16">
@@ -66,9 +61,9 @@ const Header = ({ logoText }: HeaderProps) => {
               <HiBars3 />
             </button>
 
-            {/* Logo — coral brand mark */}
-            <Link to="/" className="text-2xl sm:text-3xl font-extrabold tracking-tighter text-primary" style={{ letterSpacing: "-1px" }}>
-              {logoText || "KHAADI"}
+            {/* Logo */}
+            <Link to="/">
+              <img src="/assets/zlogo.png" alt="ZARKA COUTURE" className="h-10 sm:h-12 w-auto" />
             </Link>
 
             {/* Desktop navigation */}

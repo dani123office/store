@@ -299,14 +299,7 @@ const HomeLayout = () => {
   return (
     <>
       <ScrollToTop />
-      {settings.announcement.enabled && (
-        <div
-          className="announcement-bar transition-all duration-300 bg-accent-pink-bar text-ink"
-        >
-          {settings.announcement.text}
-        </div>
-      )}
-      <Header logoText={settings.logo_text} />
+      <Header />
       <AnimatePresence mode="wait">
         <motion.div
           key={location.pathname}

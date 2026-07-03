@@ -12,8 +12,8 @@ const Footer = ({ logoText }: FooterProps) => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-12">
           {/* Brand Column */}
           <div className="md:col-span-1">
-            <Link to="/" className="text-2xl font-extrabold tracking-tighter text-primary block mb-4" style={{ letterSpacing: "-1px" }}>
-              {logoText || "KHAADI"}
+            <Link to="/" className="block mb-4">
+              <img src="/assets/zlogo.png" alt="ZARKA COUTURE" className="h-10 w-auto" />
             </Link>
             <p className="text-caption text-shade-50 leading-relaxed">
               Unstitched fabric, ready-to-wear, and accessories — crafted for the modern woman.
@@ -71,7 +71,7 @@ const Footer = ({ logoText }: FooterProps) => {
           </div>
 
           <p className="text-caption text-shade-40 tracking-tracked">
-            All rights reserved &copy; {new Date().getFullYear()} {logoText || "KHAADI"}.
+            All rights reserved &copy; {new Date().getFullYear()} {logoText || "ZARKA COUTURE"}.
           </p>
         </div>
       </div>
