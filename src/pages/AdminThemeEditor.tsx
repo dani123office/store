@@ -245,12 +245,10 @@ const AdminThemeEditor = () => {
 
 
   useEffect(() => {
-    // Auto-migrate database table when loading Theme Editor
     const runMigration = async () => {
       try {
         await customFetch.get("/db-migrate-custom");
-      } catch (e) {
-        console.error("Migration failed or route not active yet", e);
+      } catch {
       }
     };
 
