@@ -63,7 +63,7 @@ const UserProfile = () => {
 
   const fetchRecentOrders = async (userId: number | string) => {
     try {
-      const res = await customFetch(`/orders/user/${userId}?limit=3`);
+      const res = await customFetch.get(`/orders`, { params: { user_id: userId, limit: 3 } });
       const data = Array.isArray(res.data) ? res.data : res.data?.data ?? [];
       setRecentOrders(data.slice(0, 3));
     } catch {
