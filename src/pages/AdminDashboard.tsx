@@ -130,25 +130,25 @@ const AdminDashboard = () => {
   const areaPointsString = `${padding},${chartHeight - padding} ${pointsString} ${chartWidth - padding},${chartHeight - padding}`;
 
   return (
-    <div className="p-4 lg:p-6 space-y-6">
+    <div className="p-6 space-y-8 admin-theme text-[#000000]">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-[#202223]">Dashboard Overview</h1>
-        <p className="text-xs text-[#6d7175]">Updated: {new Date().toLocaleTimeString()}</p>
+        <h1 className="text-lg font-semibold tracking-wide text-[#000000]">Dashboard Overview</h1>
+        <p className="text-[10px] uppercase font-bold text-[#71717a] tracking-wider">Updated: {new Date().toLocaleTimeString()}</p>
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((card) => {
           const Icon = card.icon;
           return (
-            <div key={card.label} className="bg-white border border-[#e0e0e0] rounded-lg p-5 hover:shadow-sm transition-shadow">
+            <div key={card.label} className="bg-white border border-[#e4e4e7] rounded-xl p-6 shadow-[0_8px_8px_rgba(0,0,0,0.01),0_4px_4px_rgba(0,0,0,0.01),0_2px_2px_rgba(0,0,0,0.01),0_0_0_1px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_12px_rgba(0,0,0,0.02),0_6px_6px_rgba(0,0,0,0.02),0_0_0_1px_rgba(0,0,0,0.04)] transition-all duration-300">
               <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center animate-fade" style={{ backgroundColor: card.bg }}>
-                  <Icon className="text-lg" style={{ color: card.color }} />
+                <div className="w-8 h-8 rounded-full bg-[#c1fbd4] text-[#000000] flex items-center justify-center animate-fade">
+                  <Icon className="text-base" />
                 </div>
               </div>
-              <p className="text-2xl font-semibold text-[#202223]">{card.value}</p>
-              <p className="text-sm text-[#6d7175] mt-1">{card.label}</p>
+              <p className="text-2xl font-light text-[#000000] tracking-tight">{card.value}</p>
+              <p className="text-[10px] tracking-[0.05em] uppercase font-bold text-[#71717a] mt-1">{card.label}</p>
             </div>
           );
         })}
@@ -157,8 +157,8 @@ const AdminDashboard = () => {
       {/* Charts section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sales Performance Area Chart */}
-        <div className="bg-white border border-[#e0e0e0] rounded-lg p-5">
-          <h2 className="text-sm font-semibold text-[#202223] mb-4">Sales Performance (Last 7 Days)</h2>
+        <div className="bg-white border border-[#e4e4e7] rounded-xl p-6 shadow-[0_8px_8px_rgba(0,0,0,0.01),0_4px_4px_rgba(0,0,0,0.01),0_2px_2px_rgba(0,0,0,0.01),0_0_0_1px_rgba(0,0,0,0.03)]">
+          <h2 className="text-[10px] font-bold text-[#000000] uppercase tracking-wider mb-6">Sales Performance (Last 7 Days)</h2>
           <div className="w-full h-[200px] flex items-center justify-center">
             {revenueTrend.length > 0 && (
               <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-full">
@@ -172,17 +172,17 @@ const AdminDashboard = () => {
                       y1={y}
                       x2={chartWidth - padding}
                       y2={y}
-                      stroke="#f3f4f6"
-                      strokeWidth={1}
+                      stroke="#fbfbf5"
+                      strokeWidth={1.5}
                     />
                   );
                 })}
 
                 {/* Fill Area underneath line */}
-                <polygon points={areaPointsString} fill="url(#area-gradient)" opacity={0.15} />
+                <polygon points={areaPointsString} fill="url(#area-gradient)" opacity={0.4} />
 
                 {/* Stroke path */}
-                <polyline points={pointsString} fill="none" stroke="#2563eb" strokeWidth={2} />
+                <polyline points={pointsString} fill="none" stroke="#000000" strokeWidth={2} />
 
                 {/* Draw points & labels */}
                 {revenueTrend.map((p, idx) => {
@@ -190,11 +190,11 @@ const AdminDashboard = () => {
                   const y = chartHeight - padding - (p.value * (chartHeight - padding * 2)) / maxVal;
                   return (
                     <g key={idx}>
-                      <circle cx={x} cy={y} r={4} fill="#2563eb" stroke="#ffffff" strokeWidth={1.5} className="cursor-pointer hover:r-6" />
-                      <text x={x} y={chartHeight - 8} fontSize={9} textAnchor="middle" fill="#6d7175">
+                      <circle cx={x} cy={y} r={4} fill="#000000" stroke="#ffffff" strokeWidth={1.5} className="cursor-pointer" />
+                      <text x={x} y={chartHeight - 8} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#71717a">
                         {p.label}
                       </text>
-                      <text x={x} y={y - 8} fontSize={9} textAnchor="middle" fontWeight="bold" fill="#202223" opacity={0.9}>
+                      <text x={x} y={y - 8} fontSize={8} textAnchor="middle" fontWeight="bold" fill="#000000" opacity={0.9}>
                         {p.value >= 1000 ? `Rs.${(p.value / 1000).toFixed(1).replace(".0", "")}k` : `Rs.${p.value}`}
                       </text>
                     </g>
@@ -204,7 +204,7 @@ const AdminDashboard = () => {
                 {/* Gradient Definition */}
                 <defs>
                   <linearGradient id="area-gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#2563eb" />
+                    <stop offset="0%" stopColor="#c1fbd4" />
                     <stop offset="100%" stopColor="#ffffff" stopOpacity={0} />
                   </linearGradient>
                 </defs>
@@ -214,11 +214,11 @@ const AdminDashboard = () => {
         </div>
 
         {/* Top Selling Products Bar Chart */}
-        <div className="bg-white border border-[#e0e0e0] rounded-lg p-5">
-          <h2 className="text-sm font-semibold text-[#202223] mb-4">Top Selling Products (Units Sold)</h2>
-          <div className="space-y-4">
+        <div className="bg-white border border-[#e4e4e7] rounded-xl p-6 shadow-[0_8px_8px_rgba(0,0,0,0.01),0_4px_4px_rgba(0,0,0,0.01),0_2px_2px_rgba(0,0,0,0.01),0_0_0_1px_rgba(0,0,0,0.03)]">
+          <h2 className="text-[10px] font-bold text-[#000000] uppercase tracking-wider mb-6">Top Selling Products (Units Sold)</h2>
+          <div className="space-y-5">
             {topSellingProducts.length === 0 ? (
-              <p className="text-sm text-[#6d7175]">No sales recorded yet.</p>
+              <p className="text-xs text-[#71717a]">No sales recorded yet.</p>
             ) : (
               topSellingProducts.map((p, idx) => {
                 const maxQty = Math.max(...topSellingProducts.map((item) => item.qty), 1);
@@ -228,16 +228,16 @@ const AdminDashboard = () => {
                     <img
                       src={`/assets/${p.image}`}
                       alt={p.title}
-                      className="w-10 h-12 object-cover rounded border border-[#e0e0e0]"
+                      className="w-10 h-12 object-cover rounded border border-[#e4e4e7]"
                       onError={(e) => { (e.target as HTMLImageElement).src = "/assets/product image 1.jpg"; }}
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="flex justify-between text-xs font-medium text-[#202223] mb-1">
+                      <div className="flex justify-between text-xs font-semibold text-[#000000] mb-1">
                         <span className="truncate">{p.title}</span>
-                        <span className="font-semibold">{p.qty} Sold</span>
+                        <span>{p.qty} Sold</span>
                       </div>
-                      <div className="w-full bg-[#f3f4f6] h-2 rounded-full overflow-hidden">
-                        <div className="bg-[#7c3aed] h-full rounded-full transition-all duration-500" style={{ width: `${widthPercent}%` }} />
+                      <div className="w-full bg-[#fbfbf5] h-2 rounded-full overflow-hidden border border-[#e4e4e7]">
+                        <div className="bg-[#c1fbd4] h-full rounded-full transition-all duration-500" style={{ width: `${widthPercent}%` }} />
                       </div>
                     </div>
                   </div>
@@ -250,41 +250,41 @@ const AdminDashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Orders (Col-span 2) */}
-        <div className="lg:col-span-2 bg-white border border-[#e0e0e0] rounded-lg">
-          <div className="px-5 py-4 border-b border-[#e0e0e0]">
-            <h2 className="text-sm font-semibold text-[#202223]">Recent Orders</h2>
+        <div className="lg:col-span-2 bg-white border border-[#e4e4e7] rounded-xl overflow-hidden shadow-[0_8px_8px_rgba(0,0,0,0.01),0_4px_4px_rgba(0,0,0,0.01),0_2px_2px_rgba(0,0,0,0.01),0_0_0_1px_rgba(0,0,0,0.03)]">
+          <div className="px-5 py-4 border-b border-[#e4e4e7] bg-[#fbfbf5]">
+            <h2 className="text-[10px] font-bold text-[#000000] uppercase tracking-wider">Recent Orders</h2>
           </div>
           {recentOrders.length === 0 ? (
-            <p className="text-sm text-[#6d7175] p-6">No orders yet.</p>
+            <p className="text-xs text-[#71717a] p-6">No orders yet.</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-xs">
                 <thead>
-                  <tr className="bg-[#fafafa]">
-                    <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase tracking-wider">Order</th>
-                    <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase tracking-wider">Date</th>
-                    <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase tracking-wider">Customer</th>
-                    <th className="text-right py-3 px-5 text-xs font-medium text-[#6d7175] uppercase tracking-wider">Total</th>
-                    <th className="text-left py-3 px-5 text-xs font-medium text-[#6d7175] uppercase tracking-wider">Status</th>
+                  <tr className="bg-[#fbfbf5] border-b border-[#e4e4e7] text-[10px] font-bold text-[#a1a1aa] uppercase tracking-wider">
+                    <th className="text-left py-3 px-5">Order</th>
+                    <th className="text-left py-3 px-5">Date</th>
+                    <th className="text-left py-3 px-5">Customer</th>
+                    <th className="text-right py-3 px-5">Total</th>
+                    <th className="text-left py-3 px-5">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {recentOrders.map((order: any) => (
-                    <tr key={order.id} className="border-t border-[#e0e0e0] hover:bg-[#fafafa] transition-colors">
-                      <td className="py-3 px-5 font-medium text-[#2c6ecb]">
-                        <Link to={`/admin/orders`}>#{order.id}</Link>
+                    <tr key={order.id} className="border-t border-[#e4e4e7] hover:bg-[#fbfbf5]/40 transition-colors">
+                      <td className="py-3.5 px-5 font-bold text-[#000000]">
+                        <Link to={`/admin/orders`} className="hover:underline">#{order.id}</Link>
                       </td>
-                      <td className="py-3 px-5 text-[#6d7175]">{formatDate(order.orderDate)}</td>
-                      <td className="py-3 px-5 text-[#202223] truncate max-w-[150px]">
+                      <td className="py-3.5 px-5 text-[#52525b]">{formatDate(order.orderDate)}</td>
+                      <td className="py-3.5 px-5 text-[#000000] truncate max-w-[150px]">
                         {order.data?.email || order.user?.email || "Guest"}
                       </td>
-                      <td className="py-3 px-5 text-right font-medium">Rs.{Math.round(order.subtotal + storeShippingFee).toLocaleString()}</td>
-                      <td className="py-3 px-5">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          order.orderStatus === "Processing" ? "bg-[#fff5e6] text-[#b8860b]" :
-                          order.orderStatus === "Shipped" ? "bg-[#f1f8fe] text-[#2c6ecb]" :
-                          order.orderStatus === "Delivered" ? "bg-[#f1f8f5] text-[#008060]" :
-                          "bg-[#f1f1f1] text-[#6d7175]"
+                      <td className="py-3.5 px-5 text-right font-semibold">Rs.{Math.round(order.subtotal + storeShippingFee).toLocaleString()}</td>
+                      <td className="py-3.5 px-5">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
+                          order.orderStatus === "Processing" ? "bg-amber-50 text-amber-700 border-amber-200" :
+                          order.orderStatus === "Shipped" ? "bg-blue-50 text-blue-700 border-blue-200" :
+                          order.orderStatus === "Delivered" ? "bg-[#d4f9e0] text-[#008060] border-[#c1fbd4]" :
+                          "bg-gray-50 text-gray-500 border-gray-200"
                         }`}>
                           {order.orderStatus}
                         </span>
@@ -298,42 +298,42 @@ const AdminDashboard = () => {
         </div>
 
         {/* Low Stock Alerts (Col-span 1) */}
-        <div className="lg:col-span-1 bg-white border border-[#e0e0e0] rounded-lg flex flex-col">
-          <div className="px-5 py-4 border-b border-[#e0e0e0] flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-[#202223]">Low Stock Alerts</h2>
+        <div className="lg:col-span-1 bg-white border border-[#e4e4e7] rounded-xl flex flex-col overflow-hidden shadow-[0_8px_8px_rgba(0,0,0,0.01),0_4px_4px_rgba(0,0,0,0.01),0_2px_2px_rgba(0,0,0,0.01),0_0_0_1px_rgba(0,0,0,0.03)]">
+          <div className="px-5 py-4 border-b border-[#e4e4e7] bg-[#fbfbf5] flex items-center justify-between">
+            <h2 className="text-[10px] font-bold text-[#000000] uppercase tracking-wider">Low Stock Alerts</h2>
             {lowStockProducts.length > 0 && (
-              <span className="bg-[#fef2f2] text-[#dc2626] border border-[#fca5a5] text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase flex items-center gap-1 animate-pulse">
+              <span className="bg-[#fef2f2] text-[#dc2626] border border-[#fca5a5] text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase flex items-center gap-1 animate-pulse">
                 <HiOutlineExclamationTriangle />
                 {lowStockProducts.length} Alert
               </span>
             )}
           </div>
-          <div className="p-4 space-y-3 flex-1 overflow-y-auto max-h-[300px]">
+          <div className="p-4 space-y-3 flex-1 overflow-y-auto max-h-[300px] bg-white">
             {lowStockProducts.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-6">
-                <svg className="w-8 h-8 text-green-500 mb-2" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <div className="h-full flex flex-col items-center justify-center text-center p-6 py-12">
+                <svg className="w-8 h-8 text-[#008060] mb-2" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
                 </svg>
-                <p className="text-sm font-medium text-[#202223]">Inventory healthy</p>
-                <p className="text-xs text-[#6d7175] mt-0.5">All products are well stocked.</p>
+                <p className="text-xs font-bold text-[#000000] uppercase tracking-wide">Inventory healthy</p>
+                <p className="text-[10px] text-[#71717a] mt-0.5">All products are well stocked.</p>
               </div>
             ) : (
               lowStockProducts.map((p, idx) => (
-                <div key={idx} className="flex items-center justify-between p-2.5 border border-[#e0e0e0] rounded-lg bg-white shadow-sm hover:border-[#fca5a5] transition-colors">
+                <div key={idx} className="flex items-center justify-between p-2.5 border border-[#e4e4e7] rounded-xl bg-white shadow-sm hover:border-[#fca5a5] transition-colors">
                   <div className="flex items-center gap-2">
                     <img
                       src={`/assets/${p.image}`}
                       alt={p.title}
-                      className="w-8 h-10 object-cover rounded border border-[#e0e0e0]"
+                      className="w-8 h-10 object-cover rounded border border-[#e4e4e7]"
                       onError={(e) => { (e.target as HTMLImageElement).src = "/assets/product image 1.jpg"; }}
                     />
                     <div>
-                      <h4 className="text-xs font-semibold text-[#202223] truncate max-w-[120px]">{p.title}</h4>
-                      <p className="text-[10px] text-[#6d7175]">{p.category}</p>
+                      <h4 className="text-xs font-semibold text-[#000000] truncate max-w-[120px]">{p.title}</h4>
+                      <p className="text-[10px] text-[#71717a]">{p.category}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-bold text-[#dc2626] bg-[#fef2f2] px-2 py-1 rounded">
+                    <span className="text-[9px] font-bold text-[#dc2626] bg-[#fef2f2] px-2 py-1 rounded-full uppercase border border-[#fca5a5]">
                       {p.stock} Left
                     </span>
                   </div>

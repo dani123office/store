@@ -109,7 +109,7 @@ const AdminProducts = () => {
   const hasActiveFilters = search || categoryFilter || stockFilter;
 
   return (
-    <div className="p-4 lg:p-6">
+    <div className="p-6 space-y-6 admin-theme text-[#000000]">
       <ConfirmModal
         open={confirmDelete !== null}
         title="Delete Product"
@@ -118,65 +118,79 @@ const AdminProducts = () => {
         onCancel={() => setConfirmDelete(null)}
       />
 
-      <div className="flex items-center justify-between mb-5">
-        <h1 className="text-xl font-semibold text-[#202223]">Products</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold tracking-wide text-[#000000]">Products</h1>
         <Link
           to="/admin/products/add"
-          className="flex items-center gap-2 bg-[#008060] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#006e52] transition-colors"
+          className="bg-[#000000] text-white text-xs font-semibold px-6 py-2.5 rounded-full hover:bg-[#3f3f46] transition-all shadow-sm flex items-center gap-2"
         >
-          <HiPlus className="text-lg" />
+          <HiPlus className="text-base" />
           Add Product
         </Link>
       </div>
 
-      <div className="bg-white border border-[#e0e0e0] rounded-lg overflow-hidden">
-        <div className="px-5 py-3 border-b border-[#e0e0e0]">
+      <div className="bg-white border border-[#e4e4e7] rounded-xl overflow-hidden shadow-[0_8px_8px_rgba(0,0,0,0.01),0_4px_4px_rgba(0,0,0,0.01),0_2px_2px_rgba(0,0,0,0.01),0_0_0_1px_rgba(0,0,0,0.03)]">
+        <div className="px-5 py-3 border-b border-[#e4e4e7] bg-[#fbfbf5]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <button className="px-3 py-1 text-sm font-medium text-[#2c6ecb] bg-[#f1f8fe] rounded-lg border border-[#2c6ecb]">
+              <button 
+                onClick={() => { setCategoryFilter(""); setStockFilter(""); }}
+                className={`px-4 py-1.5 text-xs font-semibold rounded-full border transition-all ${
+                  !categoryFilter && !stockFilter
+                    ? "bg-[#c1fbd4] text-[#000000] border-transparent font-bold"
+                    : "bg-white text-[#52525b] border-[#e4e4e7] hover:text-[#000000]"
+                }`}
+              >
                 All
               </button>
-              <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}
-                className="border border-[#e0e0e0] rounded-lg px-3 py-1.5 text-sm outline-none focus:border-[#2c6ecb] bg-white"
+              <select 
+                value={categoryFilter} 
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="border border-[#e4e4e7] rounded-full px-4 py-1.5 text-xs font-medium text-[#000000] outline-none focus:border-[#000000] bg-white transition-all cursor-pointer"
               >
                 <option value="">All Categories</option>
                 {categories.length > 0 && categories.map((cat) => (
                   <option key={cat} value={cat}>{cat.replace(/-/g, " ")}</option>
                 ))}
               </select>
-              <select value={stockFilter} onChange={(e) => setStockFilter(e.target.value)}
-                className="border border-[#e0e0e0] rounded-lg px-3 py-1.5 text-sm outline-none focus:border-[#2c6ecb] bg-white"
+              <select 
+                value={stockFilter} 
+                onChange={(e) => setStockFilter(e.target.value)}
+                className="border border-[#e4e4e7] rounded-full px-4 py-1.5 text-xs font-medium text-[#000000] outline-none focus:border-[#000000] bg-white transition-all cursor-pointer"
               >
                 <option value="">All Stock</option>
                 <option value="in">In Stock (16+)</option>
                 <option value="low">Low Stock (1-15)</option>
                 <option value="out">Out of Stock (0)</option>
               </select>
-              <span className="text-xs font-medium text-[#6d7175]">{filtered.length} product{filtered.length !== 1 ? "s" : ""}</span>
+              <span className="text-[10px] uppercase font-bold text-[#a1a1aa] tracking-wide ml-2">{filtered.length} product{filtered.length !== 1 ? "s" : ""}</span>
             </div>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setShowSearch(!showSearch)}
-                className={`p-2 rounded transition-colors ${showSearch ? "bg-blue-50 text-[#2c6ecb]" : "text-[#6d7175] hover:text-[#202223] hover:bg-gray-100"}`}
+                className={`p-2 rounded-full transition-all ${showSearch ? "bg-[#c1fbd4] text-[#000000]" : "text-[#52525b] hover:text-[#000000] hover:bg-gray-100"}`}
                 title="Search"
               >
-                <HiOutlineMagnifyingGlass className="text-lg" />
+                <HiOutlineMagnifyingGlass className="text-base" />
               </button>
             </div>
           </div>
         </div>
 
         {showSearch && (
-          <div className="px-5 py-2 border-b border-[#e0e0e0] bg-[#fafafa]">
+          <div className="px-5 py-3 border-b border-[#e4e4e7] bg-[#fbfbf5]">
             <div className="relative max-w-xs">
-              <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6d7175] text-sm" />
-              <input type="text" placeholder="Search products..." value={search}
+              <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-[#52525b] text-sm" />
+              <input 
+                type="text" 
+                placeholder="Search products..." 
+                value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 autoFocus
-                className="w-full border border-[#e0e0e0] rounded-lg pl-9 pr-8 py-1.5 text-sm outline-none focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]"
+                className="w-full border border-[#e4e4e7] rounded-full pl-9 pr-8 py-1.5 text-xs outline-none focus:border-[#000000] transition-all bg-white"
               />
               {search && (
-                <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#6d7175] hover:text-[#202223]">
+                <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#52525b] hover:text-[#000000]">
                   <HiXMark className="text-sm" />
                 </button>
               )}
@@ -185,10 +199,12 @@ const AdminProducts = () => {
         )}
 
         {selected.size > 0 && (
-          <div className="flex items-center gap-3 px-5 py-2 border-b border-[#e0e0e0] bg-[#f1f8f5] text-sm">
-            <span className="text-[#008060] font-medium">{selected.size} selected</span>
-            <button onClick={handleBulkDelete}
-              className="flex items-center gap-1.5 text-[#d72c0d] hover:text-[#b8200a] font-medium transition-colors">
+          <div className="flex items-center gap-3 px-5 py-2.5 border-b border-[#e4e4e7] bg-[#d4f9e0] text-xs font-semibold">
+            <span className="text-[#008060]">{selected.size} Selected</span>
+            <button 
+              onClick={handleBulkDelete}
+              className="flex items-center gap-1.5 text-[#d72c0d] hover:text-[#b8200a] font-bold transition-all"
+            >
               <HiTrash className="text-sm" />
               Delete Selected
             </button>
@@ -196,22 +212,23 @@ const AdminProducts = () => {
         )}
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-xs">
             <thead>
-              <tr className="bg-[#fafafa] border-b border-[#e0e0e0]">
+              <tr className="bg-[#fbfbf5] border-b border-[#e4e4e7] text-[10px] font-bold text-[#a1a1aa] uppercase tracking-wider">
                 <th className="py-3 pl-5 pr-2 w-10">
-                  <input type="checkbox"
+                  <input 
+                    type="checkbox"
                     checked={selectAll && paginated.length > 0}
                     onChange={toggleSelectAll}
-                    className="rounded border-gray-300 text-[#2c6ecb] focus:ring-[#2c6ecb] cursor-pointer"
+                    className="rounded border-gray-300 text-[#000000] focus:ring-[#000000] cursor-pointer"
                   />
                 </th>
-                <th className="text-left py-3 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Image</th>
-                <th className="text-left py-3 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Title</th>
-                <th className="text-left py-3 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Category</th>
-                <th className="text-right py-3 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Price</th>
-                <th className="text-right py-3 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase">Stock</th>
-                <th className="text-right py-3 pr-5 text-xs font-semibold tracking-wider text-gray-500 uppercase w-24">Actions</th>
+                <th className="text-left py-3 pr-5">Image</th>
+                <th className="text-left py-3 pr-5">Title</th>
+                <th className="text-left py-3 pr-5">Category</th>
+                <th className="text-right py-3 pr-5">Price</th>
+                <th className="text-right py-3 pr-5">Stock</th>
+                <th className="text-right py-3 pr-5 w-24">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -220,40 +237,52 @@ const AdminProducts = () => {
               ) : paginated.length > 0 ? (
                 paginated.map((product) => {
                   const badge = stockBadge(product.stock);
+                  const isLow = product.stock > 0 && product.stock <= 15;
+                  const isOut = product.stock === 0;
                   return (
-                    <tr key={product.id} className="border-b border-[#e0e0e0] hover:bg-[#fafafa] transition-colors">
+                    <tr key={product.id} className="border-b border-[#e4e4e7] hover:bg-[#fbfbf5]/40 transition-colors">
                       <td className="py-3 pl-5 pr-2 text-center">
-                        <input type="checkbox"
+                        <input 
+                          type="checkbox"
                           checked={selected.has(product.id)}
                           onChange={() => toggleSelect(product.id)}
-                          className="rounded border-gray-300 text-[#2c6ecb] focus:ring-[#2c6ecb] cursor-pointer"
+                          className="rounded border-gray-300 text-[#000000] focus:ring-[#000000] cursor-pointer"
                         />
                       </td>
                       <td className="py-3 pr-5">
-                        <img src={`/assets/${product.image}`} alt={product.title}
-                          className="w-10 h-10 object-cover rounded"
+                        <img 
+                          src={`/assets/${product.image}`} 
+                          alt={product.title}
+                          className="w-10 h-12 object-cover rounded border border-[#e4e4e7]"
                           onError={(e) => { (e.target as HTMLImageElement).src = "/assets/product image 1.jpg"; }}
                         />
                       </td>
-                      <td className="py-3 pr-5 font-medium text-[#202223]">{product.title}</td>
-                      <td className="py-3 pr-5 text-[#6d7175] text-xs uppercase tracking-wider">{product.category.replace(/-/g, " ")}</td>
-                      <td className="py-3 pr-5 text-right font-medium tabular-nums">Rs.{product.price.toLocaleString()}</td>
+                      <td className="py-3 pr-5 font-bold text-[#000000]">{product.title}</td>
+                      <td className="py-3 pr-5 text-[#52525b] text-[10px] font-bold uppercase tracking-wider">{product.category.replace(/-/g, " ")}</td>
+                      <td className="py-3 pr-5 text-right font-semibold tabular-nums text-gray-800">Rs.{product.price.toLocaleString()}</td>
                       <td className="py-3 pr-5 text-right">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${badge.text.replace("text", "bg")}`} />
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
+                          isOut ? "bg-[#fef1ee] text-[#d72c0d] border-[#fdd1c9]" :
+                          isLow ? "bg-amber-50 text-amber-700 border-amber-200" :
+                          "bg-[#d4f9e0] text-[#008060] border-[#c1fbd4]"
+                        }`}>
                           {badge.label}
                         </span>
                       </td>
                       <td className="py-3 pr-5 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button onClick={() => navigate(`/admin/products/edit/${product.id}`)}
-                            className="p-1.5 hover:bg-[#f1f1f1] rounded text-[#6d7175] hover:text-[#2c6ecb] transition-colors"
-                            title="Edit product">
+                        <div className="flex justify-end gap-1">
+                          <button 
+                            onClick={() => navigate(`/admin/products/edit/${product.id}`)}
+                            className="p-1.5 hover:bg-gray-100 rounded-full text-[#52525b] hover:text-[#000000] transition-all"
+                            title="Edit product"
+                          >
                             <HiPencilSquare className="text-base" />
                           </button>
-                          <button onClick={() => setConfirmDelete(product.id)}
-                            className="p-1.5 hover:bg-[#f1f1f1] rounded text-[#6d7175] hover:text-[#d72c0d] transition-colors"
-                            title="Delete product">
+                          <button 
+                            onClick={() => setConfirmDelete(product.id)}
+                            className="p-1.5 hover:bg-red-50 rounded-full text-[#52525b] hover:text-[#d72c0d] transition-all"
+                            title="Delete product"
+                          >
                             <HiTrash className="text-base" />
                           </button>
                         </div>
@@ -265,21 +294,25 @@ const AdminProducts = () => {
                 <tr>
                   <td colSpan={7} className="py-16 text-center">
                     <div className="flex flex-col items-center justify-center gap-3">
-                      <HiOutlineShoppingBag className="text-5xl text-[#d0d0d0]" />
-                      <p className="text-base font-medium text-[#202223]">No products found</p>
-                      <p className="text-sm text-[#6d7175] max-w-xs">
+                      <HiOutlineShoppingBag className="text-5xl text-gray-300" />
+                      <p className="text-sm font-semibold text-[#000000] uppercase tracking-wide">No products found</p>
+                      <p className="text-xs text-[#52525b] max-w-xs leading-relaxed">
                         {hasActiveFilters
                           ? "Try adjusting your search or filters to find what you're looking for."
                           : "Get started by adding your first product to the store."}
                       </p>
                       {hasActiveFilters ? (
-                        <button onClick={() => { setSearch(""); setCategoryFilter(""); setStockFilter(""); }}
-                          className="mt-2 text-sm font-medium text-[#2c6ecb] hover:text-[#1a4fa0] transition-colors underline underline-offset-2">
+                        <button 
+                          onClick={() => { setSearch(""); setCategoryFilter(""); setStockFilter(""); }}
+                          className="mt-2 text-xs font-bold text-[#000000] hover:underline transition-all uppercase tracking-wider"
+                        >
                           Clear all filters
                         </button>
                       ) : (
-                        <Link to="/admin/products/add"
-                          className="mt-2 inline-flex items-center gap-2 bg-[#008060] text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-[#006e52] transition-colors">
+                        <Link 
+                          to="/admin/products/add"
+                          className="mt-2 bg-[#000000] text-white text-xs font-semibold px-6 py-2.5 rounded-full hover:bg-[#3f3f46] transition-all shadow-sm inline-flex items-center gap-2"
+                        >
                           <HiPlus className="text-base" />
                           Add Product
                         </Link>
@@ -292,20 +325,26 @@ const AdminProducts = () => {
           </table>
         </div>
 
-        <div className="flex items-center justify-between px-5 py-3 border-t border-[#e0e0e0] text-sm text-[#6d7175]">
+        <div className="flex items-center justify-between px-5 py-3 border-t border-[#e4e4e7] text-xs text-[#52525b] bg-[#fbfbf5]">
           <span>
             {filtered.length > 0
-              ? `Showing ${(page - 1) * ROWS_PER_PAGE + 1}-${Math.min(page * ROWS_PER_PAGE, filtered.length)} of ${filtered.length} result${filtered.length !== 1 ? "s" : ""}`
+              ? `Showing ${(page - 1) * ROWS_PER_PAGE + 1}-${Math.min(page * ROWS_PER_PAGE, filtered.length)} of ${filtered.length} results`
               : "Showing 0 results"}
           </span>
           <div className="flex items-center gap-2">
-            <button disabled={page <= 1} onClick={() => setPage(page - 1)}
-              className="p-1.5 rounded hover:bg-[#f1f1f1] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+            <button 
+              disabled={page <= 1} 
+              onClick={() => setPage(page - 1)}
+              className="p-1.5 rounded-full hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
               <HiChevronLeft className="text-lg" />
             </button>
-            <span className="text-xs font-medium px-2">{page} of {Math.max(totalPages, 1)}</span>
-            <button disabled={page >= totalPages} onClick={() => setPage(page + 1)}
-              className="p-1.5 rounded hover:bg-[#f1f1f1] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+            <span className="text-[10px] font-bold px-2">{page} of {Math.max(totalPages, 1)}</span>
+            <button 
+              disabled={page >= totalPages} 
+              onClick={() => setPage(page + 1)}
+              className="p-1.5 rounded-full hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
               <HiChevronRight className="text-lg" />
             </button>
           </div>
