@@ -6,9 +6,14 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { trackFbEvent } from "../utils/fbPixel";
 
+const EASYPAISA_NUMBER = "0300-1234567";
+const JAZZCASH_NUMBER = "0300-7654321";
+
 const paymentMethods = [
   { id: "credit-card", title: "Credit Card / Debit Card" },
   { id: "razorpay", title: "Razorpay Secure (UPI/Wallet)" },
+  { id: "easypaisa", title: "Easypaisa" },
+  { id: "jazzcash", title: "JazzCash" },
   { id: "cod", title: "Cash on Delivery" },
 ];
 
@@ -55,6 +60,9 @@ const Checkout = () => {
   const [expirationDate, setExpirationDate] = useState("");
   const [cvc, setCvc] = useState("");
   const [nameOnCard, setNameOnCard] = useState("");
+
+  const [transactionId, setTransactionId] = useState("");
+  const [paymentScreenshot, setPaymentScreenshot] = useState<File | null>(null);
 
   const [couponInput, setCouponInput] = useState("");
   const [shippingFee, setShippingFee] = useState<number>(500);
@@ -147,6 +155,12 @@ const Checkout = () => {
           return;
         }
       }
+      if (paymentType === "easypaisa" || paymentType === "jazzcash") {
+        if (!transactionId.trim()) {
+          toast.error("Please enter your transaction ID");
+          return;
+        }
+      }
       setStep(3);
     }
   };
@@ -156,11 +170,33 @@ const Checkout = () => {
     setStep((prev) => Math.max(prev - 1, 1));
   };
 
+  const uploadScreenshot = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await customFetch.post("/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data?.filename || res.data || "";
+  };
+
   const handleOrderSubmission = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
 
-    const data = {
+    const isManualPayment = paymentType === "easypaisa" || paymentType === "jazzcash";
+    let screenshotFilename = "";
+
+    if (isManualPayment && paymentScreenshot) {
+      try {
+        screenshotFilename = await uploadScreenshot(paymentScreenshot);
+      } catch {
+        toast.error("Failed to upload payment screenshot. Please try again.");
+        setIsProcessing(false);
+        return;
+      }
+    }
+
+    const data: Record<string, any> = {
       emailAddress,
       firstName,
       lastName,
@@ -175,6 +211,12 @@ const Checkout = () => {
       cardNumber: paymentType === "credit-card" ? "xxxx-xxxx-xxxx-" + cardNumber.slice(-4) : "N/A",
     };
 
+    if (isManualPayment) {
+      data.transactionId = transactionId.trim();
+      data.paymentScreenshot = screenshotFilename;
+      data.merchantNumber = paymentType === "easypaisa" ? EASYPAISA_NUMBER : JAZZCASH_NUMBER;
+    }
+
     const checkoutData = {
       data,
       products: productsInCart,
@@ -186,26 +228,23 @@ const Checkout = () => {
 
       let response;
       const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const orderStatus = isManualPayment ? "Awaiting Verification" : "Processing";
+      const orderPayload: Record<string, any> = {
+        ...checkoutData,
+        orderStatus,
+        orderDate: new Date().toISOString(),
+      };
       if (user.email) {
-        response = await customFetch.post("/orders", {
-          ...checkoutData,
-          user: {
-            email: user.email,
-            id: user.id,
-          },
-          orderStatus: "Processing",
-          orderDate: new Date().toISOString(),
-        });
-      } else {
-        response = await customFetch.post("/orders", {
-          ...checkoutData,
-          orderStatus: "Processing",
-          orderDate: new Date().toISOString(),
-        });
+        orderPayload.user = { email: user.email, id: user.id };
       }
 
+      response = await customFetch.post("/orders", orderPayload);
+
       if (response.status === 201 || response.status === 200) {
-        toast.success("Payment verified! Order placed successfully.");
+        const successMsg = isManualPayment
+          ? "Order placed! Awaiting payment verification."
+          : "Payment verified! Order placed successfully.";
+        toast.success(successMsg);
 
         trackFbEvent("Purchase", {
           content_ids: productsInCart.map(p => p.id),
@@ -222,7 +261,7 @@ const Checkout = () => {
         dispatch(removeCoupon());
         navigate("/order-confirmation");
       } else {
-        toast.error("Payment failed. Please try another card.");
+        toast.error("Payment failed. Please try another method.");
       }
     } catch {
       toast.error("Something went wrong, please try again later");
@@ -491,6 +530,86 @@ const Checkout = () => {
                   {paymentType === "razorpay" && (
                     <div className="bg-blue-50 border border-blue-200 p-4 rounded-md text-caption text-blue-800 tracking-wide leading-relaxed animate-fade">
                       <strong>Razorpay Sandbox Mode:</strong> Clicking final confirm will overlay a simulated UPI/QR payment request interface and verify transaction details instantly.
+                    </div>
+                  )}
+
+                  {paymentType === "easypaisa" && (
+                    <div className="bg-green-50 border border-green-200 rounded-md p-5 animate-fade space-y-4">
+                      <div className="flex items-center gap-3">
+                        <span className="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center text-sm font-bold">EP</span>
+                        <div>
+                          <p className="text-body-md text-ink font-semibold">Easypaisa</p>
+                          <p className="text-caption text-shade-50">Send payment to the number below</p>
+                        </div>
+                      </div>
+                      <div className="bg-white border border-green-200 rounded-lg p-4 text-center">
+                        <p className="text-caption uppercase tracking-tracked text-shade-50 mb-1">Merchant Account</p>
+                        <p className="text-2xl font-bold text-ink tracking-tight">{EASYPAISA_NUMBER}</p>
+                        <p className="text-caption text-shade-40 mt-1">Account Title: ZARKA COUTURE</p>
+                      </div>
+                      <div>
+                        <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Transaction ID / TID</label>
+                        <input
+                          type="text"
+                          value={transactionId}
+                          onChange={(e) => setTransactionId(e.target.value)}
+                          className="block w-full py-2.5 px-3 border border-hairline bg-white outline-none focus:border-ink text-body-md"
+                          placeholder="e.g. TID12345678"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Payment Screenshot (optional)</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => setPaymentScreenshot(e.target.files?.[0] || null)}
+                          className="block w-full py-2 px-3 border border-hairline bg-white outline-none focus:border-ink text-body-md file:mr-3 file:py-1.5 file:px-3 file:rounded-pill file:border-0 file:bg-ink file:text-on-primary file:text-caption file:uppercase file:tracking-tracked file:cursor-pointer"
+                        />
+                      </div>
+                      <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-caption text-amber-800">
+                        Your order will be placed on <strong>Awaiting Verification</strong> status. Admin will verify the payment and confirm the order.
+                      </div>
+                    </div>
+                  )}
+
+                  {paymentType === "jazzcash" && (
+                    <div className="bg-red-50 border border-red-200 rounded-md p-5 animate-fade space-y-4">
+                      <div className="flex items-center gap-3">
+                        <span className="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center text-sm font-bold">JC</span>
+                        <div>
+                          <p className="text-body-md text-ink font-semibold">JazzCash</p>
+                          <p className="text-caption text-shade-50">Send payment to the number below</p>
+                        </div>
+                      </div>
+                      <div className="bg-white border border-red-200 rounded-lg p-4 text-center">
+                        <p className="text-caption uppercase tracking-tracked text-shade-50 mb-1">Merchant Account</p>
+                        <p className="text-2xl font-bold text-ink tracking-tight">{JAZZCASH_NUMBER}</p>
+                        <p className="text-caption text-shade-40 mt-1">Account Title: ZARKA COUTURE</p>
+                      </div>
+                      <div>
+                        <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Transaction ID / TID</label>
+                        <input
+                          type="text"
+                          value={transactionId}
+                          onChange={(e) => setTransactionId(e.target.value)}
+                          className="block w-full py-2.5 px-3 border border-hairline bg-white outline-none focus:border-ink text-body-md"
+                          placeholder="e.g. TID12345678"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Payment Screenshot (optional)</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => setPaymentScreenshot(e.target.files?.[0] || null)}
+                          className="block w-full py-2 px-3 border border-hairline bg-white outline-none focus:border-ink text-body-md file:mr-3 file:py-1.5 file:px-3 file:rounded-pill file:border-0 file:bg-ink file:text-on-primary file:text-caption file:uppercase file:tracking-tracked file:cursor-pointer"
+                        />
+                      </div>
+                      <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-caption text-amber-800">
+                        Your order will be placed on <strong>Awaiting Verification</strong> status. Admin will verify the payment and confirm the order.
+                      </div>
                     </div>
                   )}
                 </div>

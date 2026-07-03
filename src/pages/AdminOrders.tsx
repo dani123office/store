@@ -142,6 +142,7 @@ const AdminOrders = () => {
                 </td>
                 <td className="py-4 px-5">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    order.orderStatus === "Awaiting Verification" ? "bg-[#fef3cd] text-[#856404]" :
                     order.orderStatus === "Processing" ? "bg-[#fff5e6] text-[#b8860b]" :
                     order.orderStatus === "Shipped" ? "bg-[#f1f8fe] text-[#2c6ecb]" :
                     order.orderStatus === "Delivered" ? "bg-[#f1f8f5] text-[#008060]" :
@@ -189,7 +190,7 @@ const AdminOrders = () => {
                     onChange={(e) => handleStatusChange(selectedOrder, e.target.value)}
                     className="border border-[#e0e0e0] rounded-lg px-2.5 py-1 text-sm outline-none bg-white focus:border-[#2c6ecb] focus:ring-1 focus:ring-[#2c6ecb]"
                   >
-                    <option value="Pending">Pending</option>
+                    <option value="Awaiting Verification">Awaiting Verification</option>
                     <option value="Processing">Processing</option>
                     <option value="Shipped">Shipped</option>
                     <option value="Delivered">Delivered</option>
@@ -253,7 +254,32 @@ const AdminOrders = () => {
                     </div>
                   </div>
 
-                  {/* Step 2: Processing */}
+                  {/* Step 2: Awaiting Verification (for manual payments) */}
+                  {(selectedOrder.data?.paymentType === "easypaisa" || selectedOrder.data?.paymentType === "jazzcash") && (
+                    <div className="relative">
+                      <div className={`absolute -left-[20px] top-1 w-[12px] h-[12px] rounded-full border-2 bg-white shadow ${
+                        ["Awaiting Verification", "Processing", "Shipped", "Delivered"].includes(selectedOrder.orderStatus)
+                          ? "border-[#856404] bg-[#fef3cd]"
+                          : "border-gray-300"
+                      }`}>
+                        {selectedOrder.orderStatus !== "Awaiting Verification" && (
+                          <span className="flex items-center justify-center h-full text-[8px] text-[#856404]">✓</span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-[#202223]">Awaiting Verification</p>
+                        <p className="text-xs text-[#6d7175]">
+                          {["Awaiting Verification", "Processing", "Shipped", "Delivered"].includes(selectedOrder.orderStatus)
+                            ? selectedOrder.orderStatus === "Awaiting Verification"
+                              ? "Payment received — admin verification in progress."
+                              : "Payment verified by admin."
+                            : "Awaiting payment verification."}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 3: Processing */}
                   <div className="relative">
                     <div className={`absolute -left-[20px] top-1 w-[12px] h-[12px] rounded-full border-2 bg-white shadow ${
                       ["Processing", "Shipped", "Delivered"].includes(selectedOrder.orderStatus)
@@ -357,6 +383,51 @@ const AdminOrders = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Payment Verification */}
+              {(selectedOrder.data?.paymentType === "easypaisa" || selectedOrder.data?.paymentType === "jazzcash") && (
+                <div className="bg-[#fef3cd] border border-[#ffc107] rounded-lg p-4 space-y-3">
+                  <h4 className="text-xs font-semibold text-[#856404] uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#856404] animate-pulse" />
+                    Payment Verification Required
+                  </h4>
+                  <div className="bg-white rounded-lg p-3 space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-[#6d7175]">Method</span>
+                      <span className="font-semibold text-[#202223] capitalize">{selectedOrder.data.paymentType}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#6d7175]">Merchant Number</span>
+                      <span className="font-semibold text-[#202223]">{selectedOrder.data.merchantNumber || "—"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#6d7175]">Transaction ID</span>
+                      <span className="font-semibold text-[#202223]">{selectedOrder.data.transactionId || "—"}</span>
+                    </div>
+                    {selectedOrder.data.paymentScreenshot && (
+                      <div>
+                        <span className="text-[#6d7175] block mb-1">Screenshot</span>
+                        <img
+                          src={`/assets/${selectedOrder.data.paymentScreenshot}`}
+                          alt="Payment screenshot"
+                          className="max-h-40 rounded border border-[#e0e0e0] cursor-pointer"
+                          onClick={() => window.open(`/assets/${selectedOrder.data.paymentScreenshot}`, "_blank")}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  {selectedOrder.orderStatus === "Awaiting Verification" && (
+                    <button
+                      type="button"
+                      onClick={() => handleStatusChange(selectedOrder, "Processing")}
+                      disabled={updating}
+                      className="w-full bg-[#008060] hover:bg-[#006e52] text-white text-xs font-semibold py-2 px-3 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      {updating ? "Verifying..." : "Verify Payment & Confirm Order"}
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* Payment Summary */}
               <div>
