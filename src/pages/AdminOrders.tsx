@@ -255,7 +255,7 @@ const AdminOrders = () => {
                   </div>
 
                   {/* Step 2: Awaiting Verification (for manual payments) */}
-                  {(selectedOrder.data?.paymentType === "easypaisa" || selectedOrder.data?.paymentType === "jazzcash") && (
+              {(selectedOrder.data?.paymentType === "easypaisa") && (
                     <div className="relative">
                       <div className={`absolute -left-[20px] top-1 w-[12px] h-[12px] rounded-full border-2 bg-white shadow ${
                         ["Awaiting Verification", "Processing", "Shipped", "Delivered"].includes(selectedOrder.orderStatus)
@@ -397,8 +397,8 @@ const AdminOrders = () => {
                       <span className="font-semibold text-[#202223] capitalize">{selectedOrder.data.paymentType}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#6d7175]">Merchant Number</span>
-                      <span className="font-semibold text-[#202223]">{selectedOrder.data.merchantNumber || "—"}</span>
+                      <span className="text-[#6d7175]">Merchant</span>
+                      <span className="font-semibold text-[#202223]">{selectedOrder.data.merchantName || "—"} ({selectedOrder.data.merchantNumber || "—"})</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[#6d7175]">Transaction ID</span>

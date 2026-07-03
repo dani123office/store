@@ -6,14 +6,13 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { trackFbEvent } from "../utils/fbPixel";
 
-const EASYPAISA_NUMBER = "0300-1234567";
-const JAZZCASH_NUMBER = "0300-7654321";
+const EASYPAISA_NUMBER = "03015158089";
+const EASYPAISA_NAME = "Zarka Usman";
 
 const paymentMethods = [
   { id: "credit-card", title: "Credit Card / Debit Card" },
   { id: "razorpay", title: "Razorpay Secure (UPI/Wallet)" },
   { id: "easypaisa", title: "Easypaisa" },
-  { id: "jazzcash", title: "JazzCash" },
   { id: "cod", title: "Cash on Delivery" },
 ];
 
@@ -155,7 +154,7 @@ const Checkout = () => {
           return;
         }
       }
-      if (paymentType === "easypaisa" || paymentType === "jazzcash") {
+      if (paymentType === "easypaisa") {
         if (!transactionId.trim()) {
           toast.error("Please enter your transaction ID");
           return;
@@ -183,7 +182,7 @@ const Checkout = () => {
     e.preventDefault();
     setIsProcessing(true);
 
-    const isManualPayment = paymentType === "easypaisa" || paymentType === "jazzcash";
+    const isManualPayment = paymentType === "easypaisa";
     let screenshotFilename = "";
 
     if (isManualPayment && paymentScreenshot) {
@@ -214,7 +213,8 @@ const Checkout = () => {
     if (isManualPayment) {
       data.transactionId = transactionId.trim();
       data.paymentScreenshot = screenshotFilename;
-      data.merchantNumber = paymentType === "easypaisa" ? EASYPAISA_NUMBER : JAZZCASH_NUMBER;
+      data.merchantNumber = EASYPAISA_NUMBER;
+      data.merchantName = EASYPAISA_NAME;
     }
 
     const checkoutData = {
@@ -545,47 +545,7 @@ const Checkout = () => {
                       <div className="bg-white border border-green-200 rounded-lg p-4 text-center">
                         <p className="text-caption uppercase tracking-tracked text-shade-50 mb-1">Merchant Account</p>
                         <p className="text-2xl font-bold text-ink tracking-tight">{EASYPAISA_NUMBER}</p>
-                        <p className="text-caption text-shade-40 mt-1">Account Title: ZARKA COUTURE</p>
-                      </div>
-                      <div>
-                        <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Transaction ID / TID</label>
-                        <input
-                          type="text"
-                          value={transactionId}
-                          onChange={(e) => setTransactionId(e.target.value)}
-                          className="block w-full py-2.5 px-3 border border-hairline bg-white outline-none focus:border-ink text-body-md"
-                          placeholder="e.g. TID12345678"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Payment Screenshot (optional)</label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => setPaymentScreenshot(e.target.files?.[0] || null)}
-                          className="block w-full py-2 px-3 border border-hairline bg-white outline-none focus:border-ink text-body-md file:mr-3 file:py-1.5 file:px-3 file:rounded-pill file:border-0 file:bg-ink file:text-on-primary file:text-caption file:uppercase file:tracking-tracked file:cursor-pointer"
-                        />
-                      </div>
-                      <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-caption text-amber-800">
-                        Your order will be placed on <strong>Awaiting Verification</strong> status. Admin will verify the payment and confirm the order.
-                      </div>
-                    </div>
-                  )}
-
-                  {paymentType === "jazzcash" && (
-                    <div className="bg-red-50 border border-red-200 rounded-md p-5 animate-fade space-y-4">
-                      <div className="flex items-center gap-3">
-                        <span className="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center text-sm font-bold">JC</span>
-                        <div>
-                          <p className="text-body-md text-ink font-semibold">JazzCash</p>
-                          <p className="text-caption text-shade-50">Send payment to the number below</p>
-                        </div>
-                      </div>
-                      <div className="bg-white border border-red-200 rounded-lg p-4 text-center">
-                        <p className="text-caption uppercase tracking-tracked text-shade-50 mb-1">Merchant Account</p>
-                        <p className="text-2xl font-bold text-ink tracking-tight">{JAZZCASH_NUMBER}</p>
-                        <p className="text-caption text-shade-40 mt-1">Account Title: ZARKA COUTURE</p>
+                        <p className="text-caption text-shade-40 mt-1">Account Title: {EASYPAISA_NAME}</p>
                       </div>
                       <div>
                         <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Transaction ID / TID</label>
