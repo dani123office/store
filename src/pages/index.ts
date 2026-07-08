@@ -38,4 +38,8 @@ export { default as AdminSEO } from "./AdminSEO";
 export { default as AdminNav } from "./AdminNav";
 export { default as AdminFacebookAds } from "./AdminFacebookAds";
 export { default as AdminPreferences } from "./AdminPreferences";
-
+export { default as AboutUs } from "./AboutUs";
+export { default as ShippingReturns } from "./ShippingReturns";
+export { default as FAQs } from "./FAQs";
+export { default as SizeGuide } from "./SizeGuide";
+export { default as ContactUs } from "./ContactUs";

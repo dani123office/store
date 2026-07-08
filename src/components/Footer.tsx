@@ -24,11 +24,10 @@ const Footer = ({ logoText }: FooterProps) => {
           <div>
             <h3 className="text-nav-label uppercase tracking-tracked font-medium text-ink mb-5">Client Service</h3>
             <ul className="space-y-3 text-caption text-shade-50">
-              <li className="hover:text-ink transition-colors cursor-pointer">After-sale Service</li>
-              <li className="hover:text-ink transition-colors cursor-pointer">Free Insurance</li>
-              <li className="hover:text-ink transition-colors cursor-pointer">Shipping &amp; Returns</li>
-              <li className="hover:text-ink transition-colors cursor-pointer">FAQs</li>
-              <li className="hover:text-ink transition-colors cursor-pointer">Size Guide</li>
+              <li><Link to="/shipping-returns" className="hover:text-ink transition-colors">Shipping & Returns</Link></li>
+              <li><Link to="/faqs" className="hover:text-ink transition-colors">FAQs</Link></li>
+              <li><Link to="/size-guide" className="hover:text-ink transition-colors">Size Guide</Link></li>
+              <li><Link to="/contact" className="hover:text-ink transition-colors">Contact Us</Link></li>
             </ul>
           </div>
 
@@ -36,11 +35,7 @@ const Footer = ({ logoText }: FooterProps) => {
           <div>
             <h3 className="text-nav-label uppercase tracking-tracked font-medium text-ink mb-5">Our Brand</h3>
             <ul className="space-y-3 text-caption text-shade-50">
-              <li className="hover:text-ink transition-colors cursor-pointer">About Us</li>
-              <li className="hover:text-ink transition-colors cursor-pointer">The Excellence</li>
-              <li className="hover:text-ink transition-colors cursor-pointer">International Awards</li>
-              <li className="hover:text-ink transition-colors cursor-pointer">Our Story</li>
-              <li className="hover:text-ink transition-colors cursor-pointer">Careers</li>
+              <li><Link to="/about" className="hover:text-ink transition-colors">About Us</Link></li>
             </ul>
           </div>
 

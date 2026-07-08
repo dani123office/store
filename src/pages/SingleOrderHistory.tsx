@@ -30,7 +30,7 @@ const SingleOrderHistory = () => {
     if (!user?.id) {
       toast.error("Please login to view this page");
       navigate("/login");
-    } else if (singleOrder?.user && singleOrder.user.id !== user.id) {
+    } else if (singleOrder?.user && String(singleOrder.user.id) !== String(user.id)) {
       toast.error("Access denied. You are not authorized to view this order.");
       navigate("/order-history");
     }

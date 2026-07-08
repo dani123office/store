@@ -8,7 +8,8 @@ import {
   AdminMenus, AdminNotifications, AdminTax, AdminAddProduct, AdminInventory,
   AdminAnalytics, AdminMarketing, AdminDiscounts,
   AdminApps, AdminThemeEditor, Wishlist,
-  AdminMedia, AdminNav, AdminFacebookAds, AdminPreferences
+  AdminMedia, AdminNav, AdminFacebookAds, AdminPreferences,
+  AboutUs, ShippingReturns, FAQs, SizeGuide, ContactUs
 } from "./pages";
 import { checkoutAction, searchAction } from "./actions/index";
 import { shopCategoryLoader } from "./pages/Shop";
@@ -34,6 +35,11 @@ const router = createBrowserRouter([
       { path: "order-history", element: <OrderHistory />, loader: orderHistoryLoader },
       { path: "order-history/:id", element: <SingleOrderHistory />, loader: singleOrderLoader },
       { path: "wishlist", element: <Wishlist /> },
+      { path: "about", element: <AboutUs /> },
+      { path: "shipping-returns", element: <ShippingReturns /> },
+      { path: "faqs", element: <FAQs /> },
+      { path: "size-guide", element: <SizeGuide /> },
+      { path: "contact", element: <ContactUs /> },
     ],
   },
   {
