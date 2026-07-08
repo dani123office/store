@@ -63,6 +63,17 @@ const Checkout = () => {
   const [transactionId, setTransactionId] = useState("");
   const [paymentScreenshot, setPaymentScreenshot] = useState<File | null>(null);
 
+  const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
+  const [billingFirstName, setBillingFirstName] = useState("");
+  const [billingLastName, setBillingLastName] = useState("");
+  const [billingAddress, setBillingAddress] = useState("");
+  const [billingApartment, setBillingApartment] = useState("");
+  const [billingCity, setBillingCity] = useState("");
+  const [billingPostalCode, setBillingPostalCode] = useState("");
+  const [billingRegion, setBillingRegion] = useState("");
+  const [billingPhone, setBillingPhone] = useState("");
+  const [billingCountry, setBillingCountry] = useState("Pakistan");
+
   const [couponInput, setCouponInput] = useState("");
   const [shippingFee, setShippingFee] = useState<number>(500);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState<number>(0);
@@ -160,6 +171,19 @@ const Checkout = () => {
           return;
         }
       }
+
+      if (!billingSameAsShipping) {
+        if (!billingFirstName || !billingLastName || !billingAddress || !billingCity || !billingPostalCode || !billingPhone) {
+          toast.error("Please fill in all billing fields");
+          return;
+        }
+        const cleanBillingPhone = billingPhone.replace(/[^0-9]/g, "");
+        if (cleanBillingPhone.length < 10) {
+          toast.error("Please enter a valid billing phone number (at least 10 digits)");
+          return;
+        }
+      }
+
       setStep(3);
     }
   };
@@ -203,11 +227,21 @@ const Checkout = () => {
       apartment,
       city,
       postalCode,
-      region,
-      phone,
       country,
       paymentType,
       cardNumber: paymentType === "credit-card" ? "xxxx-xxxx-xxxx-" + cardNumber.slice(-4) : "N/A",
+      billingSameAsShipping,
+      ...(billingSameAsShipping ? {} : {
+        billingFirstName,
+        billingLastName,
+        billingAddress,
+        billingApartment,
+        billingCity,
+        billingPostalCode,
+        billingRegion,
+        billingPhone,
+        billingCountry,
+      })
     };
 
     if (isManualPayment) {
@@ -446,134 +480,336 @@ const Checkout = () => {
             )}
 
             {step === 2 && (
-              <div className="space-y-6 animate-fade">
-                <h3 className="text-caption uppercase tracking-tracked font-semibold text-ink border-b border-hairline pb-3">
-                  2. Choose Payment Method
-                </h3>
-                <div className="space-y-4">
-                  {paymentMethods.map((pm) => (
-                    <label
-                      key={pm.id}
-                      className={`flex items-center justify-between p-4 border rounded-md cursor-pointer hover:bg-canvas-cream transition-colors ${
-                        paymentType === pm.id ? "border-ink bg-canvas-cream" : "border-hairline"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="radio"
-                          name="paymentType"
-                          checked={paymentType === pm.id}
-                          onChange={() => setPaymentType(pm.id)}
-                          className="w-4 h-4 text-ink focus:ring-ink"
-                        />
-                        <span className="text-body-md font-medium text-ink">{pm.title}</span>
-                      </div>
-                      {pm.id === "credit-card" && (
-                        <div className="flex gap-1 text-caption font-bold text-shade-40">
-                          <span className="border px-1.5 py-0.5 rounded-sm">VISA</span>
-                          <span className="border px-1.5 py-0.5 rounded-sm">MC</span>
-                        </div>
-                      )}
-                    </label>
-                  ))}
-
-                  {paymentType === "credit-card" && (
-                    <div className="bg-canvas-cream border border-hairline p-5 rounded-md space-y-4 animate-fade">
-                      <div className="text-caption uppercase tracking-tracked text-shade-50 mb-2">
-                        SECURE CARD DETAILS (SANDBOX)
-                      </div>
-                      <div>
-                        <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Name on Card</label>
-                        <input
-                          type="text"
-                          value={nameOnCard}
-                          onChange={(e) => setNameOnCard(e.target.value)}
-                          className="block w-full py-2 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
-                          placeholder="John Doe"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Card Number</label>
-                        <input
-                          type="text"
-                          value={cardNumber}
-                          onChange={(e) => setCardNumber(e.target.value)}
-                          className="block w-full py-2 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
-                          placeholder="4111 2222 3333 4444"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Expiration Date</label>
-                          <input
-                            type="text"
-                            value={expirationDate}
-                            onChange={(e) => setExpirationDate(e.target.value)}
-                            className="block w-full py-2 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
-                            placeholder="MM/YY"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">CVC / CVV</label>
-                          <input
-                            type="text"
-                            value={cvc}
-                            onChange={(e) => setCvc(e.target.value)}
-                            className="block w-full py-2 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
-                            placeholder="123"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {paymentType === "razorpay" && (
-                    <div className="bg-blue-50 border border-blue-200 p-4 rounded-md text-caption text-blue-800 tracking-wide leading-relaxed animate-fade">
-                      <strong>Razorpay Sandbox Mode:</strong> Clicking final confirm will overlay a simulated UPI/QR payment request interface and verify transaction details instantly.
-                    </div>
-                  )}
-
-                  {paymentType === "easypaisa" && (
-                    <div className="bg-green-50 border border-green-200 rounded-md p-5 animate-fade space-y-4">
-                      <div className="flex items-center gap-3">
-                        <span className="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center text-sm font-bold">EP</span>
-                        <div>
-                          <p className="text-body-md text-ink font-semibold">Easypaisa</p>
-                          <p className="text-caption text-shade-50">Send payment to the number below</p>
-                        </div>
-                      </div>
-                      <div className="bg-white border border-green-200 rounded-lg p-4 text-center">
-                        <p className="text-caption uppercase tracking-tracked text-shade-50 mb-1">Merchant Account</p>
-                        <p className="text-2xl font-bold text-ink tracking-tight">{EASYPAISA_NUMBER}</p>
-                        <p className="text-caption text-shade-40 mt-1">Account Title: {EASYPAISA_NAME}</p>
-                      </div>
-                      <div>
-                        <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Transaction ID / TID</label>
-                        <input
-                          type="text"
-                          value={transactionId}
-                          onChange={(e) => setTransactionId(e.target.value)}
-                          className="block w-full py-2.5 px-3 border border-hairline bg-white outline-none focus:border-ink text-body-md"
-                          placeholder="e.g. TID12345678"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Payment Screenshot (optional)</label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => setPaymentScreenshot(e.target.files?.[0] || null)}
-                          className="block w-full py-2 px-3 border border-hairline bg-white outline-none focus:border-ink text-body-md file:mr-3 file:py-1.5 file:px-3 file:rounded-pill file:border-0 file:bg-ink file:text-on-primary file:text-caption file:uppercase file:tracking-tracked file:cursor-pointer"
-                        />
-                      </div>
-                      <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-caption text-amber-800">
-                        Your order will be placed on <strong>Awaiting Verification</strong> status. Admin will verify the payment and confirm the order.
-                      </div>
-                    </div>
-                  )}
+              <div className="space-y-8 animate-fade">
+                {/* Payment Section Header */}
+                <div>
+                  <h3 className="text-heading-md font-semibold text-ink mb-1">
+                    Payment
+                  </h3>
+                  <p className="text-body-md text-shade-50">
+                    All transactions are secure and encrypted.
+                  </p>
                 </div>
 
+                {/* Shopify-like Payment accordion container */}
+                <div className="border border-shade-30 rounded-lg overflow-hidden divide-y divide-hairline bg-white shadow-xs">
+                  {paymentMethods.map((pm) => {
+                    const isSelected = paymentType === pm.id;
+                    return (
+                      <div
+                        key={pm.id}
+                        className={`transition-all duration-200 ${
+                          isSelected
+                            ? "relative z-10 bg-[#f4f8ff] ring-1 ring-[#2563eb]"
+                            : "bg-white"
+                        }`}
+                      >
+                        <label className="flex items-center justify-between p-4 cursor-pointer select-none">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="radio"
+                              name="paymentType"
+                              checked={isSelected}
+                              onChange={() => setPaymentType(pm.id)}
+                              className="w-4 h-4 text-[#2563eb] focus:ring-[#2563eb] border-shade-40"
+                            />
+                            <span className="text-body-md font-semibold text-ink">
+                              {pm.title}
+                            </span>
+                          </div>
+                          
+                          {/* Payment Icons */}
+                          {pm.id === "credit-card" && (
+                            <div className="flex items-center gap-1.5">
+                              <span className="bg-[#1a1f71] text-white text-[8px] font-extrabold px-1.5 py-0.5 rounded-xs italic tracking-tighter">VISA</span>
+                              <div className="flex items-center bg-[#111] px-1 py-0.5 rounded-xs h-[18px]">
+                                <span className="w-2 h-2 rounded-full bg-[#eb001b]" />
+                                <span className="w-2 h-2 rounded-full bg-[#f79e1b] -ml-1 opacity-90" />
+                              </div>
+                              <span className="bg-[#016fd0] text-white text-[8px] font-bold px-1 py-0.5 rounded-xs tracking-tighter">AMEX</span>
+                            </div>
+                          )}
+                          {pm.id === "razorpay" && (
+                            <div className="flex items-center gap-1.5">
+                              <span className="bg-[#1a1f71] text-white text-[8px] font-extrabold px-1.5 py-0.5 rounded-xs italic tracking-tighter">VISA</span>
+                              <div className="flex items-center bg-[#111] px-1 py-0.5 rounded-xs h-[18px]">
+                                <span className="w-2 h-2 rounded-full bg-[#eb001b]" />
+                                <span className="w-2 h-2 rounded-full bg-[#f79e1b] -ml-1 opacity-90" />
+                              </div>
+                              <span className="bg-[#528ff0] text-white text-[8px] font-bold px-1.5 py-0.5 rounded-xs tracking-tighter uppercase">UPI</span>
+                            </div>
+                          )}
+                          {pm.id === "easypaisa" && (
+                            <span className="bg-green-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-pill">EasyPaisa</span>
+                          )}
+                        </label>
+
+                        {/* Collapsible drawers for inputs */}
+                        {isSelected && (
+                          <div className="px-4 pb-5 border-t border-hairline bg-[#fafafa]/50 animate-fade">
+                            {pm.id === "credit-card" && (
+                              <div className="pt-4 space-y-4 max-w-xl">
+                                <p className="text-caption uppercase tracking-tracked text-shade-40 font-bold">Secure Card Details (Sandbox)</p>
+                                <div>
+                                  <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Name on Card</label>
+                                  <input
+                                    type="text"
+                                    value={nameOnCard}
+                                    onChange={(e) => setNameOnCard(e.target.value)}
+                                    className="block w-full py-2 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
+                                    placeholder="John Doe"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Card Number</label>
+                                  <input
+                                    type="text"
+                                    value={cardNumber}
+                                    onChange={(e) => setCardNumber(e.target.value)}
+                                    className="block w-full py-2 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
+                                    placeholder="4111 2222 3333 4444"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Expiration Date</label>
+                                    <input
+                                      type="text"
+                                      value={expirationDate}
+                                      onChange={(e) => setExpirationDate(e.target.value)}
+                                      className="block w-full py-2 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
+                                      placeholder="MM/YY"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">CVC / CVV</label>
+                                    <input
+                                      type="text"
+                                      value={cvc}
+                                      onChange={(e) => setCvc(e.target.value)}
+                                      className="block w-full py-2 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
+                                      placeholder="123"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {pm.id === "razorpay" && (
+                              <div className="pt-4 text-caption text-blue-800 leading-relaxed max-w-xl">
+                                <strong>Razorpay Sandbox Mode:</strong> Instantly processes UPI, wallets, and card payments in simulated sandbox environment on review.
+                              </div>
+                            )}
+
+                            {pm.id === "easypaisa" && (
+                              <div className="pt-4 space-y-4 max-w-xl">
+                                <div className="flex items-center gap-3">
+                                  <span className="w-9 h-9 rounded-full bg-green-600 text-white flex items-center justify-center text-xs font-bold">EP</span>
+                                  <div>
+                                    <p className="text-body-md text-ink font-semibold">Easypaisa</p>
+                                    <p className="text-caption text-shade-50">Transfer to the merchant account below</p>
+                                  </div>
+                                </div>
+                                <div className="bg-canvas border border-hairline rounded-md p-4 text-center">
+                                  <p className="text-caption uppercase tracking-tracked text-shade-40 mb-1">Merchant Account</p>
+                                  <p className="text-xl font-bold text-ink tracking-tight">{EASYPAISA_NUMBER}</p>
+                                  <p className="text-caption text-shade-40 mt-1">Account Title: {EASYPAISA_NAME}</p>
+                                </div>
+                                <div>
+                                  <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Transaction ID / TID</label>
+                                  <input
+                                    type="text"
+                                    value={transactionId}
+                                    onChange={(e) => setTransactionId(e.target.value)}
+                                    className="block w-full py-2.5 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
+                                    placeholder="e.g. TID12345678"
+                                    required
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Payment Screenshot (optional)</label>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => setPaymentScreenshot(e.target.files?.[0] || null)}
+                                    className="block w-full py-2 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md file:mr-3 file:py-1.5 file:px-3 file:rounded-pill file:border-0 file:bg-ink file:text-on-primary file:text-caption file:uppercase file:tracking-tracked file:cursor-pointer"
+                                  />
+                                </div>
+                              </div>
+                            )}
+
+                            {pm.id === "cod" && (
+                              <div className="pt-4 text-caption text-shade-50 leading-relaxed max-w-xl">
+                                Pay in cash upon delivery. Ensure exact amount is ready for the courier agent.
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Billing Address Section Header */}
+                <div>
+                  <h3 className="text-heading-md font-semibold text-ink mb-1">
+                    Billing address
+                  </h3>
+                </div>
+
+                {/* Shopify-like Billing address selector */}
+                <div className="border border-shade-30 rounded-lg overflow-hidden divide-y divide-hairline bg-white shadow-xs">
+                  {/* Same as shipping */}
+                  <div
+                    className={`transition-all duration-200 ${
+                      billingSameAsShipping
+                        ? "relative z-10 bg-[#f4f8ff] ring-1 ring-[#2563eb]"
+                        : "bg-white"
+                    }`}
+                  >
+                    <label className="flex items-center gap-3 p-4 cursor-pointer select-none">
+                      <input
+                        type="radio"
+                        name="billingAddress"
+                        checked={billingSameAsShipping}
+                        onChange={() => setBillingSameAsShipping(true)}
+                        className="w-4 h-4 text-[#2563eb] focus:ring-[#2563eb] border-shade-40"
+                      />
+                      <span className="text-body-md font-semibold text-ink">
+                        Same as shipping address
+                      </span>
+                    </label>
+                  </div>
+
+                  {/* Different billing address */}
+                  <div
+                    className={`transition-all duration-200 ${
+                      !billingSameAsShipping
+                        ? "relative z-10 bg-[#f4f8ff] ring-1 ring-[#2563eb]"
+                        : "bg-white"
+                    }`}
+                  >
+                    <label className="flex items-center gap-3 p-4 cursor-pointer select-none">
+                      <input
+                        type="radio"
+                        name="billingAddress"
+                        checked={!billingSameAsShipping}
+                        onChange={() => setBillingSameAsShipping(false)}
+                        className="w-4 h-4 text-[#2563eb] focus:ring-[#2563eb] border-shade-40"
+                      />
+                      <span className="text-body-md font-semibold text-ink">
+                        Use a different billing address
+                      </span>
+                    </label>
+
+                    {/* Expandable different billing address form */}
+                    {!billingSameAsShipping && (
+                      <div className="px-4 pb-5 pt-2 border-t border-hairline bg-[#fafafa]/50 animate-fade space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">First Name</label>
+                            <input
+                              type="text"
+                              value={billingFirstName}
+                              onChange={(e) => setBillingFirstName(e.target.value)}
+                              className="block w-full py-2.5 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Last Name</label>
+                            <input
+                              type="text"
+                              value={billingLastName}
+                              onChange={(e) => setBillingLastName(e.target.value)}
+                              className="block w-full py-2.5 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Address</label>
+                          <input
+                            type="text"
+                            value={billingAddress}
+                            onChange={(e) => setBillingAddress(e.target.value)}
+                            className="block w-full py-2.5 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
+                            placeholder="Street name and number"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Apartment, suite, etc.</label>
+                          <input
+                            type="text"
+                            value={billingApartment}
+                            onChange={(e) => setBillingApartment(e.target.value)}
+                            className="block w-full py-2.5 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
+                            placeholder="Suite, unit, floor (optional)"
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">City</label>
+                            <input
+                              type="text"
+                              value={billingCity}
+                              onChange={(e) => setBillingCity(e.target.value)}
+                              className="block w-full py-2.5 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Postal Code</label>
+                            <input
+                              type="text"
+                              value={billingPostalCode}
+                              onChange={(e) => setBillingPostalCode(e.target.value)}
+                              className="block w-full py-2.5 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">State / Province</label>
+                            <input
+                              type="text"
+                              value={billingRegion}
+                              onChange={(e) => setBillingRegion(e.target.value)}
+                              className="block w-full py-2.5 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Country</label>
+                            <select
+                              value={billingCountry}
+                              onChange={(e) => setBillingCountry(e.target.value)}
+                              className="block w-full py-2.5 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
+                            >
+                              <option>Pakistan</option>
+                              <option>United States</option>
+                              <option>Canada</option>
+                              <option>United Kingdom</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Phone</label>
+                          <input
+                            type="text"
+                            value={billingPhone}
+                            onChange={(e) => setBillingPhone(e.target.value)}
+                            className="block w-full py-2.5 px-3 border border-hairline bg-canvas outline-none focus:border-ink text-body-md"
+                            required
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Navigation Buttons */}
                 <div className="flex gap-4 pt-6">
                   <button
                     onClick={prevStep}
