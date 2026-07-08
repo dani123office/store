@@ -199,7 +199,7 @@ export const defaultThemeSettings: ThemeSettings = {
   },
   footer: {
     facebook_url: "https://facebook.com",
-    instagram_url: "https://instagram.com",
+    instagram_url: "https://instagram.com/uzarka_couture",
     tiktok_url: "https://tiktok.com",
     pinterest_url: "https://pinterest.com",
     youtube_url: "https://youtube.com",
