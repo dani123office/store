@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useOutletContext, Link } from "react-router-dom";
-import { Banner, CategoriesSection, HomeCollectionSection, ProductItem } from "../components";
+import { Banner, CategoriesSection, HomeCollectionSection } from "../components";
 import { ThemeSettings } from "./HomeLayout";
 import customFetch from "../axios/custom";
+import { HiOutlineTruck, HiOutlineArrowPath, HiOutlineSparkles, HiOutlineLockClosed } from "react-icons/hi2";
 
 const Landing = () => {
   const settings = useOutletContext<ThemeSettings>();
@@ -48,6 +49,42 @@ const Landing = () => {
   return (
     <>
       <Banner themeSettings={activeSettings} />
+
+      {/* Trust Badges Bar */}
+      <section className="bg-canvas-cream border-y border-hairline py-8">
+        <div className="max-w-screen-2xl mx-auto px-5 sm:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="flex items-center gap-4 justify-center sm:justify-start">
+              <HiOutlineTruck className="text-3xl text-primary flex-shrink-0" />
+              <div>
+                <h4 className="text-caption uppercase tracking-tracked font-bold text-ink">Free Shipping</h4>
+                <p className="text-caption text-shade-50">Nationwide delivery on all orders</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 justify-center sm:justify-start">
+              <HiOutlineArrowPath className="text-3xl text-primary flex-shrink-0" />
+              <div>
+                <h4 className="text-caption uppercase tracking-tracked font-bold text-ink">Easy Exchange</h4>
+                <p className="text-caption text-shade-50">Hassle-free 7-day exchanges</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 justify-center sm:justify-start">
+              <HiOutlineSparkles className="text-3xl text-primary flex-shrink-0" />
+              <div>
+                <h4 className="text-caption uppercase tracking-tracked font-bold text-ink">Premium Fabric</h4>
+                <p className="text-caption text-shade-50">100% authentic luxury segments</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 justify-center sm:justify-start">
+              <HiOutlineLockClosed className="text-3xl text-primary flex-shrink-0" />
+              <div>
+                <h4 className="text-caption uppercase tracking-tracked font-bold text-ink">Secure Payments</h4>
+                <p className="text-caption text-shade-50">COD & encrypted SSL payments</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Featured Collections Tabbed Section */}
       {activeSettings.featured_collections?.enabled && (
@@ -141,41 +178,47 @@ const Landing = () => {
         </section>
       )}
 
-      {/* Trending Products Section — horizontal scroll */}
-      {activeSettings.trending_products?.enabled && trendingProducts.length > 0 && (
-        <section className="max-w-screen-2xl mx-auto px-5 sm:px-8 mt-huge">
-          <h2 className="section-title mb-10">
-            {activeSettings.trending_products?.title || "Trending Now"}
-          </h2>
-          <div className="horizontal-scroll-list">
-            {trendingProducts.map((product: Product) => (
-              <ProductItem
-                key={product.id}
-                id={product.id}
-                image={product.image}
-                title={product.title}
-                category={product.category}
-                price={product.price}
-                popularity={product.popularity}
-                stock={product.stock}
-              />
-            ))}
-          </div>
-          <div className="text-center mt-12">
-            <Link
-              to="/shop"
-              className="inline-block border border-ink text-ink text-button-label uppercase tracking-tracked font-semibold px-10 py-4 rounded-pill hover:bg-ink hover:text-on-primary transition-all duration-300"
-            >
-              View All Products
-            </Link>
-          </div>
-        </section>
-      )}
-
       {/* Categories Grid Section */}
       {activeSettings.categories_section?.enabled && (
         <CategoriesSection themeSettings={activeSettings} />
       )}
+
+      {/* Instagram Lookbook Gallery */}
+      <section className="max-w-screen-2xl mx-auto px-5 sm:px-8 mt-huge">
+        <div className="text-center mb-10">
+          <p className="text-script-lead text-primary/80 font-serif italic mb-1">#ZarkaCouture</p>
+          <h2 className="text-heading-section text-ink">Shop the Look</h2>
+          <p className="text-body-md text-shade-50 mt-2">Tag us on Instagram to be featured in our lookbook gallery.</p>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { img: "product image 1.jpg", link: "/shop" },
+            { img: "luxury fashion 7 1.png", link: "/shop" },
+            { img: "product image 5.jpg", link: "/shop" },
+            { img: "luxury fashion 7 2.png", link: "/shop" },
+          ].map((item, idx) => (
+            <div key={idx} className="relative group overflow-hidden aspect-[3/4] rounded-md bg-canvas-cream">
+              <img
+                src={`/assets/${item.img}`}
+                alt="Editorial Look"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/assets/banner.jpg";
+                }}
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/45 transition-all duration-300 flex items-center justify-center">
+                <Link
+                  to={item.link}
+                  className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 bg-white text-ink text-caption uppercase tracking-tracked font-semibold px-6 py-3 rounded-pill hover:bg-shade-20"
+                >
+                  View Outfit
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Newsletter Section */}
       <section className="bg-canvas-cream mt-huge py-huge">
