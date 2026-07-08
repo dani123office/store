@@ -68,6 +68,38 @@ export interface ThemeSettings {
     right_btn_text: string;
     right_btn_link: string;
   };
+  instagram_gallery: {
+    enabled: boolean;
+    title: string;
+    hashtag: string;
+    items: {
+      image: string;
+      link: string;
+    }[];
+  };
+  trust_bar: {
+    enabled: boolean;
+    items: {
+      icon: string;
+      title: string;
+      subtitle: string;
+    }[];
+  };
+  newsletter: {
+    enabled: boolean;
+    title: string;
+    subtitle: string;
+    button_text: string;
+  };
+  footer: {
+    facebook_url: string;
+    instagram_url: string;
+    tiktok_url: string;
+    pinterest_url: string;
+    youtube_url: string;
+    phone: string;
+    email: string;
+  };
 }
 
 export const defaultThemeSettings: ThemeSettings = {
@@ -138,6 +170,41 @@ export const defaultThemeSettings: ThemeSettings = {
     right_title: "Bridal Couture",
     right_btn_text: "Explore Collection",
     right_btn_link: "/shop/bridals",
+  },
+  instagram_gallery: {
+    enabled: true,
+    title: "Shop the Look",
+    hashtag: "#ZarkaCouture",
+    items: [
+      { image: "product image 1.jpg", link: "/shop" },
+      { image: "luxury fashion 7 1.png", link: "/shop" },
+      { image: "product image 5.jpg", link: "/shop" },
+      { image: "luxury fashion 7 2.png", link: "/shop" },
+    ],
+  },
+  trust_bar: {
+    enabled: true,
+    items: [
+      { icon: "truck", title: "Free Shipping", subtitle: "Nationwide delivery on all orders" },
+      { icon: "arrow-path", title: "Easy Exchange", subtitle: "Hassle-free 7-day exchanges" },
+      { icon: "sparkles", title: "Premium Fabric", subtitle: "100% authentic luxury segments" },
+      { icon: "lock", title: "Secure Payments", subtitle: "COD & encrypted SSL payments" },
+    ],
+  },
+  newsletter: {
+    enabled: true,
+    title: "Join the Zarka Club",
+    subtitle: "Subscribe to receive updates, access to exclusive deals, and more.",
+    button_text: "Subscribe",
+  },
+  footer: {
+    facebook_url: "https://facebook.com",
+    instagram_url: "https://instagram.com",
+    tiktok_url: "https://tiktok.com",
+    pinterest_url: "https://pinterest.com",
+    youtube_url: "https://youtube.com",
+    phone: "+923-111-111-975",
+    email: "info@zarkacouture.com",
   },
 };
 
@@ -267,6 +334,10 @@ const HomeLayout = () => {
               installments: { ...defaultThemeSettings.installments, ...(parsed.installments || {}) },
               featured_collections: { ...defaultThemeSettings.featured_collections, ...(parsed.featured_collections || {}) },
               trending_products: { ...defaultThemeSettings.trending_products, ...(parsed.trending_products || {}) },
+              instagram_gallery: { ...defaultThemeSettings.instagram_gallery, ...(parsed.instagram_gallery || {}) },
+              trust_bar: { ...defaultThemeSettings.trust_bar, ...(parsed.trust_bar || {}) },
+              newsletter: { ...defaultThemeSettings.newsletter, ...(parsed.newsletter || {}) },
+              footer: { ...defaultThemeSettings.footer, ...(parsed.footer || {}) },
             });
             return;
           }
@@ -295,7 +366,7 @@ const HomeLayout = () => {
   return (
     <>
       <ScrollToTop />
-      <Header />
+      <Header logoText={settings.logo_text} />
       <AnimatePresence mode="wait">
         <motion.div
           key={location.pathname}
@@ -307,7 +378,7 @@ const HomeLayout = () => {
           <Outlet context={settings} />
         </motion.div>
       </AnimatePresence>
-      <Footer logoText={settings.logo_text} />
+      <Footer themeSettings={settings} />
 
       {/* Floating WhatsApp Button */}
       {wa.enabled && wa.phone && (

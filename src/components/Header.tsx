@@ -20,7 +20,7 @@ interface HeaderProps {
   logoText?: string;
 }
 
-const Header = ({}: HeaderProps) => {
+const Header = ({ logoText }: HeaderProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [navItems, setNavItems] = useState(defaultNavItems);
@@ -63,7 +63,7 @@ const Header = ({}: HeaderProps) => {
 
             {/* Logo */}
             <Link to="/">
-              <img src="/assets/zlogo.png" alt="ZARKA COUTURE" className="max-h-14 w-auto object-contain" />
+              <img src="/assets/zlogo.png" alt={logoText || "ZARKA COUTURE"} className="max-h-14 w-auto object-contain" />
             </Link>
 
             {/* Desktop navigation */}

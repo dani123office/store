@@ -1,11 +1,15 @@
 import SocialMediaFooter from "./SocialMediaFooter";
 import { Link } from "react-router-dom";
+import { ThemeSettings } from "../pages/HomeLayout";
 
 interface FooterProps {
-  logoText?: string;
+  themeSettings?: ThemeSettings;
 }
 
-const Footer = ({ logoText }: FooterProps) => {
+const Footer = ({ themeSettings }: FooterProps) => {
+  const logoText = themeSettings?.logo_text || "ZARKA COUTURE";
+  const contactPhone = themeSettings?.footer?.phone || "+923-111-111-975";
+  const contactEmail = themeSettings?.footer?.email || "info@zarkacouture.com";
   return (
     <footer className="bg-canvas text-ink border-t border-hairline">
       <div className="max-w-screen-2xl mx-auto px-5 sm:px-8 pt-12 pb-8">
@@ -15,9 +19,13 @@ const Footer = ({ logoText }: FooterProps) => {
             <Link to="/" className="block mb-4">
               <img src="/assets/zlogo.png" alt="ZARKA COUTURE" className="max-h-14 w-auto object-contain" />
             </Link>
-            <p className="text-caption text-shade-50 leading-relaxed">
+            <p className="text-caption text-shade-50 leading-relaxed mb-4">
               Unstitched fabric, ready-to-wear, and accessories — crafted for the modern woman.
             </p>
+            <div className="text-[11px] text-shade-40 space-y-1">
+              <p>T: {contactPhone}</p>
+              <p>E: {contactEmail}</p>
+            </div>
           </div>
 
           {/* Client Service */}
@@ -70,7 +78,7 @@ const Footer = ({ logoText }: FooterProps) => {
           </p>
         </div>
       </div>
-      <SocialMediaFooter />
+      <SocialMediaFooter themeSettings={themeSettings} />
     </footer>
   );
 };

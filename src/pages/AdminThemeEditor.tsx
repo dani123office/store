@@ -75,6 +75,38 @@ interface ThemeSettings {
     right_btn_text: string;
     right_btn_link: string;
   };
+  instagram_gallery: {
+    enabled: boolean;
+    title: string;
+    hashtag: string;
+    items: {
+      image: string;
+      link: string;
+    }[];
+  };
+  trust_bar: {
+    enabled: boolean;
+    items: {
+      icon: string;
+      title: string;
+      subtitle: string;
+    }[];
+  };
+  newsletter: {
+    enabled: boolean;
+    title: string;
+    subtitle: string;
+    button_text: string;
+  };
+  footer: {
+    facebook_url: string;
+    instagram_url: string;
+    tiktok_url: string;
+    pinterest_url: string;
+    youtube_url: string;
+    phone: string;
+    email: string;
+  };
 }
 
 const defaultThemeSettings: ThemeSettings = {
@@ -146,6 +178,41 @@ const defaultThemeSettings: ThemeSettings = {
     right_btn_text: "Explore Collection",
     right_btn_link: "/shop/bridals",
   },
+  instagram_gallery: {
+    enabled: true,
+    title: "Shop the Look",
+    hashtag: "#ZarkaCouture",
+    items: [
+      { image: "product image 1.jpg", link: "/shop" },
+      { image: "luxury fashion 7 1.png", link: "/shop" },
+      { image: "product image 5.jpg", link: "/shop" },
+      { image: "luxury fashion 7 2.png", link: "/shop" },
+    ],
+  },
+  trust_bar: {
+    enabled: true,
+    items: [
+      { icon: "truck", title: "Free Shipping", subtitle: "Nationwide delivery on all orders" },
+      { icon: "arrow-path", title: "Easy Exchange", subtitle: "Hassle-free 7-day exchanges" },
+      { icon: "sparkles", title: "Premium Fabric", subtitle: "100% authentic luxury segments" },
+      { icon: "lock", title: "Secure Payments", subtitle: "COD & encrypted SSL payments" },
+    ],
+  },
+  newsletter: {
+    enabled: true,
+    title: "Join the Zarka Club",
+    subtitle: "Subscribe to receive updates, access to exclusive deals, and more.",
+    button_text: "Subscribe",
+  },
+  footer: {
+    facebook_url: "https://facebook.com",
+    instagram_url: "https://instagram.com",
+    tiktok_url: "https://tiktok.com",
+    pinterest_url: "https://pinterest.com",
+    youtube_url: "https://youtube.com",
+    phone: "+923-111-111-975",
+    email: "info@zarkacouture.com",
+  },
 };
 
 const AdminThemeEditor = () => {
@@ -153,7 +220,7 @@ const AdminThemeEditor = () => {
   const [settings, setSettings] = useState<ThemeSettings>(defaultThemeSettings);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<"general" | "announcement" | "slideshow" | "collections" | "whatsapp" | "installments" | "promotional">("general");
+  const [activeTab, setActiveTab] = useState<"general" | "announcement" | "slideshow" | "collections" | "whatsapp" | "installments" | "promotional" | "instagram" | "trust_bar" | "newsletter" | "footer">("general");
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
   const [categories, setCategories] = useState<{ id: number; cat_title: string }[]>([]);
   const [previewKey, setPreviewKey] = useState(0);
@@ -168,6 +235,7 @@ const AdminThemeEditor = () => {
   const [mediaTarget, setMediaTarget] = useState<
     | { type: "slide"; slideId: string }
     | { type: "promo"; side: "left" | "right" }
+    | { type: "instagram"; index: number }
     | null
   >(null);
 
@@ -237,6 +305,17 @@ const AdminThemeEditor = () => {
         },
       }));
       toast.success("Promotional image updated");
+    } else if (mediaTarget.type === "instagram") {
+      setSettings((prev) => ({
+        ...prev,
+        instagram_gallery: {
+          ...prev.instagram_gallery,
+          items: prev.instagram_gallery.items.map((item: any, idx: number) =>
+            idx === mediaTarget.index ? { ...item, image: filename } : item
+          ),
+        },
+      }));
+      toast.success("Lookbook image updated");
     }
 
     setShowMediaModal(false);
@@ -484,6 +563,30 @@ const AdminThemeEditor = () => {
               className={`px-4 py-3 border-b-2 whitespace-nowrap ${activeTab === "promotional" ? "border-[#2c6ecb] text-[#2c6ecb] bg-white font-semibold" : "border-transparent hover:text-[#202223]"}`}
             >
               Promotional
+            </button>
+            <button
+              onClick={() => setActiveTab("instagram")}
+              className={`px-4 py-3 border-b-2 whitespace-nowrap ${activeTab === "instagram" ? "border-[#2c6ecb] text-[#2c6ecb] bg-white font-semibold" : "border-transparent hover:text-[#202223]"}`}
+            >
+              Lookbook
+            </button>
+            <button
+              onClick={() => setActiveTab("trust_bar")}
+              className={`px-4 py-3 border-b-2 whitespace-nowrap ${activeTab === "trust_bar" ? "border-[#2c6ecb] text-[#2c6ecb] bg-white font-semibold" : "border-transparent hover:text-[#202223]"}`}
+            >
+              Trust Badges
+            </button>
+            <button
+              onClick={() => setActiveTab("newsletter")}
+              className={`px-4 py-3 border-b-2 whitespace-nowrap ${activeTab === "newsletter" ? "border-[#2c6ecb] text-[#2c6ecb] bg-white font-semibold" : "border-transparent hover:text-[#202223]"}`}
+            >
+              Newsletter
+            </button>
+            <button
+              onClick={() => setActiveTab("footer")}
+              className={`px-4 py-3 border-b-2 whitespace-nowrap ${activeTab === "footer" ? "border-[#2c6ecb] text-[#2c6ecb] bg-white font-semibold" : "border-transparent hover:text-[#202223]"}`}
+            >
+              Footer & Social
             </button>
           </div>
 
@@ -1040,6 +1143,249 @@ const AdminThemeEditor = () => {
                     </div>
                   </>
                 )}
+              </div>
+            )}
+
+            {/* Lookbook / Instagram Gallery */}
+            {activeTab === "instagram" && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-[#202223] border-b pb-2">Instagram Lookbook</h3>
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" id="insta_enabled"
+                    checked={settings.instagram_gallery?.enabled}
+                    onChange={(e) => setSettings({ ...settings, instagram_gallery: { ...settings.instagram_gallery, enabled: e.target.checked } })}
+                    className="rounded text-[#2c6ecb] focus:ring-[#2c6ecb] border-[#e0e0e0]"
+                  />
+                  <label htmlFor="insta_enabled" className="text-xs font-medium text-[#202223] cursor-pointer">Enable Lookbook Section</label>
+                </div>
+                {settings.instagram_gallery?.enabled && (
+                  <>
+                    <div>
+                      <label className="block text-xs font-medium text-[#202223] mb-1">Section Title</label>
+                      <input type="text" value={settings.instagram_gallery.title}
+                        onChange={(e) => setSettings({ ...settings, instagram_gallery: { ...settings.instagram_gallery, title: e.target.value } })}
+                        className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[#202223] mb-1">Hashtag / Subtext</label>
+                      <input type="text" value={settings.instagram_gallery.hashtag}
+                        onChange={(e) => setSettings({ ...settings, instagram_gallery: { ...settings.instagram_gallery, hashtag: e.target.value } })}
+                        className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                      />
+                    </div>
+                    <div className="space-y-3 pt-2">
+                      <p className="text-xs font-semibold text-[#202223]">Lookbook Images (4 items)</p>
+                      {settings.instagram_gallery.items.map((item, idx) => (
+                        <div key={idx} className="p-3 bg-gray-50 rounded-lg space-y-2 border border-gray-100">
+                          <p className="text-[10px] font-bold text-gray-500 uppercase">Image {idx + 1}</p>
+                          <div>
+                            <label className="block text-xs text-[#202223] mb-1">Image file</label>
+                            <div className="flex flex-col gap-1">
+                              <input type="text" value={item.image}
+                                onChange={(e) => {
+                                  const items = [...settings.instagram_gallery.items];
+                                  items[idx] = { ...items[idx], image: e.target.value };
+                                  setSettings({ ...settings, instagram_gallery: { ...settings.instagram_gallery, items } });
+                                }}
+                                className="w-full border border-[#e0e0e0] rounded-lg px-3 py-1.5 text-xs outline-none focus:border-[#2c6ecb]"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setMediaTarget({ type: "instagram", index: idx });
+                                  setShowMediaModal(true);
+                                }}
+                                className="flex items-center justify-center gap-1 cursor-pointer bg-white border border-[#e0e0e0] rounded-lg px-3 py-1.5 text-xs font-semibold text-[#6d7175] hover:bg-gray-50"
+                              >
+                                <HiOutlinePhoto className="text-sm" /> Choose Image
+                              </button>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-xs text-[#202223] mb-1">Redirect Link</label>
+                            <input type="text" value={item.link}
+                              onChange={(e) => {
+                                  const items = [...settings.instagram_gallery.items];
+                                  items[idx] = { ...items[idx], link: e.target.value };
+                                  setSettings({ ...settings, instagram_gallery: { ...settings.instagram_gallery, items } });
+                              }}
+                              className="w-full border border-[#e0e0e0] rounded-lg px-3 py-1.5 text-xs outline-none focus:border-[#2c6ecb]"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Trust Badges Bar */}
+            {activeTab === "trust_bar" && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-[#202223] border-b pb-2">Trust Badges Bar</h3>
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" id="trust_enabled"
+                    checked={settings.trust_bar?.enabled}
+                    onChange={(e) => setSettings({ ...settings, trust_bar: { ...settings.trust_bar, enabled: e.target.checked } })}
+                    className="rounded text-[#2c6ecb] focus:ring-[#2c6ecb] border-[#e0e0e0]"
+                  />
+                  <label htmlFor="trust_enabled" className="text-xs font-medium text-[#202223] cursor-pointer">Enable Trust Badges Bar</label>
+                </div>
+                {settings.trust_bar?.enabled && (
+                  <div className="space-y-4 pt-2">
+                    {settings.trust_bar.items.map((item, idx) => (
+                      <div key={idx} className="p-3 bg-gray-50 rounded-lg space-y-2 border border-gray-100">
+                        <p className="text-[10px] font-bold text-gray-500 uppercase">Badge {idx + 1}</p>
+                        <div>
+                          <label className="block text-xs text-[#202223] mb-1">Icon Style</label>
+                          <select value={item.icon}
+                            onChange={(e) => {
+                              const items = [...settings.trust_bar.items];
+                              items[idx] = { ...items[idx], icon: e.target.value };
+                              setSettings({ ...settings, trust_bar: { ...settings.trust_bar, items } });
+                            }}
+                            className="w-full border border-[#e0e0e0] rounded-lg px-3 py-1.5 text-xs bg-white"
+                          >
+                            <option value="truck">Truck (Shipping)</option>
+                            <option value="arrow-path">Arrow Path (Exchange/Return)</option>
+                            <option value="sparkles">Sparkles (Quality/Premium)</option>
+                            <option value="lock">Lock (Secure Payments)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#202223] mb-1">Title</label>
+                          <input type="text" value={item.title}
+                            onChange={(e) => {
+                              const items = [...settings.trust_bar.items];
+                              items[idx] = { ...items[idx], title: e.target.value };
+                              setSettings({ ...settings, trust_bar: { ...settings.trust_bar, items } });
+                            }}
+                            className="w-full border border-[#e0e0e0] rounded-lg px-3 py-1.5 text-xs outline-none focus:border-[#2c6ecb]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#202223] mb-1">Subtitle</label>
+                          <input type="text" value={item.subtitle}
+                            onChange={(e) => {
+                              const items = [...settings.trust_bar.items];
+                              items[idx] = { ...items[idx], subtitle: e.target.value };
+                              setSettings({ ...settings, trust_bar: { ...settings.trust_bar, items } });
+                            }}
+                            className="w-full border border-[#e0e0e0] rounded-lg px-3 py-1.5 text-xs outline-none focus:border-[#2c6ecb]"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Newsletter Settings */}
+            {activeTab === "newsletter" && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-[#202223] border-b pb-2">Newsletter Box</h3>
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" id="news_enabled"
+                    checked={settings.newsletter?.enabled}
+                    onChange={(e) => setSettings({ ...settings, newsletter: { ...settings.newsletter, enabled: e.target.checked } })}
+                    className="rounded text-[#2c6ecb] focus:ring-[#2c6ecb] border-[#e0e0e0]"
+                  />
+                  <label htmlFor="news_enabled" className="text-xs font-medium text-[#202223] cursor-pointer">Enable Newsletter Section</label>
+                </div>
+                {settings.newsletter?.enabled && (
+                  <>
+                    <div>
+                      <label className="block text-xs font-medium text-[#202223] mb-1">Title</label>
+                      <input type="text" value={settings.newsletter.title}
+                        onChange={(e) => setSettings({ ...settings, newsletter: { ...settings.newsletter, title: e.target.value } })}
+                        className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[#202223] mb-1">Subtitle / Description</label>
+                      <textarea value={settings.newsletter.subtitle} rows={3}
+                        onChange={(e) => setSettings({ ...settings, newsletter: { ...settings.newsletter, subtitle: e.target.value } })}
+                        className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[#202223] mb-1">Button Label</label>
+                      <input type="text" value={settings.newsletter.button_text}
+                        onChange={(e) => setSettings({ ...settings, newsletter: { ...settings.newsletter, button_text: e.target.value } })}
+                        className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Footer & Social Settings */}
+            {activeTab === "footer" && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-[#202223] border-b pb-2">Footer & Socials</h3>
+                <div>
+                  <p className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Social Links</p>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-medium text-[#202223] mb-1">Instagram URL</label>
+                      <input type="text" value={settings.footer?.instagram_url}
+                        onChange={(e) => setSettings({ ...settings, footer: { ...settings.footer, instagram_url: e.target.value } })}
+                        className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[#202223] mb-1">Facebook URL</label>
+                      <input type="text" value={settings.footer?.facebook_url}
+                        onChange={(e) => setSettings({ ...settings, footer: { ...settings.footer, facebook_url: e.target.value } })}
+                        className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[#202223] mb-1">TikTok URL</label>
+                      <input type="text" value={settings.footer?.tiktok_url}
+                        onChange={(e) => setSettings({ ...settings, footer: { ...settings.footer, tiktok_url: e.target.value } })}
+                        className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[#202223] mb-1">Pinterest URL</label>
+                      <input type="text" value={settings.footer?.pinterest_url}
+                        onChange={(e) => setSettings({ ...settings, footer: { ...settings.footer, pinterest_url: e.target.value } })}
+                        className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[#202223] mb-1">YouTube URL</label>
+                      <input type="text" value={settings.footer?.youtube_url}
+                        onChange={(e) => setSettings({ ...settings, footer: { ...settings.footer, youtube_url: e.target.value } })}
+                        className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="pt-2">
+                  <p className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Contact Info</p>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-medium text-[#202223] mb-1">Support Phone</label>
+                      <input type="text" value={settings.footer?.phone}
+                        onChange={(e) => setSettings({ ...settings, footer: { ...settings.footer, phone: e.target.value } })}
+                        className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[#202223] mb-1">Support Email</label>
+                      <input type="text" value={settings.footer?.email}
+                        onChange={(e) => setSettings({ ...settings, footer: { ...settings.footer, email: e.target.value } })}
+                        className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#2c6ecb]"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
