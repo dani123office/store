@@ -11,7 +11,6 @@ const EASYPAISA_NAME = "Zarka Usman";
 
 const paymentMethods = [
   { id: "credit-card", title: "Credit Card / Debit Card" },
-  { id: "razorpay", title: "Razorpay Secure (UPI/Wallet)" },
   { id: "easypaisa", title: "Easypaisa" },
   { id: "cod", title: "Cash on Delivery" },
 ];
@@ -529,16 +528,6 @@ const Checkout = () => {
                               <span className="bg-[#016fd0] text-white text-[8px] font-bold px-1 py-0.5 rounded-xs tracking-tighter">AMEX</span>
                             </div>
                           )}
-                          {pm.id === "razorpay" && (
-                            <div className="flex items-center gap-1.5">
-                              <span className="bg-[#1a1f71] text-white text-[8px] font-extrabold px-1.5 py-0.5 rounded-xs italic tracking-tighter">VISA</span>
-                              <div className="flex items-center bg-[#111] px-1 py-0.5 rounded-xs h-[18px]">
-                                <span className="w-2 h-2 rounded-full bg-[#eb001b]" />
-                                <span className="w-2 h-2 rounded-full bg-[#f79e1b] -ml-1 opacity-90" />
-                              </div>
-                              <span className="bg-[#528ff0] text-white text-[8px] font-bold px-1.5 py-0.5 rounded-xs tracking-tighter uppercase">UPI</span>
-                            </div>
-                          )}
                           {pm.id === "easypaisa" && (
                             <span className="bg-green-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-pill">EasyPaisa</span>
                           )}
@@ -595,11 +584,6 @@ const Checkout = () => {
                               </div>
                             )}
 
-                            {pm.id === "razorpay" && (
-                              <div className="pt-4 text-caption text-blue-800 leading-relaxed max-w-xl">
-                                <strong>Razorpay Sandbox Mode:</strong> Instantly processes UPI, wallets, and card payments in simulated sandbox environment on review.
-                              </div>
-                            )}
 
                             {pm.id === "easypaisa" && (
                               <div className="pt-4 space-y-4 max-w-xl">
