@@ -334,7 +334,7 @@ const Checkout = () => {
                       required
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">First Name</label>
                       <input
@@ -377,7 +377,7 @@ const Checkout = () => {
                       placeholder="Suite, unit, floor (optional)"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">City</label>
                       <input
@@ -399,7 +399,7 @@ const Checkout = () => {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">State / Province</label>
                       <input

@@ -529,7 +529,7 @@ const SingleProduct = () => {
             <form onSubmit={handleReviewSubmit} className="bg-canvas border border-hairline p-6 rounded-md space-y-4">
               <h3 className="text-caption uppercase tracking-tracked font-semibold text-ink">Write a Review</h3>
               
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                   <label className="block text-caption uppercase tracking-tracked text-shade-50 mb-1">Name</label>
                   <input

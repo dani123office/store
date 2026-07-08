@@ -25,15 +25,15 @@ const Search = () => {
     <div className="max-w-screen-2xl mx-auto px-5">
       <Form
         method="post"
-        className="flex items-center mt-16"
+        className="flex flex-col sm:flex-row items-center mt-16 gap-4"
       >
         <input
           type="text"
           placeholder="Search products..."
-          className="border border-hairline focus:border-ink h-12 text-body-md px-4 w-full outline-none tracking-tracked-wide"
+          className="border border-hairline focus:border-ink h-12 text-body-md px-5 w-full outline-none tracking-tracked-wide rounded-pill"
           name="searchInput"
         />
-        <div className="w-40">
+        <div className="w-full sm:w-40 flex-shrink-0">
           <Button mode="black" text="Search" type="submit" />
         </div>
       </Form>
