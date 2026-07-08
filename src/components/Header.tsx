@@ -52,7 +52,7 @@ const Header = ({ logoText }: HeaderProps) => {
     <>
       <header className="sticky top-0 z-40 bg-canvas border-b border-hairline/60 transition-all duration-300">
         <div className="max-w-screen-2xl mx-auto px-5 sm:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-20">
             {/* Mobile menu trigger */}
             <button
               className="lg:hidden text-xl text-ink"
@@ -63,7 +63,7 @@ const Header = ({ logoText }: HeaderProps) => {
 
             {/* Logo */}
             <Link to="/">
-              <img src="/assets/zlogo.png" alt={logoText || "ZARKA COUTURE"} className="max-h-14 w-auto object-contain" />
+              <img src="/assets/zlogo.png" alt={logoText || "ZARKA COUTURE"} className="max-h-16 sm:max-h-[70px] w-auto object-contain" />
             </Link>
 
             {/* Desktop navigation */}
