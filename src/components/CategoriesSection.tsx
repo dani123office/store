@@ -48,7 +48,7 @@ const CategoriesSection = ({ themeSettings }: CategoriesSectionProps) => {
   return (
     <section className="max-w-screen-2xl mx-auto px-5 sm:px-8 mt-huge mb-huge">
       <h2 className="section-title mb-10">{title}</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="horizontal-scroll-list">
         {categories.map((cat) => (
           <CategoryItem
             key={cat.link}
