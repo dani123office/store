@@ -31,6 +31,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           source: "dist/*"
           target: "/var/www/store"
+          timeout: 120s
 
       - name: Run Backend Deploy Commands via SSH
         uses: appleboy/ssh-action@v1.0.3
