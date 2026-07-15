@@ -68,11 +68,22 @@ jobs:
             
             # --- Update Nginx Config ---
             echo "Updating Nginx configuration..."
-            # Add client_max_body_size if not present
-            if ! grep -q "client_max_body_size" /etc/nginx/sites-available/store-ip; then
-                sed -i '/server_name _;/a \    client_max_body_size 20M;' /etc/nginx/sites-available/store-ip
-            else
-                sed -i 's/client_max_body_size [0-9]\+M;/client_max_body_size 20M;/g' /etc/nginx/sites-available/store-ip
+            # Add client_max_body_size to store-ip if not present
+            if [ -f /etc/nginx/sites-available/store-ip ]; then
+                if ! grep -q "client_max_body_size" /etc/nginx/sites-available/store-ip; then
+                    sed -i '/server_name _;/a \    client_max_body_size 20M;' /etc/nginx/sites-available/store-ip
+                else
+                    sed -i 's/client_max_body_size [0-9]\+M;/client_max_body_size 20M;/g' /etc/nginx/sites-available/store-ip
+                fi
+            fi
+            
+            # Add client_max_body_size to zarkacouture.com if not present
+            if [ -f /etc/nginx/sites-available/zarkacouture.com ]; then
+                if ! grep -q "client_max_body_size" /etc/nginx/sites-available/zarkacouture.com; then
+                    sed -i '/server_name zarkacouture.com www.zarkacouture.com;/a \    client_max_body_size 20M;' /etc/nginx/sites-available/zarkacouture.com
+                else
+                    sed -i 's/client_max_body_size [0-9]\+M;/client_max_body_size 20M;/g' /etc/nginx/sites-available/zarkacouture.com
+                fi
             fi
             
             nginx -t
