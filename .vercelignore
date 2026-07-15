@@ -1,6 +1,0 @@
-backend/
-node_modules/
-deploy.bat
-.git
-.git_temp
-.github/

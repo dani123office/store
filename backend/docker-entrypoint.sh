@@ -11,12 +11,20 @@ echo "APP_NAME=Store" > /var/www/html/.env
 echo "APP_ENV=production" >> /var/www/html/.env
 echo "APP_KEY=base64:egS+g2OC0U8NaEgM19xPl8+KEpytaxjyhH0dmA8x2Yo=" >> /var/www/html/.env
 echo "APP_DEBUG=false" >> /var/www/html/.env
-echo "DB_CONNECTION=${DB_CONNECTION:-sqlite}" >> /var/www/html/.env
-echo "DB_HOST=${DB_HOST}" >> /var/www/html/.env
-echo "DB_PORT=${DB_PORT}" >> /var/www/html/.env
-echo "DB_DATABASE=${DB_DATABASE}" >> /var/www/html/.env
-echo "DB_USERNAME=${DB_USERNAME}" >> /var/www/html/.env
-echo "DB_PASSWORD=${DB_PASSWORD}" >> /var/www/html/.env
+
+DB_CONN="${DB_CONNECTION:-sqlite}"
+echo "DB_CONNECTION=${DB_CONN}" >> /var/www/html/.env
+
+if [ "$DB_CONN" = "sqlite" ]; then
+    echo "DB_DATABASE=/var/www/html/database/database.sqlite" >> /var/www/html/.env
+else
+    if [ ! -z "$DB_HOST" ]; then echo "DB_HOST=${DB_HOST}" >> /var/www/html/.env; fi
+    if [ ! -z "$DB_PORT" ]; then echo "DB_PORT=${DB_PORT}" >> /var/www/html/.env; fi
+    if [ ! -z "$DB_DATABASE" ]; then echo "DB_DATABASE=${DB_DATABASE}" >> /var/www/html/.env; fi
+    if [ ! -z "$DB_USERNAME" ]; then echo "DB_USERNAME=${DB_USERNAME}" >> /var/www/html/.env; fi
+    if [ ! -z "$DB_PASSWORD" ]; then echo "DB_PASSWORD=${DB_PASSWORD}" >> /var/www/html/.env; fi
+fi
+
 echo "SESSION_DRIVER=file" >> /var/www/html/.env
 echo "CACHE_STORE=file" >> /var/www/html/.env
 

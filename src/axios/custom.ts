@@ -5,7 +5,7 @@ import axios from "axios";
  * Reads configurations dynamically from Vite environment variables.
  */
 const customFetch = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "https://store-production-3fb2.up.railway.app/api",
+    baseURL: import.meta.env.VITE_API_URL || "/api",
     headers: {
         Accept: "application/json"
     }
