@@ -104,7 +104,7 @@ export interface ThemeSettings {
 
 export const defaultThemeSettings: ThemeSettings = {
   announcement: {
-    text: "Free Shipping Nationwide — For Queries: +923-111-111-975",
+    text: "Free Shipping Nationwide — For Queries: 0301 5158089",
     bg_color: "#000000",
     text_color: "#ffffff",
     enabled: true,
@@ -203,7 +203,7 @@ export const defaultThemeSettings: ThemeSettings = {
     tiktok_url: "https://tiktok.com",
     pinterest_url: "https://pinterest.com",
     youtube_url: "https://youtube.com",
-    phone: "+923-111-111-975",
+    phone: "0301 5158089",
     email: "info@zarkacouture.com",
   },
 };

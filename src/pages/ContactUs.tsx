@@ -7,8 +7,8 @@ const contactInfo = [
   {
     icon: <HiOutlinePhone className="text-2xl" />,
     label: "Phone",
-    value: "+92 311 1111 975",
-    link: "tel:+923111111975",
+    value: "0301 5158089",
+    link: "tel:+923015158089",
   },
   {
     icon: <HiOutlineEnvelope className="text-2xl" />,
@@ -19,7 +19,7 @@ const contactInfo = [
   {
     icon: <HiOutlineMapPin className="text-2xl" />,
     label: "Address",
-    value: "ZARKA COUTURE, Pakistan",
+    value: "20 Street, 20 Gulshan-E-Khudadad Main Blvd, Naseerabad, Rawalpindi, 44000",
     link: null,
   },
   {

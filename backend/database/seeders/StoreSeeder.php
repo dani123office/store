@@ -12,7 +12,7 @@ class StoreSeeder extends Seeder
         if (Store::count() > 0) {
             $store = Store::first();
             $settings = [
-                "announcement" => ["text" => "Free Shipping Nationwide — For Queries: +923-111-111-975", "bg_color" => "#000000", "text_color" => "#ffffff", "enabled" => false],
+                "announcement" => ["text" => "Free Shipping Nationwide — For Queries: 0301 5158089", "bg_color" => "#000000", "text_color" => "#ffffff", "enabled" => false],
                 "logo_text" => "ZARKA COUTURE",
                 "slides" => [
                     ["id" => "1", "title" => "SATORI 2026", "subtitle" => "STILLNESS & LUXURY", "image" => "banner1.jpg", "btn_text" => "LIVE NOW", "btn_link" => "/shop/luxury-collection"],
@@ -36,7 +36,7 @@ class StoreSeeder extends Seeder
         }
 
         $settings = [
-            "announcement" => ["text" => "Free Shipping Nationwide — For Queries: +923-111-111-975", "bg_color" => "#000000", "text_color" => "#ffffff", "enabled" => false],
+            "announcement" => ["text" => "Free Shipping Nationwide — For Queries: 0301 5158089", "bg_color" => "#000000", "text_color" => "#ffffff", "enabled" => false],
             "logo_text" => "ZARKA COUTURE",
             "slides" => [
                 ["id" => "1", "title" => "SATORI 2026", "subtitle" => "STILLNESS & LUXURY", "image" => "banner1.jpg", "btn_text" => "LIVE NOW", "btn_link" => "/shop/luxury-collection"],

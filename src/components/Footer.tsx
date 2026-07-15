@@ -8,7 +8,7 @@ interface FooterProps {
 
 const Footer = ({ themeSettings }: FooterProps) => {
   const logoText = themeSettings?.logo_text || "ZARKA COUTURE";
-  const contactPhone = themeSettings?.footer?.phone || "+923-111-111-975";
+  const contactPhone = themeSettings?.footer?.phone || "0301 5158089";
   const contactEmail = themeSettings?.footer?.email || "info@zarkacouture.com";
   return (
     <footer className="bg-canvas text-ink border-t border-hairline">

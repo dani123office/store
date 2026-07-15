@@ -156,7 +156,7 @@ class DatabaseSeeder extends Seeder
         Notification::create(['title' => 'Order Confirmation!', 'description' => 'Your order#21 has been confirmed and will be delivered in two or 3 working days.']);
 
         // Store settings from zappos.sql
-        Store::create(['StoreName' => 'ZARKA COUTURE', 'StoreEmail' => 'admin@zarka.com', 'SenderEmail' => 'admin@zarka.com', 'StoreIndustry' => 'clothing', 'LegalName' => 'ZARKA COUTURE', 'Phone' => '03045260527', 'Streets' => 'Main Street', 'Apartment' => '', 'City' => 'New York', 'ZipCode' => '44000', 'Country' => 'United States', 'TimeZone' => '+00:00', 'UnitSystem' => 'Imperial System', 'WeightUnit' => 'Kilo Gram(Kg)', 'Currency' => 'USD']);
+        Store::create(['StoreName' => 'ZARKA COUTURE', 'StoreEmail' => 'admin@zarka.com', 'SenderEmail' => 'admin@zarka.com', 'StoreIndustry' => 'clothing', 'LegalName' => 'ZARKA COUTURE', 'Phone' => '03015158089', 'Streets' => '20 Street, 20 Gulshan-E-Khudadad Main Blvd, Naseerabad', 'Apartment' => '', 'City' => 'Rawalpindi', 'ZipCode' => '44000', 'Country' => 'Pakistan', 'TimeZone' => '+00:00', 'UnitSystem' => 'Imperial System', 'WeightUnit' => 'Kilo Gram(Kg)', 'Currency' => 'USD']);
 
         // Tax from zappos.sql
         Tax::create(['digital' => '0', 'food' => '9', 'nonfood' => '21']);
