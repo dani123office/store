@@ -21,16 +21,14 @@ class UploadController extends Controller
         $backendPath = public_path('assets');
         $file->move($backendPath, $filename);
 
-        // Also save to frontend's public/assets directory if it exists
+        // Also save to frontend's public/assets directory if it exists and is writable
         $frontendPath = base_path('../public/assets');
-        if (!is_dir($frontendPath)) {
-            @mkdir($frontendPath, 0755, true);
-        }
-        
-        $sourceFile = $backendPath . '/' . $filename;
-        $destFile = $frontendPath . '/' . $filename;
-        if (file_exists($sourceFile)) {
-            copy($sourceFile, $destFile);
+        if (is_dir($frontendPath)) {
+            $sourceFile = $backendPath . '/' . $filename;
+            $destFile = $frontendPath . '/' . $filename;
+            if (file_exists($sourceFile) && is_writable($frontendPath)) {
+                @copy($sourceFile, $destFile);
+            }
         }
 
         return response()->json([
