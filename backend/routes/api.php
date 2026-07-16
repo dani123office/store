@@ -38,6 +38,7 @@ use Illuminate\Support\Facades\Log;
 // ==========================================
 Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:auth');
 Route::post('/auth/register', [AuthController::class, 'register'])->middleware('throttle:auth');
+Route::post('/auth/refresh', [AuthController::class, 'refresh'])->middleware('throttle:auth');
 
 // All other API routes are protected by throttle:api rate limiter
 Route::middleware('throttle:api')->group(function () {
@@ -98,13 +99,42 @@ Route::middleware('throttle:api')->group(function () {
         return response()->json(\Illuminate\Support\Facades\DB::table('coupons')->get());
     });
 
+    Route::post('/coupons/validate', function (\Illuminate\Http\Request $request) {
+        $request->validate([
+            'code' => 'required|string',
+            'subtotal' => 'required|numeric|min:0',
+        ]);
+        
+        $coupon = \App\Models\Coupon::where('code', $request->code)->first();
+        if (!$coupon) {
+            return response()->json(['valid' => false, 'message' => 'Coupon not found'], 404);
+        }
+        
+        $subtotal = floatval($request->subtotal);
+        if (!$coupon->isValidFor($subtotal)) {
+            return response()->json([
+                'valid' => false, 
+                'message' => 'Coupon is expired, inactive, or subtotal is below $' . $coupon->min_order_value
+            ], 422);
+        }
+        
+        return response()->json([
+            'valid' => true,
+            'code' => $coupon->code,
+            'discount' => $coupon->calculateDiscount($subtotal),
+            'type' => $coupon->type,
+            'value' => $coupon->value,
+        ]);
+    });
+
     // Order creation is public to support guest checkouts
     Route::post('/orders', [OrderController::class, 'store']);
+    Route::post('/webhooks/mollie', [\App\Http\Controllers\Api\MollieWebhookController::class, 'handle']);
 
     // ==========================================
     // 2. AUTHENTICATED USER ROUTES
     // ==========================================
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('jwt.auth')->group(function () {
         // Orders access (authenticated user viewing/managing own orders)
         Route::get('/orders', [OrderController::class, 'index']);
         Route::get('/orders/{order}', [OrderController::class, 'show']);
@@ -124,7 +154,12 @@ Route::middleware('throttle:api')->group(function () {
     // ==========================================
     // 3. ADMIN-ONLY ROUTES
     // ==========================================
-    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::middleware(['jwt.auth', 'role:admin'])->group(function () {
+        // Dashboard Analytics & CSV Bulk Operations
+        Route::get('/admin/analytics', [\App\Http\Controllers\Api\AdminDashboardController::class, 'salesAnalytics']);
+        Route::get('/admin/products/export', [\App\Http\Controllers\Api\AdminDashboardController::class, 'exportProductsCsv']);
+        Route::post('/admin/products/import', [\App\Http\Controllers\Api\AdminDashboardController::class, 'importProductsCsv']);
+
         // User list management
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);

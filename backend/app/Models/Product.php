@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
+    use SoftDeletes;
+
     protected $guarded = [];
 
     protected $appends = ['category'];
@@ -23,6 +26,11 @@ class Product extends Model
     public function collections()
     {
         return $this->belongsToMany(Collection::class, 'collection_product', 'product_id', 'collection_id');
+    }
+
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
     }
 
     public function colors()
