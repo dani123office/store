@@ -57,14 +57,21 @@ jobs:
             docker rm store-backend-container || true
             
             echo "Starting new backend container..."
-            # Mount host database folder to persist database.sqlite
+            # Create persistent folders on host
             mkdir -p /var/www/store/backend/database
-            docker run -d --name store-backend-container -p 8001:80 --restart always -v /var/www/store/backend/database:/var/www/html/database store-backend
+            mkdir -p /var/www/store/backend/storage/app/public
             
-            # Fix permissions on SQLite database mount
-            echo "Setting database folder permissions..."
-            chown -R 33:33 /var/www/store/backend/database || true
-            chmod -R 777 /var/www/store/backend/database || true
+            # Run container with host env-file and storage mounts
+            docker run -d --name store-backend-container -p 8001:80 --restart always \
+              --env-file /var/www/store/backend/.env \
+              -v /var/www/store/backend/database:/var/www/html/database \
+              -v /var/www/store/backend/storage/app/public:/var/www/html/storage/app/public \
+              store-backend
+            
+            # Fix permissions on mounted folders
+            echo "Setting folder permissions..."
+            chown -R 33:33 /var/www/store/backend/database /var/www/store/backend/storage || true
+            chmod -R 777 /var/www/store/backend/database /var/www/store/backend/storage || true
             
             # --- Update Nginx Config ---
             echo "Updating Nginx configuration..."
