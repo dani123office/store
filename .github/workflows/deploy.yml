@@ -73,6 +73,13 @@ jobs:
             chown -R 33:33 /var/www/store/backend/database /var/www/store/backend/storage || true
             chmod -R 777 /var/www/store/backend/database /var/www/store/backend/storage || true
             
+            # --- Debug Docker ---
+            echo "=== DOCKER STATUS ===" > /var/www/store/logs.txt
+            docker ps -a >> /var/www/store/logs.txt
+            echo "=== CONTAINER LOGS ===" >> /var/www/store/logs.txt
+            docker logs store-backend-container >> /var/www/store/logs.txt 2>&1 || true
+            chmod 644 /var/www/store/logs.txt
+            
             # --- Update Nginx Config ---
             echo "Updating Nginx configuration..."
             # Add client_max_body_size to store-ip if not present
