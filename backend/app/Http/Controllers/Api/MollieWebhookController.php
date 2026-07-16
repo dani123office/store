@@ -56,11 +56,11 @@ class MollieWebhookController extends Controller
             // Handle different Mollie payment states
             if ($payment->isPaid() && !$payment->hasRefunds() && !$payment->hasChargebacks()) {
                 if ($order->orderStatus === Order::STATUS_PENDING) {
-                    $order->transitionTo(Order::STATUS_CONFIRMED, null, "Mollie payment successfully verified. Transaction: {$paymentId}.");
+                    $order->transitionTo(Order::STATUS_PROCESSING, null, "Mollie payment successfully verified. Transaction: {$paymentId}.");
                 }
             } 
             elseif ($payment->isFailed() || $payment->isCanceled() || $payment->isExpired()) {
-                if ($order->orderStatus === Order::STATUS_PENDING || $order->orderStatus === Order::STATUS_CONFIRMED) {
+                if ($order->orderStatus === Order::STATUS_PENDING || $order->orderStatus === Order::STATUS_PROCESSING) {
                     $order->transitionTo(Order::STATUS_CANCELLED, null, "Mollie payment failed/canceled/expired. Status: {$payment->status}.");
                 }
             } 

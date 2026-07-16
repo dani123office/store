@@ -11,7 +11,8 @@ class Order extends Model
     use SoftDeletes;
 
     const STATUS_PENDING = 'Pending';
-    const STATUS_CONFIRMED = 'Confirmed';
+    const STATUS_AWAITING_VERIFICATION = 'Awaiting Verification';
+    const STATUS_PROCESSING = 'Processing';
     const STATUS_SHIPPED = 'Shipped';
     const STATUS_DELIVERED = 'Delivered';
     const STATUS_CANCELLED = 'Cancelled';
@@ -26,15 +27,16 @@ class Order extends Model
 
     /**
      * Map of valid state transitions.
-     * Prevents illegal transitions (e.g. Delivered -> Confirmed).
+     * Prevents illegal transitions (e.g. Delivered -> Processing).
      *
      * @return array
      */
     public static function getValidTransitions(): array
     {
         return [
-            self::STATUS_PENDING => [self::STATUS_CONFIRMED, self::STATUS_CANCELLED],
-            self::STATUS_CONFIRMED => [self::STATUS_SHIPPED, self::STATUS_CANCELLED],
+            self::STATUS_PENDING => [self::STATUS_PROCESSING, self::STATUS_CANCELLED],
+            self::STATUS_AWAITING_VERIFICATION => [self::STATUS_PROCESSING, self::STATUS_CANCELLED],
+            self::STATUS_PROCESSING => [self::STATUS_SHIPPED, self::STATUS_CANCELLED],
             self::STATUS_SHIPPED => [self::STATUS_DELIVERED, self::STATUS_CANCELLED],
             self::STATUS_DELIVERED => [self::STATUS_REFUNDED],
             self::STATUS_CANCELLED => [],

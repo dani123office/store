@@ -156,13 +156,23 @@ class OrderController extends Controller
 
                 $finalSubtotal = max(0.00, $calculatedSubtotal - $discount);
 
+                $initialStatus = $request->input('orderStatus', Order::STATUS_PENDING);
+                $allowedEntryPoints = [
+                    Order::STATUS_PENDING,
+                    Order::STATUS_AWAITING_VERIFICATION,
+                    Order::STATUS_PROCESSING
+                ];
+                if (!in_array($initialStatus, $allowedEntryPoints)) {
+                    $initialStatus = Order::STATUS_PENDING;
+                }
+
                 // Build order
                 $orderData = [
                     'user_id' => $request->user() ? $request->user()->id : ($request->input('user.id') ?? null),
                     'data' => is_array($request->input('data')) ? json_encode($request->input('data')) : $request->input('data'),
                     'products' => json_encode($validatedProducts),
                     'subtotal' => $finalSubtotal,
-                    'orderStatus' => 'Processing',
+                    'orderStatus' => $initialStatus,
                     'orderDate' => now()->toIso8601String(),
                 ];
 

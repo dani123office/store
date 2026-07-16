@@ -146,14 +146,14 @@ class CheckoutAndAuthTest extends TestCase
 
         $response->assertStatus(204);
 
-        // Verify Order status transitioned to Confirmed
-        $this->assertEquals(Order::STATUS_CONFIRMED, $order->fresh()->orderStatus);
+        // Verify Order status transitioned to Processing
+        $this->assertEquals(Order::STATUS_PROCESSING, $order->fresh()->orderStatus);
 
         // Verify status change log was written
         $this->assertDatabaseHas('order_status_logs', [
             'order_id' => $order->id,
             'from_status' => Order::STATUS_PENDING,
-            'to_status' => Order::STATUS_CONFIRMED
+            'to_status' => Order::STATUS_PROCESSING
         ]);
     }
 }
