@@ -37,7 +37,7 @@ const AdminProducts = () => {
     setLoading(true);
     try {
       const res = await customFetch.get("/products");
-      setProducts(res.data);
+      setProducts(res.data.data ?? []);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }, []);
