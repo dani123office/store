@@ -49,14 +49,14 @@ const SingleProduct = () => {
   const isWishlisted = singleProduct ? wishlistItems.some((item) => item.id === singleProduct.id) : false;
   const isOutOfStock = singleProduct ? Number(singleProduct.stock) <= 0 : false;
 
-  const originalPrice = singleProduct ? singleProduct.price * 2 : 0;
-  const discountPercent = singleProduct ? Math.round((1 - singleProduct.price / originalPrice) * 100) : 0;
+  const originalPrice = singleProduct?.compare_price || 0;
+  const discountPercent = originalPrice > 0 ? Math.round((1 - singleProduct!.price / originalPrice) * 100) : 0;
 
   useEffect(() => {
     const fetchSingleProduct = async () => {
       try {
         const response = await customFetch.get(`/products/${params.id}`);
-        const prod = response.data;
+        const prod = response.data.data;
         setSingleProduct(prod);
         setActiveImage(prod.image);
 
@@ -82,20 +82,10 @@ const SingleProduct = () => {
             ].filter(Boolean);
             setAdditionalImages(gallery);
           } else {
-            setAdditionalImages([
-              prod.image,
-              "luxury fashion 7 1.png",
-              "luxury fashion 7 2.png",
-              "banner1.jpg"
-            ]);
+            setAdditionalImages([prod.image]);
           }
         } catch {
-          setAdditionalImages([
-            prod.image,
-            "luxury fashion 7 1.png",
-            "luxury fashion 7 2.png",
-            "banner1.jpg"
-          ]);
+          setAdditionalImages([prod.image]);
         }
       } catch (e) {
         console.error(e);
@@ -114,7 +104,7 @@ const SingleProduct = () => {
 
     const fetchProducts = async () => {
       const response = await customFetch.get("/products");
-      setProducts(response.data);
+      setProducts(response.data.data ?? []);
     };
 
     fetchSingleProduct();
@@ -135,7 +125,7 @@ const SingleProduct = () => {
       if (relColors.color5) colorsList.push(relColors.color5);
       if (relColors.color6) colorsList.push(relColors.color6);
     }
-    const finalColors = colorsList.filter(Boolean).length > 0 ? colorsList.filter(Boolean) : ["black", "red", "blue", "white", "rose", "green"];
+    const finalColors = colorsList.filter(Boolean);
     setAvailableColors(finalColors);
     if (!finalColors.includes(color)) {
       setColor(finalColors[0]);
@@ -151,7 +141,7 @@ const SingleProduct = () => {
       if (relSizes.size5) sizesList.push(relSizes.size5);
       if (relSizes.size6) sizesList.push(relSizes.size6);
     }
-    const finalSizes = sizesList.filter(Boolean).length > 0 ? sizesList.filter(Boolean) : ["XS", "S", "M", "L", "XL", "XXL"];
+    const finalSizes = sizesList.filter(Boolean);
     setAvailableSizes(finalSizes);
     if (!finalSizes.includes(size)) {
       setSize(finalSizes[0]);
@@ -353,13 +343,22 @@ const SingleProduct = () => {
             <p className="text-product-caption text-shade-50 uppercase tracking-tracked-wide mb-1">
               {singleProduct?.category}
             </p>
+            {singleProduct?.collections && (singleProduct.collections as any[]).length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {(singleProduct.collections as any[]).map((col: any) => (
+                  <span key={col.id} className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-pill bg-primary/10 text-primary">
+                    {col.title}
+                  </span>
+                ))}
+              </div>
+            )}
             <h1 className="text-heading-md text-ink leading-tight">
               {singleProduct?.title}
             </h1>
             <div className="flex items-center gap-2 mt-2">
               <div className="flex text-amber-500">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <HiStar key={s} className="w-4 h-4 fill-current" />
+                  <HiStar key={s} className={`w-4 h-4 ${s <= Math.round(Number(avgRating)) ? 'fill-current' : 'text-shade-30'}`} />
                 ))}
               </div>
               <span className="text-caption text-shade-50 tracking-tracked-wide">
@@ -368,13 +367,15 @@ const SingleProduct = () => {
             </div>
             {/* Price row: strike + current + badge */}
             <div className="flex items-center gap-2 mt-4">
-              <span className="text-price-strike text-price-strike line-through">
-                PKR {originalPrice.toLocaleString()}
-              </span>
+              {originalPrice > 0 && (
+                <span className="text-price-strike text-price-strike line-through">
+                  PKR {originalPrice.toLocaleString()}
+                </span>
+              )}
               <span className="text-price-current text-ink">
-                PKR {singleProduct?.price.toLocaleString()}
+                PKR {(singleProduct?.price || 0).toLocaleString()}
               </span>
-              {discountPercent >= 30 && (
+              {discountPercent > 0 && (
                 <span className="bg-primary text-on-primary text-caption uppercase tracking-tracked font-medium px-2.5 py-0.5 rounded-pill">
                   {discountPercent}% OFF
                 </span>
@@ -405,7 +406,7 @@ const SingleProduct = () => {
                     aria-label={`Select Color: ${c}`}
                   >
                     {isSelected && (
-                      <span className={`w-2 h-2 rounded-full ${c.toLowerCase() === "white" || c.toLowerCase() === "#ffffff" ? "bg-ink" : "bg-white"}`} />
+                      <span className={`w-2 h-2 rounded-full ${c.toLowerCase() === "white" ? "bg-ink" : "bg-white"}`} />
                     )}
                   </button>
                 );
@@ -417,7 +418,7 @@ const SingleProduct = () => {
           <div className="space-y-3">
             <div className="flex justify-between text-caption uppercase tracking-tracked text-shade-50">
               <span>Size: <span className="text-ink font-semibold">{size}</span></span>
-              <span className="underline cursor-pointer hover:text-ink">Size Guide</span>
+                <span className="text-shade-30">Size Guide</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {availableSizes.map((sz) => {
@@ -477,11 +478,7 @@ const SingleProduct = () => {
 
           <div className="border-t border-hairline pt-6 space-y-4">
             <Dropdown dropdownTitle="Description">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent euismod ultrices ante,
-              eget hendrerit massa tristique vel. Curabitur vel luctus justo.
-            </Dropdown>
-            <Dropdown dropdownTitle="Product Details">
-              100% premium quality fabric. Fully hand-embroidered, unstitched dress segment including dupattas, trouser fabric, and sleeves.
+              {singleProduct?.description || "No description available for this product."}
             </Dropdown>
             <Dropdown dropdownTitle="Delivery &amp; Return Details">
               Returns accepted within 14 days of delivery. Free shipping nationwide. International orders deliver within 10-15 business days.
@@ -502,7 +499,7 @@ const SingleProduct = () => {
               <p className="text-5xl font-light font-script text-ink mb-2">{avgRating}</p>
               <div className="flex justify-center text-amber-500 mb-1">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <HiStar key={s} className="w-5 h-5 fill-current" />
+                  <HiStar key={s} className={`w-5 h-5 ${s <= Math.round(Number(avgRating)) ? 'fill-current' : 'text-shade-30'}`} />
                 ))}
               </div>
               <p className="text-caption text-shade-50 tracking-tracked-wide">Based on {reviews.length} reviews</p>
@@ -514,7 +511,7 @@ const SingleProduct = () => {
                 const percent = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
                 return (
                   <div key={stars} className="flex items-center gap-3 text-caption">
-                    <span className="w-3 text-ink font-medium">{stars}*</span>
+                    <span className="flex items-center gap-0.5 w-4 text-ink font-medium"><HiStar className="w-3 h-3" />{stars}</span>
                     <div className="flex-1 bg-shade-20 h-2 rounded-full overflow-hidden">
                       <div className="bg-amber-500 h-full rounded-full" style={{ width: `${percent}%` }} />
                     </div>
@@ -562,9 +559,9 @@ const SingleProduct = () => {
                       key={s}
                       type="button"
                       onClick={() => setNewRating(s)}
-                      className={`text-2xl transition-colors ${s <= newRating ? "text-amber-500" : "text-shade-30"}`}
+                      className={`transition-colors ${s <= newRating ? "text-amber-500" : "text-shade-30"}`}
                     >
-                      *
+                      <HiStar className="w-6 h-6" />
                     </button>
                   ))}
                 </div>
@@ -610,7 +607,7 @@ const SingleProduct = () => {
 
                     <div className="flex text-amber-500 text-sm">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <span key={star}>{star <= r.rating ? "*" : ""}</span>
+                        <HiStar key={star} className={`w-4 h-4 ${star <= r.rating ? 'fill-current' : 'text-shade-30'}`} />
                       ))}
                     </div>
 
@@ -639,6 +636,8 @@ const SingleProduct = () => {
               price={product?.price}
               popularity={product?.popularity}
               stock={product?.stock}
+              compare_price={product?.compare_price}
+ additional_images={product?.additional_images}
             />
           ))}
         </div>

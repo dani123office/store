@@ -19,8 +19,10 @@ interface Slide {
   title: string;
   subtitle: string;
   image: string;
+  image_mobile?: string;
   btn_text: string;
   btn_link: string;
+  overlay_opacity?: number;
 }
 
 interface CollectionTab {
@@ -222,7 +224,8 @@ const AdminThemeEditor = () => {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"general" | "announcement" | "slideshow" | "collections" | "whatsapp" | "installments" | "promotional" | "instagram" | "trust_bar" | "newsletter" | "footer">("general");
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
-  const [categories, setCategories] = useState<{ id: number; cat_title: string }[]>([]);
+  const [_categories, setCategories] = useState<{ id: number; cat_title: string }[]>([]);
+  const [collections, setCollections] = useState<any[]>([]);
   const [previewKey, setPreviewKey] = useState(0);
 
   // Media Modal states
@@ -233,7 +236,7 @@ const AdminThemeEditor = () => {
   const [mediaSearch, setMediaSearch] = useState("");
   const [mediaUploading, setMediaUploading] = useState(false);
   const [mediaTarget, setMediaTarget] = useState<
-    | { type: "slide"; slideId: string }
+    | { type: "slide"; slideId: string; field?: string }
     | { type: "promo"; side: "left" | "right" }
     | { type: "instagram"; index: number }
     | null
@@ -289,13 +292,14 @@ const AdminThemeEditor = () => {
     if (!mediaTarget) return;
 
     if (mediaTarget.type === "slide") {
+      const field = (mediaTarget as any).field || "image";
       setSettings((prev) => ({
         ...prev,
         slides: prev.slides.map((s) =>
-          s.id === mediaTarget.slideId ? { ...s, image: filename } : s
+          s.id === mediaTarget.slideId ? { ...s, [field]: filename } : s
         ),
       }));
-      toast.success("Slide image updated");
+      toast.success(`Slide ${field === "image_mobile" ? "mobile " : ""}image updated`);
     } else if (mediaTarget.type === "promo") {
       setSettings((prev) => ({
         ...prev,
@@ -334,13 +338,17 @@ const AdminThemeEditor = () => {
     const fetchData = async () => {
       runMigration();
       try {
-        const [storeRes, catRes] = await Promise.all([
+        const [storeRes, catRes, colRes] = await Promise.all([
           customFetch.get("/stores"),
           customFetch.get("/categories"),
+          customFetch.get("/collections"),
         ]);
 
         if (catRes.data) {
           setCategories(catRes.data);
+        }
+        if (colRes.data) {
+          setCollections(colRes.data);
         }
 
         if (storeRes.data && storeRes.data.length > 0) {
@@ -376,6 +384,12 @@ const AdminThemeEditor = () => {
             { id: 3, cat_title: "Bridals" },
             { id: 4, cat_title: "Jewellery" }
           ] as any);
+          setCollections([
+            { id: 1, title: "ZSJ BASICS 2026", handle: "special-edition" },
+            { id: 2, title: "FESTIVE EID II 2026", handle: "luxury-collection" },
+            { id: 3, title: "PRET EID II 2026", handle: "summer-edition" },
+            { id: 4, title: "SATORI 2026", handle: "unique-collection" },
+          ]);
 
           const localSettings = localStorage.getItem("zarka_theme_settings_fallback");
           if (localSettings) {
@@ -458,10 +472,15 @@ const AdminThemeEditor = () => {
     }));
   };
 
-  const updateCollectionTab = (index: number, field: keyof CollectionTab, value: string) => {
+  const toggleCollection = (handle: string, label: string) => {
     setSettings((prev) => {
-      const newTabs = [...prev.featured_collections.tabs];
-      newTabs[index] = { ...newTabs[index], [field]: value };
+      const exists = prev.featured_collections.tabs.some((t) => t.category === handle);
+      let newTabs: CollectionTab[];
+      if (exists) {
+        newTabs = prev.featured_collections.tabs.filter((t) => t.category !== handle);
+      } else {
+        newTabs = [...prev.featured_collections.tabs, { label, category: handle }];
+      }
       return {
         ...prev,
         featured_collections: {
@@ -805,7 +824,7 @@ const AdminThemeEditor = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-semibold text-[#202223] mb-1">Banner Image</label>
+                        <label className="block text-[11px] font-semibold text-[#202223] mb-1">Banner Image (Desktop)</label>
                         <div className="flex items-center gap-3">
                           <div className="w-16 h-12 bg-gray-100 border rounded overflow-hidden flex items-center justify-center shrink-0">
                             <img
@@ -824,11 +843,48 @@ const AdminThemeEditor = () => {
                               onChange={(e) => updateSlideField(slide.id, "image", e.target.value)}
                               className="w-full border border-[#e0e0e0] rounded-lg px-2 py-1 text-xs outline-none focus:border-[#2c6ecb]"
                             />
-                            {/* Media Selector trigger */}
                             <button
                               type="button"
                               onClick={() => {
                                 setMediaTarget({ type: "slide", slideId: slide.id });
+                                setShowMediaModal(true);
+                              }}
+                              className="flex items-center justify-center gap-1 cursor-pointer bg-white border border-[#e0e0e0] rounded px-2 py-1.5 text-[10px] font-semibold text-[#6d7175] hover:bg-gray-50 transition-colors w-full"
+                            >
+                              <HiOutlinePhoto className="text-xs" /> Select from Media
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-semibold text-[#202223] mb-1">Banner Image (Mobile)</label>
+                        <div className="flex items-center gap-3">
+                          <div className="w-16 h-12 bg-gray-100 border rounded overflow-hidden flex items-center justify-center shrink-0">
+                            {slide.image_mobile ? (
+                              <img
+                                src={slide.image_mobile.startsWith("http") || slide.image_mobile.startsWith("/") ? slide.image_mobile : `/assets/${slide.image_mobile}`}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = "/assets/banner1.jpg";
+                                }}
+                              />
+                            ) : (
+                              <div className="text-[10px] text-[#6d7175] text-center px-1">Same as desktop</div>
+                            )}
+                          </div>
+                          <div className="flex-1 flex flex-col gap-1">
+                            <input
+                              type="text"
+                              placeholder="Leave empty to use desktop image"
+                              value={slide.image_mobile || ""}
+                              onChange={(e) => updateSlideField(slide.id, "image_mobile", e.target.value)}
+                              className="w-full border border-[#e0e0e0] rounded-lg px-2 py-1 text-xs outline-none focus:border-[#2c6ecb]"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setMediaTarget({ type: "slide", slideId: slide.id, field: "image_mobile" });
                                 setShowMediaModal(true);
                               }}
                               className="flex items-center justify-center gap-1 cursor-pointer bg-white border border-[#e0e0e0] rounded px-2 py-1.5 text-[10px] font-semibold text-[#6d7175] hover:bg-gray-50 transition-colors w-full"
@@ -867,8 +923,12 @@ const AdminThemeEditor = () => {
                             type="text"
                             value={slide.btn_text || ""}
                             onChange={(e) => updateSlideField(slide.id, "btn_text", e.target.value)}
+                            placeholder="Leave empty for full-slide link"
                             className="w-full border border-[#e0e0e0] rounded-lg px-2 py-1 text-xs outline-none"
                           />
+                          {!slide.btn_text && slide.btn_link && (
+                            <p className="text-[10px] text-[#008060] mt-1">Full slide is clickable</p>
+                          )}
                         </div>
                         <div>
                           <label className="block text-[11px] font-semibold text-[#202223] mb-1">Link URL</label>
@@ -880,13 +940,30 @@ const AdminThemeEditor = () => {
                           />
                         </div>
                       </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-[#202223] mb-1">
+                          Overlay Opacity: {slide.overlay_opacity ?? 40}%
+                        </label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={slide.overlay_opacity ?? 40}
+                          onChange={(e) => updateSlideField(slide.id, "overlay_opacity", e.target.value)}
+                          className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2c6ecb]"
+                        />
+                        <div className="flex justify-between text-[10px] text-[#6d7175] mt-0.5">
+                          <span>Transparent</span>
+                          <span>Dark</span>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* 4. Featured Collections Tabs */}
+            {/* 4. Featured Collections Tabs — synced from Admin Collections */}
             {activeTab === "collections" && (
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-[#202223] border-b pb-2">Featured Collections Tabs</h3>
@@ -905,42 +982,47 @@ const AdminThemeEditor = () => {
                   />
                 </div>
 
-                <div className="space-y-4 mt-4">
-                  {settings.featured_collections.tabs.map((tab, idx) => (
-                    <div key={idx} className="border border-[#e0e0e0] rounded-xl p-3 bg-[#fafbfb] space-y-2">
-                      <div className="text-[11px] font-bold text-[#6d7175]">TAB #{idx + 1}</div>
-                      <div>
-                        <label className="block text-[11px] text-[#202223] mb-0.5">Tab Name</label>
+                <div className="bg-[#f0f6ff] border border-[#b3d4ff] rounded-lg p-3 text-xs text-[#2c6ecb]">
+                  Tabs are synced from <strong>Admin → Collections</strong>. Select which collections to feature on the homepage.{" "}
+                  <a href="/admin/collections" className="underline font-semibold">Manage Collections</a>
+                </div>
+
+                <div className="space-y-2 mt-2 max-h-[400px] overflow-y-auto">
+                  {collections.length === 0 && (
+                    <p className="text-xs text-[#6d7175] italic">No collections found. Create collections in Admin → Collections first.</p>
+                  )}
+                  {collections.map((col: any) => {
+                    const handle = col.handle || col.title?.toLowerCase().replace(/\s+/g, "-");
+                    const isSelected = settings.featured_collections.tabs.some((t: any) => t.category === handle || t.label === col.title);
+                    const isEnabled = settings.featured_collections.enabled;
+                    return (
+                      <label
+                        key={col.id || col.cat_item_id || handle}
+                        className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
+                          isSelected && isEnabled ? "border-[#2c6ecb] bg-[#f0f6ff]" : "border-[#e0e0e0] bg-white hover:bg-[#fafbfb]"
+                        }`}
+                      >
                         <input
-                          type="text"
-                          value={tab.label}
-                          onChange={(e) => updateCollectionTab(idx, "label", e.target.value)}
-                          className="w-full border border-[#e0e0e0] rounded-lg px-2 py-1 text-xs outline-none"
+                          type="checkbox"
+                          checked={isSelected}
+                          disabled={!isEnabled}
+                          onChange={() => toggleCollection(handle, col.title)}
+                          className="rounded text-[#2c6ecb] focus:ring-[#2c6ecb]"
                         />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] text-[#202223] mb-0.5">Category Filter Slug</label>
-                        <select
-                          value={tab.category}
-                          onChange={(e) => updateCollectionTab(idx, "category", e.target.value)}
-                          className="w-full border border-[#e0e0e0] rounded-lg px-2 py-1 text-xs outline-none bg-white"
-                        >
-                          <option key="all" value="all">Show All</option>
-                          <option key="new-arrivals" value="new-arrivals">new-arrivals</option>
-                          <option key="unstitched" value="unstitched">unstitched</option>
-                          <option key="ready-to-wear" value="ready-to-wear">ready-to-wear</option>
-                          <option key="bridals" value="bridals">bridals</option>
-                          <option key="jewellery" value="jewellery">jewellery</option>
-                          <option key="special-prices" value="special-prices">special-prices</option>
-                          {categories.map((c, catIdx) => (
-                            <option key={`dynamic-${(c as any).cat_id || c.id || catIdx}`} value={c.cat_title.toLowerCase().replace(/\s+/g, "-")}>
-                              {c.cat_title} (Dynamic)
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  ))}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-[#202223] truncate">{col.title}</div>
+                          <div className="text-[11px] text-[#6d7175] truncate">/{handle}</div>
+                        </div>
+                        {col.image && (
+                          <img
+                            src={col.image.startsWith("http") ? col.image : `/assets/${col.image}`}
+                            alt={col.title}
+                            className="w-10 h-10 rounded-lg object-cover border border-[#e0e0e0] shrink-0"
+                          />
+                        )}
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
             )}

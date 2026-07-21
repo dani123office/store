@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Exclude admin dashboard from crawler indexing
+Disallow: /admin/
+Disallow: /admin
+
+Sitemap: https://zarkacouture.com/sitemap.xml

@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import customFetch from "../axios/custom";
 import toast from "react-hot-toast";
 import { HiPencilSquare, HiTrash, HiPlus, HiXMark, HiOutlineArrowUp, HiOutlineArrowDown } from "react-icons/hi2";
@@ -43,11 +44,9 @@ const AdminNav = () => {
       } else {
         const initial = [
           { id: "1", label: "New Arrivals", slug: "new-arrivals", sort_order: 1 },
-          { id: "2", label: "Unstitched", slug: "unstitched", sort_order: 2 },
-          { id: "3", label: "Ready To Wear", slug: "ready-to-wear", sort_order: 3 },
-          { id: "4", label: "Bridals", slug: "bridals", sort_order: 4 },
-          { id: "5", label: "Jewellery", slug: "jewellery", sort_order: 5 },
-          { id: "6", label: "Special Prices", slug: "special-prices", sort_order: 6 },
+          { id: "2", label: "Collections", slug: "collections", sort_order: 2 },
+          { id: "3", label: "Unstitched", slug: "unstitched", sort_order: 3 },
+          { id: "4", label: "Stitched", slug: "stitched", sort_order: 4 },
         ];
         setItems(initial);
         localStorage.setItem("zarka_nav_fallback", JSON.stringify(initial));
@@ -128,6 +127,13 @@ const AdminNav = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-6">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <p className="text-sm text-blue-800">
+          <strong>Auto-managed:</strong> Navigation items are now synced from{" "}
+          <Link to="/admin/categories" className="underline font-medium hover:text-blue-600">Categories</Link>.
+          Add or edit categories to update the navigation bar. Custom items below act as an override.
+        </p>
+      </div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-[#202223]">Navigation Items</h1>
         <button

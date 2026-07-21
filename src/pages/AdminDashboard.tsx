@@ -12,7 +12,7 @@ const AdminDashboard = () => {
   const [revenueTrend, setRevenueTrend] = useState<any[]>([]);
   const [storeShippingFee, setStoreShippingFee] = useState<number>(500);
 
-  useEffect(() => {
+    useEffect(() => {
     const fetchStats = async () => {
       try {
         const [productsRes, ordersRes, usersRes, storeRes] = await Promise.all([
@@ -22,9 +22,11 @@ const AdminDashboard = () => {
           customFetch.get("/stores"),
         ]);
         
-        const products = productsRes.data;
-        const orders = ordersRes.data;
-        const users = usersRes.data;
+        const extractData = (res: any) => Array.isArray(res.data) ? res.data : (res.data?.data || []);
+
+        const products = extractData(productsRes);
+        const orders = extractData(ordersRes);
+        const users = extractData(usersRes);
         const shippingVal = (storeRes.data && storeRes.data.length > 0) ? (parseFloat(storeRes.data[0].ShippingFee) || 500) : 500;
         setStoreShippingFee(shippingVal);
 

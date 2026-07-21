@@ -6,9 +6,14 @@ interface Product {
   price: number;
   popularity: number;
   stock: number;
+  description?: string;
+  compare_price?: number;
   colors?: any;
   sizes?: any;
   additional_images?: any;
+  collections?: any[];
+  categoryRelation?: any;
+  subcategory?: any;
 }
 
 interface ProductInCart extends Product {

@@ -1,0 +1,350 @@
+import { useEffect, useState } from "react";
+import customFetch from "../axios/custom";
+import { HiOutlineCube, HiOutlineShoppingBag, HiOutlineUsers, HiOutlineCurrencyDollar, HiOutlineExclamationTriangle } from "react-icons/hi2";
+import { formatDate } from "../utils/formatDate";
+import { Link } from "react-router-dom";
+
+const AdminDashboard = () => {
+  const [stats, setStats] = useState({ products: 0, orders: 0, users: 0, revenue: 0 });
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [lowStockProducts, setLowStockProducts] = useState<any[]>([]);
+  const [topSellingProducts, setTopSellingProducts] = useState<any[]>([]);
+  const [revenueTrend, setRevenueTrend] = useState<any[]>([]);
+  const [storeShippingFee, setStoreShippingFee] = useState<number>(500);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [productsRes, ordersRes, usersRes, storeRes] = await Promise.all([
+          customFetch.get("/products"),
+          customFetch.get("/orders"),
+          customFetch.get("/users"),
+          customFetch.get("/stores"),
+        ]);
+        
+        const products = productsRes.data;
+        const orders = ordersRes.data;
+        const users = usersRes.data;
+        const shippingVal = (storeRes.data && storeRes.data.length > 0) ? (parseFloat(storeRes.data[0].ShippingFee) || 500) : 500;
+        setStoreShippingFee(shippingVal);
+
+        // Calculate Revenue
+        const revenue = orders.reduce((sum: number, o: any) => sum + (o.subtotal || 0) + (o.subtotal ? shippingVal : 0), 0);
+
+        setStats({
+          products: products.length,
+          orders: orders.length,
+          users: users.length,
+          revenue,
+        });
+
+        // Recent Orders
+        setRecentOrders(orders.slice(-5).reverse());
+
+        // Low stock alerts (stock < 10)
+        const lowStock = products.filter((p: any) => p.stock < 10);
+        setLowStockProducts(lowStock);
+
+        // Top Selling Products calculation
+        const salesCounts: { [key: string]: { title: string; qty: number; image: string; revenue: number } } = {};
+        orders.forEach((o: any) => {
+          if (o.products) {
+            o.products.forEach((p: any) => {
+              const key = p.title;
+              if (salesCounts[key]) {
+                salesCounts[key].qty += p.quantity;
+                salesCounts[key].revenue += p.price * p.quantity;
+              } else {
+                salesCounts[key] = {
+                  title: p.title,
+                  qty: p.quantity,
+                  image: p.image,
+                  revenue: p.price * p.quantity,
+                };
+              }
+            });
+          }
+        });
+        const topSellers = Object.values(salesCounts)
+          .sort((a, b) => b.qty - a.qty)
+          .slice(0, 5);
+        setTopSellingProducts(topSellers);
+
+        // Daily Revenue Trend for Area Chart (Last 7 Days calendar)
+        const points = [];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          
+          let dayRevenue = 0;
+          orders.forEach((o: any) => {
+            if (o.orderDate) {
+              const oDate = new Date(o.orderDate);
+              if (
+                oDate.getDate() === d.getDate() &&
+                oDate.getMonth() === d.getMonth() &&
+                oDate.getFullYear() === d.getFullYear()
+              ) {
+                const total = (Number(o.subtotal || 0)) + (o.subtotal ? shippingVal : 0);
+                dayRevenue += total;
+              }
+            }
+          });
+
+          points.push({
+            label,
+            value: dayRevenue,
+          });
+        }
+
+        setRevenueTrend(points);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  const cards = [
+    { label: "Total Products", value: stats.products, icon: HiOutlineCube, color: "#2563eb", bg: "#eff6ff" },
+    { label: "Total Orders", value: stats.orders, icon: HiOutlineShoppingBag, color: "#16a34a", bg: "#f0fdf4" },
+    { label: "Total Customers", value: stats.users, icon: HiOutlineUsers, color: "#7c3aed", bg: "#f5f3ff" },
+    { label: "Total Revenue", value: `Rs.${stats.revenue.toLocaleString()}`, icon: HiOutlineCurrencyDollar, color: "#dc2626", bg: "#fef2f2" },
+  ];
+
+  // Helper values for SVG Line/Area drawing
+  const maxVal = Math.max(...revenueTrend.map((p) => p.value), 1000);
+  const chartHeight = 180;
+  const chartWidth = 500;
+  const padding = 30;
+
+  const pointsString = revenueTrend
+    .map((p, idx) => {
+      const x = padding + (idx * (chartWidth - padding * 2)) / (revenueTrend.length - 1);
+      const y = chartHeight - padding - (p.value * (chartHeight - padding * 2)) / maxVal;
+      return `${x},${y}`;
+    })
+    .join(" ");
+
+  const areaPointsString = `${padding},${chartHeight - padding} ${pointsString} ${chartWidth - padding},${chartHeight - padding}`;
+
+  return (
+    <div className="p-6 space-y-8 admin-theme text-[#000000]">
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold tracking-wide text-[#000000]">Dashboard Overview</h1>
+        <p className="text-[10px] uppercase font-bold text-[#71717a] tracking-wider">Updated: {new Date().toLocaleTimeString()}</p>
+      </div>
+
+      {/* KPI Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {cards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div key={card.label} className="bg-white border border-[#e4e4e7] rounded-xl p-6 shadow-[0_8px_8px_rgba(0,0,0,0.01),0_4px_4px_rgba(0,0,0,0.01),0_2px_2px_rgba(0,0,0,0.01),0_0_0_1px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_12px_rgba(0,0,0,0.02),0_6px_6px_rgba(0,0,0,0.02),0_0_0_1px_rgba(0,0,0,0.04)] transition-all duration-300">
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-8 h-8 rounded-full bg-[#c1fbd4] text-[#000000] flex items-center justify-center animate-fade">
+                  <Icon className="text-base" />
+                </div>
+              </div>
+              <p className="text-2xl font-light text-[#000000] tracking-tight">{card.value}</p>
+              <p className="text-[10px] tracking-[0.05em] uppercase font-bold text-[#71717a] mt-1">{card.label}</p>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Charts section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Sales Performance Area Chart */}
+        <div className="bg-white border border-[#e4e4e7] rounded-xl p-6 shadow-[0_8px_8px_rgba(0,0,0,0.01),0_4px_4px_rgba(0,0,0,0.01),0_2px_2px_rgba(0,0,0,0.01),0_0_0_1px_rgba(0,0,0,0.03)]">
+          <h2 className="text-[10px] font-bold text-[#000000] uppercase tracking-wider mb-6">Sales Performance (Last 7 Days)</h2>
+          <div className="w-full h-[200px] flex items-center justify-center">
+            {revenueTrend.length > 0 && (
+              <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-full">
+                {/* Horizontal Grid lines */}
+                {[0, 0.25, 0.5, 0.75, 1].map((r, i) => {
+                  const y = padding + r * (chartHeight - padding * 2);
+                  return (
+                    <line
+                      key={i}
+                      x1={padding}
+                      y1={y}
+                      x2={chartWidth - padding}
+                      y2={y}
+                      stroke="#fbfbf5"
+                      strokeWidth={1.5}
+                    />
+                  );
+                })}
+
+                {/* Fill Area underneath line */}
+                <polygon points={areaPointsString} fill="url(#area-gradient)" opacity={0.4} />
+
+                {/* Stroke path */}
+                <polyline points={pointsString} fill="none" stroke="#000000" strokeWidth={2} />
+
+                {/* Draw points & labels */}
+                {revenueTrend.map((p, idx) => {
+                  const x = padding + (idx * (chartWidth - padding * 2)) / (revenueTrend.length - 1);
+                  const y = chartHeight - padding - (p.value * (chartHeight - padding * 2)) / maxVal;
+                  return (
+                    <g key={idx}>
+                      <circle cx={x} cy={y} r={4} fill="#000000" stroke="#ffffff" strokeWidth={1.5} className="cursor-pointer" />
+                      <text x={x} y={chartHeight - 8} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#71717a">
+                        {p.label}
+                      </text>
+                      <text x={x} y={y - 8} fontSize={8} textAnchor="middle" fontWeight="bold" fill="#000000" opacity={0.9}>
+                        {p.value >= 1000 ? `Rs.${(p.value / 1000).toFixed(1).replace(".0", "")}k` : `Rs.${p.value}`}
+                      </text>
+                    </g>
+                  );
+                })}
+
+                {/* Gradient Definition */}
+                <defs>
+                  <linearGradient id="area-gradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#c1fbd4" />
+                    <stop offset="100%" stopColor="#ffffff" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+              </svg>
+            )}
+          </div>
+        </div>
+
+        {/* Top Selling Products Bar Chart */}
+        <div className="bg-white border border-[#e4e4e7] rounded-xl p-6 shadow-[0_8px_8px_rgba(0,0,0,0.01),0_4px_4px_rgba(0,0,0,0.01),0_2px_2px_rgba(0,0,0,0.01),0_0_0_1px_rgba(0,0,0,0.03)]">
+          <h2 className="text-[10px] font-bold text-[#000000] uppercase tracking-wider mb-6">Top Selling Products (Units Sold)</h2>
+          <div className="space-y-5">
+            {topSellingProducts.length === 0 ? (
+              <p className="text-xs text-[#71717a]">No sales recorded yet.</p>
+            ) : (
+              topSellingProducts.map((p, idx) => {
+                const maxQty = Math.max(...topSellingProducts.map((item) => item.qty), 1);
+                const widthPercent = (p.qty / maxQty) * 100;
+                return (
+                  <div key={idx} className="flex items-center gap-3">
+                    <img
+                      src={`/assets/${p.image}`}
+                      alt={p.title}
+                      className="w-10 h-12 object-cover rounded border border-[#e4e4e7]"
+                      onError={(e) => { (e.target as HTMLImageElement).src = "/assets/product image 1.jpg"; }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between text-xs font-semibold text-[#000000] mb-1">
+                        <span className="truncate">{p.title}</span>
+                        <span>{p.qty} Sold</span>
+                      </div>
+                      <div className="w-full bg-[#fbfbf5] h-2 rounded-full overflow-hidden border border-[#e4e4e7]">
+                        <div className="bg-[#c1fbd4] h-full rounded-full transition-all duration-500" style={{ width: `${widthPercent}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent Orders (Col-span 2) */}
+        <div className="lg:col-span-2 bg-white border border-[#e4e4e7] rounded-xl overflow-hidden shadow-[0_8px_8px_rgba(0,0,0,0.01),0_4px_4px_rgba(0,0,0,0.01),0_2px_2px_rgba(0,0,0,0.01),0_0_0_1px_rgba(0,0,0,0.03)]">
+          <div className="px-5 py-4 border-b border-[#e4e4e7] bg-[#fbfbf5]">
+            <h2 className="text-[10px] font-bold text-[#000000] uppercase tracking-wider">Recent Orders</h2>
+          </div>
+          {recentOrders.length === 0 ? (
+            <p className="text-xs text-[#71717a] p-6">No orders yet.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-[#fbfbf5] border-b border-[#e4e4e7] text-[10px] font-bold text-[#a1a1aa] uppercase tracking-wider">
+                    <th className="text-left py-3 px-5">Order</th>
+                    <th className="text-left py-3 px-5">Date</th>
+                    <th className="text-left py-3 px-5">Customer</th>
+                    <th className="text-right py-3 px-5">Total</th>
+                    <th className="text-left py-3 px-5">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentOrders.map((order: any) => (
+                    <tr key={order.id} className="border-t border-[#e4e4e7] hover:bg-[#fbfbf5]/40 transition-colors">
+                      <td className="py-3.5 px-5 font-bold text-[#000000]">
+                        <Link to={`/admin/orders`} className="hover:underline">#{order.id}</Link>
+                      </td>
+                      <td className="py-3.5 px-5 text-[#52525b]">{formatDate(order.orderDate)}</td>
+                      <td className="py-3.5 px-5 text-[#000000] truncate max-w-[150px]">
+                        {order.data?.email || order.user?.email || "Guest"}
+                      </td>
+                      <td className="py-3.5 px-5 text-right font-semibold">Rs.{Math.round(order.subtotal + storeShippingFee).toLocaleString()}</td>
+                      <td className="py-3.5 px-5">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
+                          order.orderStatus === "Processing" ? "bg-amber-50 text-amber-700 border-amber-200" :
+                          order.orderStatus === "Shipped" ? "bg-blue-50 text-blue-700 border-blue-200" :
+                          order.orderStatus === "Delivered" ? "bg-[#d4f9e0] text-[#008060] border-[#c1fbd4]" :
+                          "bg-gray-50 text-gray-500 border-gray-200"
+                        }`}>
+                          {order.orderStatus}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Low Stock Alerts (Col-span 1) */}
+        <div className="lg:col-span-1 bg-white border border-[#e4e4e7] rounded-xl flex flex-col overflow-hidden shadow-[0_8px_8px_rgba(0,0,0,0.01),0_4px_4px_rgba(0,0,0,0.01),0_2px_2px_rgba(0,0,0,0.01),0_0_0_1px_rgba(0,0,0,0.03)]">
+          <div className="px-5 py-4 border-b border-[#e4e4e7] bg-[#fbfbf5] flex items-center justify-between">
+            <h2 className="text-[10px] font-bold text-[#000000] uppercase tracking-wider">Low Stock Alerts</h2>
+            {lowStockProducts.length > 0 && (
+              <span className="bg-[#fef2f2] text-[#dc2626] border border-[#fca5a5] text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase flex items-center gap-1 animate-pulse">
+                <HiOutlineExclamationTriangle />
+                {lowStockProducts.length} Alert
+              </span>
+            )}
+          </div>
+          <div className="p-4 space-y-3 flex-1 overflow-y-auto max-h-[300px] bg-white">
+            {lowStockProducts.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-center p-6 py-12">
+                <svg className="w-8 h-8 text-[#008060] mb-2" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+                </svg>
+                <p className="text-xs font-bold text-[#000000] uppercase tracking-wide">Inventory healthy</p>
+                <p className="text-[10px] text-[#71717a] mt-0.5">All products are well stocked.</p>
+              </div>
+            ) : (
+              lowStockProducts.map((p, idx) => (
+                <div key={idx} className="flex items-center justify-between p-2.5 border border-[#e4e4e7] rounded-xl bg-white shadow-sm hover:border-[#fca5a5] transition-colors">
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={`/assets/${p.image}`}
+                      alt={p.title}
+                      className="w-8 h-10 object-cover rounded border border-[#e4e4e7]"
+                      onError={(e) => { (e.target as HTMLImageElement).src = "/assets/product image 1.jpg"; }}
+                    />
+                    <div>
+                      <h4 className="text-xs font-semibold text-[#000000] truncate max-w-[120px]">{p.title}</h4>
+                      <p className="text-[10px] text-[#71717a]">{p.category}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[9px] font-bold text-[#dc2626] bg-[#fef2f2] px-2 py-1 rounded-full uppercase border border-[#fca5a5]">
+                      {p.stock} Left
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminDashboard;

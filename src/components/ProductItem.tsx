@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { toggleWishlist } from "../features/wishlist/wishlistSlice";
@@ -12,6 +13,8 @@ const ProductItem = ({
   price,
   popularity,
   stock,
+  compare_price,
+  additional_images,
 }: {
   id: string;
   image: string;
@@ -20,14 +23,17 @@ const ProductItem = ({
   price: number;
   popularity: number;
   stock: number;
+  compare_price?: number;
+  additional_images?: { pro_img2?: string; pro_img3?: string; pro_img4?: string; pro_img5?: string } | null;
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const hoverImage = additional_images?.pro_img2;
   const dispatch = useAppDispatch();
   const { wishlistItems } = useAppSelector((state) => state.wishlist);
   const isWishlisted = wishlistItems.some((item) => item.id === id);
 
-  // Simulate discount for SALE items (50% off for demo)
-  const originalPrice = price * 2;
-  const discountPercent = Math.round((1 - price / originalPrice) * 100);
+  const originalPrice = compare_price && compare_price > price ? compare_price : 0;
+  const discountPercent = originalPrice > 0 ? Math.round((1 - price / originalPrice) * 100) : 0;
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -42,7 +48,9 @@ const ProductItem = ({
 
   return (
     <div className="product-card group relative bg-canvas rounded-none">
-      <Link to={`/product/${id}`} className="block relative overflow-hidden bg-canvas-cream rounded-md">
+      <Link to={`/product/${id}`} className="block relative overflow-hidden bg-canvas-cream rounded-md"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}>
         {/* Wishlist Heart */}
         <button
           onClick={handleWishlistToggle}
@@ -63,15 +71,15 @@ const ProductItem = ({
           </div>
         )}
 
-        {/* Discount Badge — coral pill */}
-        {stock > 0 && discountPercent >= 30 && (
+        {/* Discount Badge */}
+        {stock > 0 && discountPercent > 0 && (
           <div className="absolute top-3 left-3 z-20 bg-primary text-on-primary text-caption uppercase tracking-tracked font-medium px-3 py-1 rounded-pill">
             {discountPercent}% OFF
           </div>
         )}
 
         <img
-          src={`/assets/${image}`}
+          src={`/assets/${hoverImage && isHovered ? hoverImage : image}`}
           alt={title}
           className={`w-full aspect-[3/4] object-cover transition-transform duration-500 group-hover:scale-105 rounded-md ${stock === 0 ? "opacity-60 grayscale-[30%]" : ""}`}
         />
@@ -80,7 +88,6 @@ const ProductItem = ({
         </div>
       </Link>
       <div className="mt-3 text-left px-0">
-        {/* Category caption — grey */}
         <p className="text-product-caption text-shade-50 uppercase tracking-tracked-wide mb-1">
           {_category}
         </p>
@@ -89,15 +96,16 @@ const ProductItem = ({
             {title}
           </h3>
         </Link>
-        {/* Price row: strike + current + badge */}
         <div className="flex items-center gap-2 mt-1.5">
-          <span className="text-price-strike text-price-strike line-through">
-            PKR {originalPrice.toLocaleString()}
-          </span>
+          {originalPrice > 0 && (
+            <span className="text-price-strike text-price-strike line-through">
+              PKR {originalPrice.toLocaleString()}
+            </span>
+          )}
           <span className="text-price-current text-ink">
             PKR {price.toLocaleString()}
           </span>
-          {stock > 0 && discountPercent >= 30 && (
+          {stock > 0 && discountPercent > 0 && (
             <span className="bg-primary text-on-primary text-caption uppercase tracking-tracked font-medium px-2 py-0.5 rounded-pill">
               {discountPercent}% OFF
             </span>

@@ -13,7 +13,6 @@ const fallbackCategories = [
   { title: "Ready To Wear", image: "product image 5.jpg", link: "ready-to-wear" },
   { title: "Bridals", image: "product image 7.jpg", link: "bridals" },
   { title: "Jewellery", image: "product image 9.jpg", link: "jewellery" },
-  { title: "Special Prices", image: "product image 11.jpg", link: "special-prices" },
 ];
 
 const imagePool = [
@@ -27,22 +26,22 @@ const CategoriesSection = ({ themeSettings }: CategoriesSectionProps) => {
   const title = themeSettings?.categories_section?.title || "Shop By Category";
 
   useEffect(() => {
-    const fetchNavItems = async () => {
+    const fetchCategories = async () => {
       try {
-        const res = await customFetch.get("/nav-items");
+        const res = await customFetch.get("/categories");
         const data = res.data;
         if (Array.isArray(data) && data.length > 0) {
           setCategories(data.map((item: any, idx: number) => ({
-            title: item.label,
-            image: imagePool[idx % imagePool.length],
-            link: item.slug,
+            title: item.cat_title || item.title,
+            image: item.cat_img || imagePool[idx % imagePool.length],
+            link: item.handle || item.cat_title?.toLowerCase().replace(/\s+/g, "-"),
           })));
         }
       } catch {
         // use fallback
       }
     };
-    fetchNavItems();
+    fetchCategories();
   }, []);
 
   return (

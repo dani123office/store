@@ -11,7 +11,7 @@ const AdminCustomers = () => {
     const fetchCustomers = async () => {
       try {
         const res = await customFetch.get("/users");
-        setCustomers(res.data);
+        setCustomers(Array.isArray(res.data) ? res.data : res.data?.data || []);
       } catch (e) { console.error(e); }
     };
     fetchCustomers();

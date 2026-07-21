@@ -14,9 +14,6 @@ class ProductController extends Controller
 {
     use ApiResponse;
 
-    /**
-     * Fetch paginated list of products with dynamic sorting, filtering, and version-based caching.
-     */
     public function index(Request $request)
     {
         $page = intval($request->input('page', 1));
@@ -24,55 +21,38 @@ class ProductController extends Controller
         $sortBy = $request->input('sort_by', 'created_at');
         $sortOrder = strtolower($request->input('sort_order', 'desc')) === 'asc' ? 'asc' : 'desc';
 
-        // Filters
         $categoryId = $request->input('category_id');
         $subcategoryId = $request->input('subcategory_id');
         $search = $request->input('search');
         $priceMin = $request->input('price_min');
         $priceMax = $request->input('price_max');
 
-        // Cache Versioning (Buster) Pattern:
-        // Incrementing this key invalidates all previous keys instantly across all cache drivers (File/Redis).
-        $cacheVersion = Cache::rememberForever('products_cache_version', fn () => 1);
+        $query = Product::with(['categoryRelation', 'subcategory', 'collections', 'colors', 'sizes', 'additionalImages']);
 
-        $filterHash = md5(json_encode([
-            $categoryId, $subcategoryId, $search, $priceMin, $priceMax
-        ]));
+        if ($categoryId) {
+            $query->where('category_id', $categoryId);
+        }
+        if ($subcategoryId) {
+            $query->where('subcategory_id', $subcategoryId);
+        }
+        if ($search) {
+            $query->where('title', 'like', "%{$search}%");
+        }
+        if ($priceMin !== null) {
+            $query->where('price', '>=', floatval($priceMin));
+        }
+        if ($priceMax !== null) {
+            $query->where('price', '<=', floatval($priceMax));
+        }
 
-        $cacheKey = "products:v{$cacheVersion}:page_{$page}:limit_{$limit}:sort_{$sortBy}_{$sortOrder}:filters_{$filterHash}";
+        $allowedSorts = ['price', 'popularity', 'created_at', 'stock'];
+        if (in_array($sortBy, $allowedSorts)) {
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
 
-        $paginatedProducts = Cache::remember($cacheKey, 3600, function () use (
-            $categoryId, $subcategoryId, $search, $priceMin, $priceMax, $sortBy, $sortOrder, $limit
-        ) {
-            $query = Product::with(['categoryRelation', 'subcategory', 'collections', 'colors', 'sizes', 'additionalImages']);
-
-            // Apply filters
-            if ($categoryId) {
-                $query->where('category_id', $categoryId);
-            }
-            if ($subcategoryId) {
-                $query->where('subcategory_id', $subcategoryId);
-            }
-            if ($search) {
-                $query->where('title', 'like', "%{$search}%");
-            }
-            if ($priceMin !== null) {
-                $query->where('price', '>=', floatval($priceMin));
-            }
-            if ($priceMax !== null) {
-                $query->where('price', '<=', floatval($priceMax));
-            }
-
-            // Validate and apply sorting
-            $allowedSorts = ['price', 'popularity', 'created_at', 'stock'];
-            if (in_array($sortBy, $allowedSorts)) {
-                $query->orderBy($sortBy, $sortOrder);
-            } else {
-                $query->orderBy('created_at', 'desc');
-            }
-
-            return $query->paginate($limit);
-        });
+        $paginatedProducts = $query->paginate($limit);
 
         return $this->paginatedResponse($paginatedProducts, 'Products list fetched successfully.');
     }
@@ -94,7 +74,6 @@ class ProductController extends Controller
             $product->collections()->sync($request->input('collection_ids'));
         }
 
-        // Save nested Colors relation
         if ($request->has('colors')) {
             $colorsArray = $request->input('colors', []);
             $colorsData = [
@@ -108,7 +87,6 @@ class ProductController extends Controller
             $product->colors()->updateOrCreate(['pro_id' => $product->id], $colorsData);
         }
 
-        // Save nested Sizes relation
         if ($request->has('sizes')) {
             $sizesArray = $request->input('sizes', []);
             $sizesData = [
@@ -122,7 +100,6 @@ class ProductController extends Controller
             $product->sizes()->updateOrCreate(['pro_id' => $product->id], $sizesData);
         }
 
-        // Save nested Gallery Images relation
         if ($request->has('additional_images')) {
             $imagesArray = $request->input('additional_images', []);
             $imagesData = [
@@ -134,7 +111,7 @@ class ProductController extends Controller
             $product->additionalImages()->updateOrCreate(['pro_id' => $product->id], $imagesData);
         }
 
-        $this->clearProductCache(); // Cache bust
+        $this->clearProductCache();
 
         return $this->successResponse(
             $product->load(['categoryRelation', 'subcategory', 'collections', 'colors', 'sizes', 'additionalImages']),
@@ -168,7 +145,6 @@ class ProductController extends Controller
             $product->collections()->sync([]);
         }
 
-        // Save nested Colors relation
         if ($request->has('colors')) {
             $colorsArray = $request->input('colors', []);
             $colorsData = [
@@ -182,7 +158,6 @@ class ProductController extends Controller
             $product->colors()->updateOrCreate(['pro_id' => $product->id], $colorsData);
         }
 
-        // Save nested Sizes relation
         if ($request->has('sizes')) {
             $sizesArray = $request->input('sizes', []);
             $sizesData = [
@@ -196,7 +171,6 @@ class ProductController extends Controller
             $product->sizes()->updateOrCreate(['pro_id' => $product->id], $sizesData);
         }
 
-        // Save nested Gallery Images relation
         if ($request->has('additional_images')) {
             $imagesArray = $request->input('additional_images', []);
             $imagesData = [
@@ -208,7 +182,7 @@ class ProductController extends Controller
             $product->additionalImages()->updateOrCreate(['pro_id' => $product->id], $imagesData);
         }
 
-        $this->clearProductCache(); // Cache bust
+        $this->clearProductCache();
 
         return $this->successResponse(
             $product->load(['categoryRelation', 'subcategory', 'collections', 'colors', 'sizes', 'additionalImages']),
@@ -219,13 +193,10 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $product->delete();
-        $this->clearProductCache(); // Cache bust
+        $this->clearProductCache();
         return $this->successResponse(null, 'Product deleted successfully.');
     }
 
-    /**
-     * Cache Busting: Increment the version key to immediately render all cached product listing pages stale.
-     */
     protected function clearProductCache(): void
     {
         try {

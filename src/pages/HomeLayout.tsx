@@ -12,8 +12,10 @@ interface Slide {
   title: string;
   subtitle: string;
   image: string;
+  image_mobile?: string;
   btn_text: string;
   btn_link: string;
+  overlay_opacity?: number;
 }
 
 interface CollectionTab {

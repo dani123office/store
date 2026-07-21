@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <!-- Home Page -->
+    <url>
+        <loc>https://zarkacouture.com/</loc>
+        <lastmod>2026-07-15</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- Main Collections / Shop -->
+    <url>
+        <loc>https://zarkacouture.com/shop</loc>
+        <lastmod>2026-07-15</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- Unstitched Category -->
+    <url>
+        <loc>https://zarkacouture.com/shop/unstitched</loc>
+        <lastmod>2026-07-15</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Ready to Wear Category -->
+    <url>
+        <loc>https://zarkacouture.com/shop/ready-to-wear</loc>
+        <lastmod>2026-07-15</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Bridals Category -->
+    <url>
+        <loc>https://zarkacouture.com/shop/bridals</loc>
+        <lastmod>2026-07-15</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Jewellery Category -->
+    <url>
+        <loc>https://zarkacouture.com/shop/jewellery</loc>
+        <lastmod>2026-07-15</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    <!-- Special Prices Category -->
+    <url>
+        <loc>https://zarkacouture.com/shop/special-prices</loc>
+        <lastmod>2026-07-15</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    <!-- About Us Page -->
+    <url>
+        <loc>https://zarkacouture.com/about-us</loc>
+        <lastmod>2026-07-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
+    </url>
+
+    <!-- Contact Us Page -->
+    <url>
+        <loc>https://zarkacouture.com/contact-us</loc>
+        <lastmod>2026-07-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
+    </url>
+</urlset>

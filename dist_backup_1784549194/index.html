@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ZARKA COUTURE — Luxury Designer Dresses</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
+      rel="stylesheet"
+    />
+    <meta name="description" content="ZARKA COUTURE — Premium luxury designer dresses, unstitched, ready to wear, bridals & jewellery. Free shipping nationwide." />
+    
+    <!-- Lottie Web Player Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <style>
+      #preloader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #DCD7CB;
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.8s ease-out; /* Smooth fade-out */
+      }
+
+      #preloader-lottie {
+        width: 320px; /* Size of the premium Lottie animation */
+        height: 320px;
+      }
+
+      /* Class added by JavaScript to hide the preloader */
+      .preloader-hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
+
+    <script type="module" crossorigin src="/assets/index-D-e2_Qmc.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CB6So2oV.css">
+  </head>
+  <body style="background-color:#ffffff">
+
+    <div id="preloader">
+      <div id="preloader-lottie"></div>
+    </div>
+
+    <div id="root"></div>
+
+    <script>
+      window.addEventListener('DOMContentLoaded', function() {
+        const preloader = document.getElementById('preloader');
+        const lottieContainer = document.getElementById('preloader-lottie');
+        
+        // Load the Lottie animation
+        if (lottieContainer) {
+          lottie.loadAnimation({
+            container: lottieContainer,
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: '/preloader.json'
+          });
+        }
+
+        const startTime = Date.now();
+        const minTime = 1200; // Minimum 1.2s to appreciate the Lottie animation
+        const maxTime = 6000; // Maximum 6s fallback in case of slow assets or failures
+
+        function checkAssetsLoaded() {
+          const elapsed = Date.now() - startTime;
+          
+          // Fallback timeout exceeded: clear the preloader
+          if (elapsed >= maxTime) {
+            hidePreloader();
+            return;
+          }
+
+          const root = document.getElementById('root');
+          if (root && root.children.length > 0) {
+            const images = root.getElementsByTagName('img');
+            
+            if (images.length > 0) {
+              let allComplete = true;
+              for (let i = 0; i < images.length; i++) {
+                if (!images[i].complete) {
+                  allComplete = false;
+                  break;
+                }
+              }
+              
+              // If all images are completed and minimum display time elapsed
+              if (allComplete && elapsed >= minTime) {
+                hidePreloader();
+                return;
+              }
+            } else {
+              // React is loaded but there are no images yet (or page doesn't have images)
+              if (elapsed >= minTime) {
+                hidePreloader();
+                return;
+              }
+            }
+          }
+
+          // Check again in 100ms
+          setTimeout(checkAssetsLoaded, 100);
+        }
+
+        function hidePreloader() {
+          if (preloader && !preloader.classList.contains('preloader-hidden')) {
+            preloader.classList.add('preloader-hidden');
+            setTimeout(function() {
+              preloader.remove();
+            }, 800);
+          }
+        }
+
+        // Start checking image/DOM load states
+        setTimeout(checkAssetsLoaded, 100);
+      });
+    </script>
+  </body>
+</html>

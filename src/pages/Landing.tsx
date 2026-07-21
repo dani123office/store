@@ -39,8 +39,8 @@ const Landing = () => {
     const fetchTrending = async () => {
       try {
         const res = await customFetch.get("/products");
-        if (res.data) {
-          const sorted = [...res.data].sort(
+        if (res.data?.data) {
+          const sorted = [...res.data.data].sort(
             (a: Product, b: Product) => b.popularity - a.popularity
           );
           const limit = activeSettings.trending_products?.limit || 5;

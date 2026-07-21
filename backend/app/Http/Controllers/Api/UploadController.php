@@ -17,14 +17,18 @@ class UploadController extends Controller
         $file = $request->file('file');
         $extension = $file->getClientOriginalExtension();
         $filename = Str::uuid() . '.' . $extension;
-        
-        $backendPath = public_path('assets');
-        $file->move($backendPath, $filename);
 
-        // Also save to frontend's public/assets directory if it exists and is writable
+        // Store in storage/app/public/assets (persistent - volume mounted to host)
+        $assetsPath = storage_path('app/public/assets');
+        if (!is_dir($assetsPath)) {
+            mkdir($assetsPath, 0755, true);
+        }
+        $file->move($assetsPath, $filename);
+
+        // Also save to frontend's public/assets directory for direct nginx serving
         $frontendPath = base_path('../public/assets');
         if (is_dir($frontendPath)) {
-            $sourceFile = $backendPath . '/' . $filename;
+            $sourceFile = $assetsPath . '/' . $filename;
             $destFile = $frontendPath . '/' . $filename;
             if (file_exists($sourceFile) && is_writable($frontendPath)) {
                 @copy($sourceFile, $destFile);
@@ -37,3 +41,4 @@ class UploadController extends Controller
         ]);
     }
 }
+

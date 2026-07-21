@@ -7,13 +7,53 @@ import SearchModal from "./SearchModal";
 import { motion } from "framer-motion";
 import customFetch from "../axios/custom";
 
-const defaultNavItems = [
-  { label: "New Arrivals", path: "/shop/new-arrivals" },
-  { label: "Unstitched", path: "/shop/unstitched" },
-  { label: "Ready To Wear", path: "/shop/ready-to-wear" },
-  { label: "Bridals", path: "/shop/bridals" },
-  { label: "Jewellery", path: "/shop/jewellery" },
-  { label: "SALE", path: "/shop/special-prices", sale: true },
+interface NavItemType {
+  label: string;
+  path: string;
+  subcategories?: any[];
+  sale?: boolean;
+}
+
+const defaultNavItems: NavItemType[] = [
+  {
+    label: "New Arrivals",
+    path: "/shop/new-arrivals",
+    subcategories: [
+      { subcat_id: "na1", subcat_title: "Summer Collection", handle: "summer-collection" },
+      { subcat_id: "na2", subcat_title: "Winter Collection", handle: "winter-collection" },
+      { subcat_id: "na3", subcat_title: "Trendy Styles", handle: "trendy-styles" },
+    ],
+  },
+  {
+    label: "Collections",
+    path: "/shop/collections",
+    subcategories: [
+      { subcat_id: "c1", subcat_title: "Bridal Collection", handle: "bridal-collection" },
+      { subcat_id: "c2", subcat_title: "Luxury Collection", handle: "luxury-collection" },
+      { subcat_id: "c3", subcat_title: "Pret Collection", handle: "pret-collection" },
+      { subcat_id: "c4", subcat_title: "Signature Collection", handle: "signature-collection" },
+    ],
+  },
+  {
+    label: "Unstitched",
+    path: "/shop/unstitched",
+    subcategories: [
+      { subcat_id: "u1", subcat_title: "Lawn", handle: "lawn" },
+      { subcat_id: "u2", subcat_title: "Cotton", handle: "cotton" },
+      { subcat_id: "u3", subcat_title: "Silk", handle: "silk" },
+      { subcat_id: "u4", subcat_title: "Chiffon", handle: "chiffon" },
+    ],
+  },
+  {
+    label: "Stitched",
+    path: "/shop/stitched",
+    subcategories: [
+      { subcat_id: "s1", subcat_title: "Ready to Wear", handle: "ready-to-wear" },
+      { subcat_id: "s2", subcat_title: "Formal Wear", handle: "formal-wear" },
+      { subcat_id: "s3", subcat_title: "Casual Wear", handle: "casual-wear" },
+      { subcat_id: "s4", subcat_title: "Party Wear", handle: "party-wear" },
+    ],
+  },
 ];
 
 interface HeaderProps {
@@ -23,29 +63,29 @@ interface HeaderProps {
 const Header = ({ logoText }: HeaderProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [navItems, setNavItems] = useState(defaultNavItems);
+  const [navItems, setNavItems] = useState<NavItemType[]>(defaultNavItems);
   const { wishlistItems } = useAppSelector((state) => state.wishlist);
   const { productsInCart } = useAppSelector((state) => state.cart);
   
   const cartItemsCount = productsInCart.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
-    const fetchNavItems = async () => {
+    const fetchCategories = async () => {
       try {
-        const res = await customFetch.get("/nav-items");
+        const res = await customFetch.get("/categories");
         const data = res.data;
         if (Array.isArray(data) && data.length > 0) {
           setNavItems(data.map((item: any) => ({
-            label: item.label,
-            path: `/shop/${item.slug}`,
-            sale: item.label.toLowerCase().includes("sale") || item.label.toLowerCase().includes("special"),
+            label: item.cat_title || item.title,
+            path: `/shop/${item.handle || item.cat_title?.toLowerCase().replace(/\s+/g, "-")}`,
+            subcategories: item.subcategories || [],
           })));
         }
       } catch (e) {
-        console.warn("Failed to fetch nav items, using defaults", e);
+        console.warn("Failed to fetch categories for nav, using defaults", e);
       }
     };
-    fetchNavItems();
+    fetchCategories();
   }, []);
 
   return (
@@ -69,15 +109,34 @@ const Header = ({ logoText }: HeaderProps) => {
             {/* Desktop navigation */}
             <nav className="hidden lg:flex items-center gap-8">
               {navItems.map((item) => (
-                <Link
-                  key={item.label}
-                  to={item.path}
-                  className={`text-nav-label uppercase tracking-tracked font-medium hover:opacity-60 transition-opacity ${
-                    item.sale ? "!text-primary" : "text-ink"
-                  }`}
-                >
-                  {item.label}
-                </Link>
+                <div key={item.label} className="relative group py-2">
+                  <Link
+                    to={item.path}
+                    className={`text-nav-label uppercase tracking-tracked font-medium hover:opacity-60 transition-opacity flex items-center gap-1 ${
+                      item.sale ? "!text-primary" : "text-ink"
+                    }`}
+                  >
+                    {item.label}
+                    {item.subcategories && item.subcategories.length > 0 && (
+                      <svg className="w-3 h-3 opacity-70 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    )}
+                  </Link>
+                  {item.subcategories && item.subcategories.length > 0 && (
+                    <div className="absolute left-0 mt-1 w-56 bg-white border border-[#e4e4e7]/60 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.05),0_4px_6px_-2px_rgba(0,0,0,0.02)] rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2.5">
+                      {item.subcategories.map((sub: any) => (
+                        <Link
+                          key={sub.subcat_id}
+                          to={`/shop/${sub.handle || sub.subcat_title?.toLowerCase().replace(/\s+/g, "-")}`}
+                          className="block px-5 py-2 text-[11px] font-semibold text-[#52525b] hover:bg-[#fbfbf5] hover:text-[#000000] transition-colors uppercase tracking-wider"
+                        >
+                          {sub.subcat_title}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </nav>
 

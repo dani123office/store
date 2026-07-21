@@ -39,7 +39,7 @@ const ProductGridWrapper = ({
   const fetchAndFilterProducts = useCallback(async () => {
     try {
       const response = await customFetch("/products");
-      const allProducts = response.data || [];
+      const allProducts = response.data.data || [];
 
       // Dynamically simulate colors/sizes variants per product for search-params match
       let processed = allProducts.map((p: Product) => {

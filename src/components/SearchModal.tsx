@@ -14,9 +14,25 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [suggestedCategories, setSuggestedCategories] = useState<string[]>([]);
   
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await customFetch.get("/categories");
+        const data = res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          setSuggestedCategories(data.map((item: any) => item.cat_title || item.title));
+        }
+      } catch {
+        setSuggestedCategories(["Unstitched", "Ready To Wear", "Bridals", "Jewellery"]);
+      }
+    };
+    if (isOpen) fetchCategories();
+  }, [isOpen]);
 
   useEffect(() => {
     const stored = localStorage.getItem("zarka_recent_searches");
@@ -49,8 +65,8 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     const delayDebounce = setTimeout(async () => {
       try {
         const res = await customFetch.get(`/products`);
-        if (res.data) {
-          const filtered = res.data.filter((p: Product) =>
+        if (res.data?.data) {
+          const filtered = res.data.data.filter((p: Product) =>
             p.title.toLowerCase().includes(query.toLowerCase()) ||
             p.category.toLowerCase().includes(query.toLowerCase())
           );
@@ -154,7 +170,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                   Suggested Categories
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {["Unstitched", "Ready To Wear", "Bridals", "Jewellery"].map((cat) => (
+                  {suggestedCategories.map((cat) => (
                     <button
                       key={cat}
                       onClick={() => {

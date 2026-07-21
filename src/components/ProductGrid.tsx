@@ -28,6 +28,8 @@ const ProductGrid = ({ products, className = "collection-grid" }: ProductGridPro
           price={product.price}
           popularity={product.popularity}
           stock={product.stock}
+          compare_price={product.compare_price}
+          additional_images={product.additional_images}
         />
       ))}
     </div>

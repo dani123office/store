@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ProductGrid from "./ProductGrid";
 import ProductGridWrapper from "./ProductGridWrapper";
 import { ThemeSettings } from "../pages/HomeLayout";
+import customFetch from "../axios/custom";
 
 interface HomeCollectionSectionProps {
   themeSettings: ThemeSettings;
@@ -10,12 +11,48 @@ interface HomeCollectionSectionProps {
 
 const HomeCollectionSection = ({ themeSettings }: HomeCollectionSectionProps) => {
   const [activeTabIdx, setActiveTabIdx] = useState(0);
+  const [categoryTabs, setCategoryTabs] = useState<{ label: string; category: string }[]>([]);
 
   const title = themeSettings.featured_collections?.title || "Featured Collections";
-  const tabs = themeSettings.featured_collections?.tabs || [];
+  const settingsTabs = themeSettings.featured_collections?.tabs || [];
+  const tabs = categoryTabs.length > 0 ? categoryTabs : settingsTabs;
 
   const activeTab = tabs[activeTabIdx];
   const activeCategory = activeTab?.category || "all";
+
+  useEffect(() => {
+    const fetchCollections = async () => {
+      try {
+        const res = await customFetch.get("/collections");
+        const data = res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          const selectedHandles = settingsTabs.map((t) => t.category);
+          const byHandle: Record<string, any> = {};
+          data.forEach((item: any) => {
+            const h = item.handle || item.title?.toLowerCase().replace(/\s+/g, "-");
+            byHandle[h] = item;
+          });
+          if (selectedHandles.length > 0) {
+            const mapped = selectedHandles
+              .map((h) => byHandle[h])
+              .filter(Boolean)
+              .map((item: any) => ({
+                label: item.title,
+                category: item.handle || item.title?.toLowerCase().replace(/\s+/g, "-"),
+              }));
+            if (mapped.length > 0) { setCategoryTabs(mapped); return; }
+          }
+          setCategoryTabs(data.map((item: any) => ({
+            label: item.title || "Untitled",
+            category: item.handle || item.title?.toLowerCase().replace(/\s+/g, "-"),
+          })));
+        }
+      } catch {
+        // use theme settings tabs as fallback
+      }
+    };
+    fetchCollections();
+  }, []);
 
   return (
     <section className="max-w-screen-2xl mx-auto px-5 sm:px-8 mt-huge">

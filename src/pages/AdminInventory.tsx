@@ -40,7 +40,8 @@ const AdminInventory = () => {
     const fetchProducts = async () => {
       try {
         const res = await customFetch.get("/products");
-        const mapped: InventoryItem[] = res.data.map((p: Product) => ({
+        const mapped: InventoryItem[] = (res.data.data ?? []).map((p: Product) => ({
+
           id: p.id,
           product: p.title,
           variant: p.category.replace(/-/g, " "),

@@ -10,11 +10,12 @@ class MediaController extends Controller
 {
     public function index()
     {
-        $backendPath = public_path('assets');
+        // Primary: read from persistent storage (volume mounted to host)
+        $assetsPath = storage_path('app/public/assets');
         $media = [];
 
-        if (is_dir($backendPath)) {
-            $files = File::files($backendPath);
+        if (is_dir($assetsPath)) {
+            $files = File::files($assetsPath);
             foreach ($files as $file) {
                 $extension = strtolower($file->getExtension());
                 if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'])) {
@@ -25,6 +26,31 @@ class MediaController extends Controller
                         'size' => $this->formatBytes($file->getSize()),
                         'time' => $file->getMTime(),
                     ];
+                }
+            }
+        }
+
+        // Fallback: also read from backend's public/assets
+        $backendPath = public_path('assets');
+        if (is_dir($backendPath)) {
+            $files = File::files($backendPath);
+            foreach ($files as $file) {
+                $extension = strtolower($file->getExtension());
+                if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'])) {
+                    $name = $file->getFilename();
+                    $exists = false;
+                    foreach ($media as $m) {
+                        if ($m['name'] === $name) { $exists = true; break; }
+                    }
+                    if (!$exists) {
+                        $media[] = [
+                            'id' => md5($name),
+                            'name' => $name,
+                            'url' => '/assets/' . $name,
+                            'size' => $this->formatBytes($file->getSize()),
+                            'time' => $file->getMTime(),
+                        ];
+                    }
                 }
             }
         }
@@ -51,19 +77,17 @@ class MediaController extends Controller
             return response()->json(['message' => 'System assets cannot be deleted.'], 403);
         }
 
+        $persistentFile = storage_path('app/public/assets/' . $filename);
         $backendFile = public_path('assets/' . $filename);
         $frontendFile = base_path('../public/assets/' . $filename);
 
         $deleted = false;
 
-        if (File::exists($backendFile)) {
-            File::delete($backendFile);
-            $deleted = true;
-        }
-
-        if (File::exists($frontendFile)) {
-            File::delete($frontendFile);
-            $deleted = true;
+        foreach ([$persistentFile, $backendFile, $frontendFile] as $path) {
+            if (File::exists($path)) {
+                File::delete($path);
+                $deleted = true;
+            }
         }
 
         if ($deleted) {
@@ -83,3 +107,4 @@ class MediaController extends Controller
         return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }
+

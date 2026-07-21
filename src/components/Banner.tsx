@@ -75,10 +75,16 @@ const Banner = ({ themeSettings }: BannerProps) => {
     >
       {slides.map((slide, index) => {
         const isActive = index === activeIndex;
-        const imageUrl = slide.image.startsWith("http") || slide.image.startsWith("/")
+
+        const desktopImage = slide.image.startsWith("http") || slide.image.startsWith("/")
           ? slide.image
           : `/assets/${slide.image}`;
-        const loaded = loadedImages.has(imageUrl);
+        const mobileImage = slide.image_mobile
+          ? (slide.image_mobile.startsWith("http") || slide.image_mobile.startsWith("/")
+            ? slide.image_mobile
+            : `/assets/${slide.image_mobile}`)
+          : desktopImage;
+        const loaded = loadedImages.has(desktopImage) && loadedImages.has(mobileImage);
 
         return (
           <div
@@ -93,43 +99,69 @@ const Banner = ({ themeSettings }: BannerProps) => {
               }`}
             >
               <img
-                src={imageUrl}
+                src={desktopImage}
                 alt=""
-                onLoad={() => onImageLoad(imageUrl)}
+                onLoad={() => onImageLoad(desktopImage)}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = "/assets/banner1.jpg";
-                  onImageLoad(imageUrl);
+                  onImageLoad(desktopImage);
                 }}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                className={`hidden md:block absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                  loaded ? "opacity-100" : "opacity-0"
+                }`}
+              />
+              <img
+                src={mobileImage}
+                alt=""
+                onLoad={() => onImageLoad(mobileImage)}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/assets/banner1.jpg";
+                  onImageLoad(mobileImage);
+                }}
+                className={`block md:hidden absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
                   loaded ? "opacity-100" : "opacity-0"
                 }`}
               />
               <div
                 className="absolute inset-0"
                 style={{
-                  background: `linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.15) 100%)`,
+                  background: `linear-gradient(0deg, rgba(0, 0, 0, ${(slide.overlay_opacity ?? 40) / 100}) 0%, rgba(0, 0, 0, ${((slide.overlay_opacity ?? 40) - 25) / 100}) 100%)`,
                 }}
               />
             </div>
 
-            <div className="relative z-20 px-8 text-center flex flex-col items-center max-w-3xl mx-5 animate-fade-in">
-              {/* Script subhead */}
-              <p className="text-script-lead text-white/90 mb-2">
-                {slide.subtitle}
-              </p>
-              {/* Display hero headline */}
-              <h2 className="text-display-hero text-white">
-                {slide.title}
-              </h2>
-              <div className="flex justify-center items-center gap-4 pt-6 flex-col sm:flex-row">
-                <Link
-                  to={slide.btn_link || "/shop"}
-                  className="bg-white text-ink text-button-label uppercase tracking-tracked font-semibold px-10 py-4 rounded-pill hover:bg-shade-20 transition-all duration-300"
-                >
-                  {slide.btn_text || "Shop Now"}
-                </Link>
+            {slide.btn_text ? (
+              <div className="relative z-20 px-8 text-center flex flex-col items-center max-w-3xl mx-5 animate-fade-in">
+                <p className="text-script-lead text-white/90 mb-2">
+                  {slide.subtitle}
+                </p>
+                <h2 className="text-display-hero text-white">
+                  {slide.title}
+                </h2>
+                <div className="flex justify-center items-center gap-4 pt-6 flex-col sm:flex-row">
+                  <Link
+                    to={slide.btn_link || "/shop"}
+                    className="bg-white text-ink text-button-label uppercase tracking-tracked font-semibold px-10 py-4 rounded-pill hover:bg-shade-20 transition-all duration-300"
+                  >
+                    {slide.btn_text}
+                  </Link>
+                </div>
               </div>
-            </div>
+            ) : (
+              <Link
+                to={slide.btn_link || "/shop"}
+                className="relative z-20 w-full h-full flex flex-col justify-center items-center px-8 text-center"
+              >
+                <div className="max-w-3xl mx-5 animate-fade-in">
+                  <p className="text-script-lead text-white/90 mb-2">
+                    {slide.subtitle}
+                  </p>
+                  <h2 className="text-display-hero text-white">
+                    {slide.title}
+                  </h2>
+                </div>
+              </Link>
+            )}
           </div>
         );
       })}

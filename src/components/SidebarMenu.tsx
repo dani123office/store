@@ -7,13 +7,53 @@ import { setLoginStatus } from "../features/auth/authSlice";
 import { store } from "../store";
 import customFetch from "../axios/custom";
 
-const defaultNavItems = [
-  { label: "New Arrivals", path: "/shop/new-arrivals" },
-  { label: "Unstitched", path: "/shop/unstitched" },
-  { label: "Ready To Wear", path: "/shop/ready-to-wear" },
-  { label: "Bridals", path: "/shop/bridals" },
-  { label: "Jewellery", path: "/shop/jewellery" },
-  { label: "SALE", path: "/shop/special-prices" },
+interface NavItemType {
+  label: string;
+  path: string;
+  subcategories?: any[];
+  sale?: boolean;
+}
+
+const defaultNavItems: NavItemType[] = [
+  {
+    label: "New Arrivals",
+    path: "/shop/new-arrivals",
+    subcategories: [
+      { subcat_id: "na1", subcat_title: "Summer Collection", handle: "summer-collection" },
+      { subcat_id: "na2", subcat_title: "Winter Collection", handle: "winter-collection" },
+      { subcat_id: "na3", subcat_title: "Trendy Styles", handle: "trendy-styles" },
+    ],
+  },
+  {
+    label: "Collections",
+    path: "/shop/collections",
+    subcategories: [
+      { subcat_id: "c1", subcat_title: "Bridal Collection", handle: "bridal-collection" },
+      { subcat_id: "c2", subcat_title: "Luxury Collection", handle: "luxury-collection" },
+      { subcat_id: "c3", subcat_title: "Pret Collection", handle: "pret-collection" },
+      { subcat_id: "c4", subcat_title: "Signature Collection", handle: "signature-collection" },
+    ],
+  },
+  {
+    label: "Unstitched",
+    path: "/shop/unstitched",
+    subcategories: [
+      { subcat_id: "u1", subcat_title: "Lawn", handle: "lawn" },
+      { subcat_id: "u2", subcat_title: "Cotton", handle: "cotton" },
+      { subcat_id: "u3", subcat_title: "Silk", handle: "silk" },
+      { subcat_id: "u4", subcat_title: "Chiffon", handle: "chiffon" },
+    ],
+  },
+  {
+    label: "Stitched",
+    path: "/shop/stitched",
+    subcategories: [
+      { subcat_id: "s1", subcat_title: "Ready to Wear", handle: "ready-to-wear" },
+      { subcat_id: "s2", subcat_title: "Formal Wear", handle: "formal-wear" },
+      { subcat_id: "s3", subcat_title: "Casual Wear", handle: "casual-wear" },
+      { subcat_id: "s4", subcat_title: "Party Wear", handle: "party-wear" },
+    ],
+  },
 ];
 
 const SidebarMenu = ({
@@ -24,7 +64,7 @@ const SidebarMenu = ({
   setIsSidebarOpen: (prev: boolean) => void;
 }) => {
   const [isAnimating, setIsAnimating] = useState(false);
-  const [navItems, setNavItems] = useState(defaultNavItems);
+  const [navItems, setNavItems] = useState<NavItemType[]>(defaultNavItems);
   const { loginStatus } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
 
@@ -38,21 +78,22 @@ const SidebarMenu = ({
   };
 
   useEffect(() => {
-    const fetchNavItems = async () => {
+    const fetchCategories = async () => {
       try {
-        const res = await customFetch.get("/nav-items");
+        const res = await customFetch.get("/categories");
         const data = res.data;
         if (Array.isArray(data) && data.length > 0) {
           setNavItems(data.map((item: any) => ({
-            label: item.label,
-            path: `/shop/${item.slug}`,
+            label: item.cat_title || item.title,
+            path: `/shop/${item.handle || item.cat_title?.toLowerCase().replace(/\s+/g, "-")}`,
+            subcategories: item.subcategories || [],
           })));
         }
       } catch (e) {
-        console.warn("Failed to fetch nav items for sidebar", e);
+        console.warn("Failed to fetch categories for sidebar", e);
       }
     };
-    fetchNavItems();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -105,14 +146,29 @@ const SidebarMenu = ({
               Home
             </Link>
             {navItems.map((item) => (
-              <Link
-                key={item.label}
-                to={item.path}
-                className="py-3 border-b border-hairline w-full block flex justify-center text-body-md uppercase tracking-tracked font-medium text-ink hover:bg-canvas-cream transition-colors"
-                onClick={() => setIsSidebarOpen(false)}
-              >
-                {item.label}
-              </Link>
+              <div key={item.label} className="w-full border-b border-hairline flex flex-col items-center">
+                <Link
+                  to={item.path}
+                  className="py-3 w-full block flex justify-center text-body-md uppercase tracking-tracked font-medium text-ink hover:bg-canvas-cream transition-colors"
+                  onClick={() => setIsSidebarOpen(false)}
+                >
+                  {item.label}
+                </Link>
+                {item.subcategories && item.subcategories.length > 0 && (
+                  <div className="flex flex-col items-center bg-[#fcfcf9] w-full py-1.5 border-t border-hairline/40">
+                    {item.subcategories.map((sub: any) => (
+                      <Link
+                        key={sub.subcat_id}
+                        to={`/shop/${sub.handle || sub.subcat_title?.toLowerCase().replace(/\s+/g, "-")}`}
+                        className="py-2 text-[11px] font-semibold text-[#52525b] hover:text-[#000000] uppercase tracking-wider block"
+                        onClick={() => setIsSidebarOpen(false)}
+                      >
+                        {sub.subcat_title}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
             <Link
               to="/search"

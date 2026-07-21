@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { useEffect } from "react";
 import { setLoginStatus } from "../features/auth/authSlice";
 import { store } from "../store";
+import { isTokenExpired } from "../utils/decodeJwt";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -24,8 +25,8 @@ const Login = () => {
       const user = response.data;
       toast.success("You logged in successfully");
       localStorage.setItem("user", JSON.stringify(user));
-      if (user && user.token) {
-        localStorage.setItem("token", user.token);
+      if (user && user.access_token) {
+        localStorage.setItem("token", user.access_token);
       }
       store.dispatch(setLoginStatus(true));
       navigate("/user-profile");
@@ -36,9 +37,15 @@ const Login = () => {
 
   useEffect(() => {
     const user = localStorage.getItem("user");
-    if (user) {
+    const token = localStorage.getItem("token");
+    if (user && token && !isTokenExpired(token)) {
       toast.success("You are already logged in");
       navigate("/user-profile");
+    } else if (user) {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("meta_connected");
+      store.dispatch(setLoginStatus(false));
     }
   }, [navigate]);
 

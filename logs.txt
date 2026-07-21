@@ -1,0 +1,7 @@
+=== DOCKER STATUS ===
+CONTAINER ID   IMAGE                  COMMAND                  CREATED        STATUS                  PORTS                                         NAMES
+2d25e4aff440   store-backend          "docker-php-entrypoi…"   1 second ago   Up Less than a second   0.0.0.0:8001->80/tcp, [::]:8001->80/tcp       store-backend-container
+7b7d52b170d9   rt-international-api   "uvicorn CallCenterA…"   4 days ago     Up 21 hours             0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp   rt-international-api-1
+1c635e4f0531   postgres:16-alpine     "docker-entrypoint.s…"   4 days ago     Up 21 hours             0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp   rt-international-db-1
+2a02afed7fc6   node:22-alpine         "docker-entrypoint.s…"   4 days ago     Exited (1) 4 days ago                                                 rt-international-frontend-1
+=== CONTAINER LOGS ===

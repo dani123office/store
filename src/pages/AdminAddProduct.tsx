@@ -52,7 +52,7 @@ const AdminAddProduct = () => {
       const res = await customFetch.get("/media");
       setMediaList(res.data || []);
     } catch {
-      toast.error("Failed to load media library");
+      console.warn("Media library unavailable (auth required)");
     } finally {
       setLoadingMedia(false);
     }
